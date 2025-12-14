@@ -2,7 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, BehaviorSubject, tap, catchError, throwError } from 'rxjs';
 import { Router } from '@angular/router';
-import { environment } from '../environments/environment';
+import { environment } from '../../environments/environment';
 import { LoginRequest, AuthResponse, User, JWTPayload } from '../models/types';
 import { UrlUtilsService } from './url-utils.service';
 import { LoggerService } from './logger.service';

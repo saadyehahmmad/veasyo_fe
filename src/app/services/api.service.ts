@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../environments/environment';
+import { environment } from '../../environments/environment';
 import { Table, TableQRCode, ServiceRequest, Tenant, User, RequestTypeConfig } from '../models/types';
 import { AuthService } from './auth.service';
 import { UrlUtilsService } from './url-utils.service';

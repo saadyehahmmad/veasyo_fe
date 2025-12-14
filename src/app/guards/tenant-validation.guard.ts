@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../environments/environment';
+import { environment } from '../../environments/environment';
 import { UrlUtilsService } from '../services/url-utils.service';
 import { LoggerService } from '../services/logger.service';
 import { AuthService } from '../services/auth.service';

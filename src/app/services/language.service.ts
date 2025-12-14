@@ -1,6 +1,6 @@
 import { Direction } from '@angular/cdk/bidi';
 import { inject, Injectable } from '@angular/core';
-import { environment } from '../environments/environment';
+import { environment } from '../../environments/environment';
 import { TranslateService } from '@ngx-translate/core';
 import { AppLanguages } from '../../../public/assets/locale.type';
 

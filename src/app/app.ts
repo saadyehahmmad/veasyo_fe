@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { LanguageService } from './services/language.service';
-import { environment } from './environments/environment';
+import { environment } from '../environments/environment';
 import { arabicLocal } from '../../public/assets/ar';
 import { englishLocal } from '../../public/assets/en';
 import { AppLanguages } from '../../public/assets/locale.type';

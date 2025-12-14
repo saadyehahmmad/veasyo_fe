@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
 import { Observable } from 'rxjs';
-import { environment } from '../environments/environment';
+import { environment } from '../../environments/environment';
 import { RequestType } from '../models/types';
 import { AuthService } from './auth.service';
 import { UrlUtilsService } from './url-utils.service';
