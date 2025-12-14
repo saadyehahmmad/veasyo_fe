@@ -10,8 +10,12 @@ export interface TenantBranding {
   primaryColor?: string;
   secondaryColor?: string;
   accentColor?: string;
-  backgroundColor?: string;
   textColor?: string;
+  languageColor?: string;
+  backgroundPattern?: string;
+  gradientStartColor?: string;
+  gradientEndColor?: string;
+  gradientDirection?: string;
   customCss?: string;
   theme?: any;
   facebookUrl?: string;
@@ -118,12 +122,15 @@ export class TenantThemeService {
     if (branding.accentColor) {
       root.style.setProperty('--tenant-accent-color', branding.accentColor);
     }
-    if (branding.backgroundColor) {
-      root.style.setProperty('--tenant-background-color', branding.backgroundColor);
-    }
     if (branding.textColor) {
       root.style.setProperty('--tenant-text-color', branding.textColor);
     }
+    if (branding.languageColor) {
+      root.style.setProperty('--tenant-language-color', branding.languageColor);
+    }
+
+    // Apply background and gradients
+    this._applyBackgroundAndGradient(branding);
 
     // Apply favicon if provided
     if (branding.faviconUrl) {
@@ -140,6 +147,74 @@ export class TenantThemeService {
   }
 
   /**
+   * Apply background patterns and gradients
+   */
+  private _applyBackgroundAndGradient(branding: TenantBranding): void {
+    const body = document.body;
+
+    // Remove existing background classes and styles
+    body.classList.remove('pattern-dots', 'pattern-stripes', 'pattern-waves', 'pattern-squares');
+    body.style.removeProperty('background');
+    body.style.removeProperty('background-image');
+    body.style.removeProperty('background-size');
+
+    // Apply gradient or solid background
+    const startColor = branding.gradientStartColor?.trim();
+    const endColor = branding.gradientEndColor?.trim();
+    let backgroundValue = '';
+    let backgroundSize = '';
+
+    if (startColor && endColor && startColor !== '' && endColor !== '') {
+      const direction = branding.gradientDirection || 'to right';
+      backgroundValue = `linear-gradient(${direction}, ${startColor}, ${endColor})`;
+    }
+
+    // Apply background pattern
+    if (branding.backgroundPattern && branding.backgroundPattern.trim() !== '') {
+      let patternImage = '';
+      let patternSize = '';
+
+      switch (branding.backgroundPattern) {
+        case 'dots':
+          patternImage = "radial-gradient(circle, rgba(0, 0, 0, 0.1) 1px, transparent 1px)";
+          patternSize = '20px 20px';
+          break;
+        case 'stripes':
+          patternImage = "repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.05) 0px, rgba(0, 0, 0, 0.05) 10px, transparent 10px, transparent 20px)";
+          break;
+        case 'waves':
+          patternImage = "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")";
+          break;
+        case 'squares':
+          patternImage = "linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px)";
+          patternSize = '20px 20px';
+          break;
+      }
+
+      if (backgroundValue && patternImage) {
+        // Combine gradient and pattern
+        backgroundValue += `, ${patternImage}`;
+        if (patternSize) {
+          backgroundSize = patternSize;
+        }
+      } else if (patternImage) {
+        // Only pattern
+        backgroundValue = patternImage;
+        if (patternSize) {
+          backgroundSize = patternSize;
+        }
+      }
+    }
+
+    if (backgroundValue) {
+      body.style.backgroundImage = backgroundValue;
+      if (backgroundSize) {
+        body.style.backgroundSize = backgroundSize;
+      }
+    }
+  }
+
+  /**
    * Apply default theme colors
    */
   private _applyDefaultTheme(): void {
@@ -147,8 +222,11 @@ export class TenantThemeService {
       primaryColor: '#667eea',
       secondaryColor: '#764ba2',
       accentColor: '#f093fb',
-      backgroundColor: '#ffffff',
       textColor: '#333333',
+      languageColor: '#333333',
+      gradientDirection: 'to right',
+      gradientStartColor: '#667eea',
+      gradientEndColor: '#764ba2',
     };
 
     this._currentBranding.set(defaultBranding);

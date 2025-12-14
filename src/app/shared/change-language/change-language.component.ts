@@ -17,7 +17,7 @@ export class ChangeLanguageComponent {
   _languageService = inject(LanguageService);
   _translate = inject(TranslateService);
 
-  color = input<'light' | 'dark'>('light');
+  color = input<string>('light');
 
   langChange = output<string>();
 

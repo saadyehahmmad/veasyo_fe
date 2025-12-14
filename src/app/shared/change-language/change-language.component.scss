@@ -72,4 +72,22 @@
       box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
     }
   }
+
+  &.custom {
+    color: var(--custom-color) !important;
+    background-color: rgba(0, 0, 0, 0.04);
+
+    .mat-icon {
+      color: var(--custom-color);
+    }
+
+    // Style the button text content
+    ::ng-deep {
+      color: var(--custom-color);
+    }
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.08);
+    }
+  }
 }

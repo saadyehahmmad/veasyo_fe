@@ -45,9 +45,19 @@ body {
   font-family: Roboto, 'Helvetica Neue', sans-serif;
 }
 
-// Apply Tajawal font for Arabic language
-html[dir='rtl'],
-html[lang='ar'],
+// Tenant branding custom properties
+:root {
+  --tenant-primary-color: #667eea;
+  --tenant-secondary-color: #764ba2;
+  --tenant-accent-color: #f093fb;
+  --tenant-text-color: #333333;
+  --tenant-language-color: #333333;
+}
+
+// Apply tenant branding
+body {
+  color: var(--tenant-text-color, #333333);
+}
 :lang(ar) {
   font-family: 'Tajawal', Roboto, 'Helvetica Neue', sans-serif;
 }
@@ -84,7 +94,6 @@ mat-icon,
   --tenant-primary-color: #667eea;
   --tenant-secondary-color: #764ba2;
   --tenant-accent-color: #f093fb;
-  --tenant-background-color: #ffffff;
   --tenant-text-color: #333333;
 }
 
@@ -202,3 +211,29 @@ mat-icon,
 /* 7-Segment Display Font for Calculator Timer */
 /* Using Orbitron from Google Fonts for digital calculator look */
 /* Orbitron provides a square/blocky digital appearance similar to 7-segment displays */
+
+/* Background Pattern Classes for Tenant Branding */
+.pattern-dots {
+  background-image: radial-gradient(circle, rgba(0, 0, 0, 0.1) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.pattern-stripes {
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(0, 0, 0, 0.05) 0px,
+    rgba(0, 0, 0, 0.05) 10px,
+    transparent 10px,
+    transparent 20px
+  );
+}
+
+.pattern-waves {
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+.pattern-squares {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+  background-size: 20px 20px;
+}

@@ -17,6 +17,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSelectModule } from '@angular/material/select';
 import { ApiService } from '../../../services/api.service';
 import { AuthService } from '../../../services/auth.service';
 import { TenantThemeService } from '../../../services/tenant-theme.service';
@@ -30,8 +31,12 @@ interface TenantBranding {
   primaryColor?: string;
   secondaryColor?: string;
   accentColor?: string;
-  backgroundColor?: string;
   textColor?: string;
+  languageColor?: string;
+  backgroundPattern?: string;
+  gradientStartColor?: string;
+  gradientEndColor?: string;
+  gradientDirection?: string;
   customCss?: string;
   facebookUrl?: string;
   instagramUrl?: string;
@@ -57,6 +62,7 @@ interface TenantBranding {
     MatProgressSpinnerModule,
     MatTabsModule,
     MatSlideToggleModule,
+    MatSelectModule,
     MatTooltipModule,
     TranslateModule,
   ],
@@ -71,8 +77,8 @@ export class TenantBrandingComponent implements OnInit {
     primaryColor: '#667eea',
     secondaryColor: '#764ba2',
     accentColor: '#f093fb',
-    backgroundColor: '#ffffff',
     textColor: '#333333',
+    languageColor: '#333333',
   });
 
   private _logger = inject(LoggerService);
@@ -92,8 +98,12 @@ export class TenantBrandingComponent implements OnInit {
       primaryColor: ['#667eea', Validators.required],
       secondaryColor: ['#764ba2', Validators.required],
       accentColor: ['#f093fb', Validators.required],
-      backgroundColor: ['#ffffff', Validators.required],
       textColor: ['#333333', Validators.required],
+      languageColor: ['#333333'],
+      backgroundPattern: [''],
+      gradientStartColor: ['#667eea'],
+      gradientEndColor: ['#764ba2'],
+      gradientDirection: ['to right'],
       customCss: [''],
       facebookUrl: [''],
       instagramUrl: [''],
@@ -146,8 +156,12 @@ export class TenantBrandingComponent implements OnInit {
           primaryColor: tenant.primaryColor || '#667eea',
           secondaryColor: tenant.secondaryColor || '#764ba2',
           accentColor: tenant.accentColor || '#f093fb',
-          backgroundColor: tenant.backgroundColor || '#ffffff',
           textColor: tenant.textColor || '#333333',
+          languageColor: tenant.languageColor || '#333333',
+          backgroundPattern: tenant.backgroundPattern || '',
+          gradientStartColor: tenant.gradientStartColor || '',
+          gradientEndColor: tenant.gradientEndColor || '',
+          gradientDirection: tenant.gradientDirection || 'to right',
           customCss: tenant.customCss || '',
           facebookUrl: tenant.facebookUrl || '',
           instagramUrl: tenant.instagramUrl || '',
@@ -232,8 +246,12 @@ export class TenantBrandingComponent implements OnInit {
       primaryColor: '#667eea',
       secondaryColor: '#764ba2',
       accentColor: '#f093fb',
-      backgroundColor: '#ffffff',
       textColor: '#333333',
+      languageColor: '#333333',
+      backgroundPattern: '',
+      gradientStartColor: '#667eea',
+      gradientEndColor: '#764ba2',
+      gradientDirection: 'to right',
     });
   }
 

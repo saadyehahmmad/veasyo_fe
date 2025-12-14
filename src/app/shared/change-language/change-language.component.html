@@ -1,7 +1,9 @@
 <button
   mat-button
   class="language-button"
-  [class.dark]="color() === 'dark'"
+  [class.dark]="color() === 'dark' || color() === '#333333'"
+  [class.custom]="color() !== 'light' && color() !== 'dark' && color() !== '#333333'"
+  [style.--custom-color]="color() !== 'light' && color() !== 'dark' && color() !== '#333333' ? color() : null"
   [title]="'Switch to ' + notCurrentLanguage()"
   (click)="switchLang()"
 >

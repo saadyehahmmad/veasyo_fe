@@ -75,22 +75,62 @@
                 </mat-form-field>
 
                 <mat-form-field appearance="outline">
-                  <mat-label>{{ 'admin.tenantBranding.backgroundColor' | translate }}</mat-label>
-                  <input matInput type="color" formControlName="backgroundColor" />
-                  <mat-hint>{{ 'admin.tenantBranding.backgroundColorHint' | translate }}</mat-hint>
-                </mat-form-field>
-
-                <mat-form-field appearance="outline">
                   <mat-label>{{ 'admin.tenantBranding.textColor' | translate }}</mat-label>
                   <input matInput type="color" formControlName="textColor" />
                   <mat-hint>{{ 'admin.tenantBranding.textColorHint' | translate }}</mat-hint>
                 </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'admin.tenantBranding.languageColor' | translate }}</mat-label>
+                  <input matInput type="color" formControlName="languageColor" />
+                  <mat-hint>{{ 'admin.tenantBranding.languageColorHint' | translate }}</mat-hint>
+                </mat-form-field>
               </div>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>{{ 'admin.tenantBranding.backgroundPattern' | translate }}</mat-label>
+                <mat-select formControlName="backgroundPattern">
+                  <mat-option value="">{{ 'admin.tenantBranding.none' | translate }}</mat-option>
+                  <mat-option value="dots">{{ 'admin.tenantBranding.dots' | translate }}</mat-option>
+                  <mat-option value="stripes">{{ 'admin.tenantBranding.stripes' | translate }}</mat-option>
+                  <mat-option value="waves">{{ 'admin.tenantBranding.waves' | translate }}</mat-option>
+                  <mat-option value="squares">{{ 'admin.tenantBranding.squares' | translate }}</mat-option>
+                </mat-select>
+                <mat-hint>{{ 'admin.tenantBranding.backgroundPatternHint' | translate }}</mat-hint>
+              </mat-form-field>
 
               <button mat-stroked-button type="button" (click)="resetToDefaults()">
                 <mat-icon>refresh</mat-icon>
                 {{ 'admin.tenantBranding.resetToDefaults' | translate }}
               </button>
+            </div>
+          </mat-tab>
+
+          <!-- Background Tab -->
+          <mat-tab [label]="'admin.tenantBranding.background' | translate">
+            <div class="tab-content">
+              <div class="gradient-colors">
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'admin.tenantBranding.gradientStartColor' | translate }}</mat-label>
+                  <input matInput type="color" formControlName="gradientStartColor" />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'admin.tenantBranding.gradientEndColor' | translate }}</mat-label>
+                  <input matInput type="color" formControlName="gradientEndColor" />
+                </mat-form-field>
+              </div>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>{{ 'admin.tenantBranding.gradientDirection' | translate }}</mat-label>
+                <mat-select formControlName="gradientDirection">
+                  <mat-option value="to right">{{ 'admin.tenantBranding.toRight' | translate }}</mat-option>
+                  <mat-option value="to left">{{ 'admin.tenantBranding.toLeft' | translate }}</mat-option>
+                  <mat-option value="to bottom">{{ 'admin.tenantBranding.toBottom' | translate }}</mat-option>
+                  <mat-option value="to top">{{ 'admin.tenantBranding.toTop' | translate }}</mat-option>
+                  <mat-option value="45deg">{{ 'admin.tenantBranding.diagonal' | translate }}</mat-option>
+                </mat-select>
+              </mat-form-field>
             </div>
           </mat-tab>
 
@@ -231,7 +271,6 @@
             <div class="tab-content">
               <div
                 class="preview-container"
-                [style.background]="previewColors().backgroundColor"
                 [style.color]="previewColors().textColor"
               >
                 <div class="preview-header" [style.background]="previewColors().primaryColor">

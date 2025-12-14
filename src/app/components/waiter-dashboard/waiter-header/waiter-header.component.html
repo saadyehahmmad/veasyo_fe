@@ -11,7 +11,7 @@
       <h1 class="restaurant-name">{{ branding()?.name || ('customer.restaurant' | translate) }}</h1>
     </div>
     <div class="header-right">
-      <app-change-language></app-change-language>
+      <app-change-language [color]="branding()?.languageColor || '#333333'"></app-change-language>
     </div>
   </div>
 </header>
