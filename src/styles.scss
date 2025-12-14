@@ -1,0 +1,204 @@
+// Include theming for Angular Material with `mat.theme()`.
+// This Sass mixin will define CSS variables that are used for styling Angular Material
+// components according to the Material 3 design spec.
+// Learn more about theming and how to use it for your application's
+// custom components at https://material.angular.dev/guide/theming
+@use '@angular/material' as mat;
+
+html {
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$azure-palette,
+        tertiary: mat.$blue-palette,
+      ),
+      typography: Roboto,
+      density: 0,
+    )
+  );
+}
+
+body {
+  // Default the application to a light color theme. This can be changed to
+  // `dark` to enable the dark color theme, or to `light dark` to defer to the
+  // user's system settings.
+  color-scheme: light;
+
+  // Set a default background, font and text colors for the application using
+  // Angular Material's system-level CSS variables. Learn more about these
+  // variables at https://material.angular.dev/guide/system-variables
+  background-color: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-medium);
+
+  // Reset the user agent margin.
+  margin: 0;
+}
+/* You can add global styles to this file, and also import other style files */
+
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+}
+
+// Apply Tajawal font for Arabic language
+html[dir='rtl'],
+html[lang='ar'],
+:lang(ar) {
+  font-family: 'Tajawal', Roboto, 'Helvetica Neue', sans-serif;
+}
+
+// Ensure all elements use Tajawal when in Arabic mode, except icons
+html[dir='rtl'] *,
+html[lang='ar'] * {
+  font-family: 'Tajawal', Roboto, 'Helvetica Neue', sans-serif;
+}
+
+// Material Icons must always use Material Icons font, regardless of language
+mat-icon,
+.material-icons,
+[class*='mat-icon'],
+.mdc-icon-button__icon {
+  font-family: 'Material Icons' !important;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  font-feature-settings: 'liga';
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Tenant Theme Custom Properties */
+:root {
+  --tenant-primary-color: #667eea;
+  --tenant-secondary-color: #764ba2;
+  --tenant-accent-color: #f093fb;
+  --tenant-background-color: #ffffff;
+  --tenant-text-color: #333333;
+}
+
+/* Optional: Apply tenant colors to specific elements */
+.tenant-primary-bg {
+  background-color: var(--tenant-primary-color) !important;
+}
+
+.tenant-secondary-bg {
+  background-color: var(--tenant-secondary-color) !important;
+}
+
+.tenant-accent-bg {
+  background-color: var(--tenant-accent-color) !important;
+}
+
+.tenant-primary-text {
+  color: var(--tenant-primary-color) !important;
+}
+
+.tenant-secondary-text {
+  color: var(--tenant-secondary-color) !important;
+}
+
+.dialog-container:lang(ar) {
+  direction: ltr;
+  text-align: start;
+
+  .mat-checkbox .mat-internal-form-field {
+    direction: ltr;
+  }
+}
+
+/* Snackbar Theme Styles */
+/* Apply tenant theme colors to snackbars */
+.tenant-themed-snackbar {
+  background: linear-gradient(
+    135deg,
+    var(--tenant-primary-color, #667eea) 0%,
+    var(--tenant-secondary-color, #764ba2) 100%
+  ) !important;
+  color: white !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+
+  // Action button styling
+  .mdc-snackbar__action {
+    color: white !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+  }
+}
+
+/* Success snackbar - uses primary color with slight variation */
+.success-snackbar {
+  background: linear-gradient(
+    135deg,
+    var(--tenant-primary-color, #667eea) 0%,
+    var(--tenant-primary-color, #667eea) 80%,
+    var(--tenant-secondary-color, #764ba2) 100%
+  ) !important;
+}
+
+/* Error snackbar - uses a darker, more prominent color */
+.error-snackbar {
+  background: linear-gradient(
+    135deg,
+    #d32f2f 0%,
+    #c62828 100%
+  ) !important;
+}
+
+/* Info snackbar - uses balanced blend of primary and secondary */
+.info-snackbar {
+  background: linear-gradient(
+    135deg,
+    var(--tenant-primary-color, #667eea) 0%,
+    var(--tenant-primary-color, #667eea) 50%,
+    var(--tenant-secondary-color, #764ba2) 100%
+  ) !important;
+}
+
+/* Warning snackbar - uses a warm color blend */
+.warning-snackbar {
+  background: linear-gradient(
+    135deg,
+    #f57c00 0%,
+    #ef6c00 100%
+  ) !important;
+}
+
+/* Legacy error snackbar class for backward compatibility */
+.error-snackbar,
+.error-snack {
+  background: linear-gradient(
+    135deg,
+    #d32f2f 0%,
+    #c62828 100%
+  ) !important;
+  color: white !important;
+}
+
+/* Legacy success snackbar class for backward compatibility */
+.success-snack {
+  background: linear-gradient(
+    135deg,
+    var(--tenant-primary-color, #667eea) 0%,
+    var(--tenant-secondary-color, #764ba2) 100%
+  ) !important;
+  color: white !important;
+}
+
+/* 7-Segment Display Font for Calculator Timer */
+/* Using Orbitron from Google Fonts for digital calculator look */
+/* Orbitron provides a square/blocky digital appearance similar to 7-segment displays */

@@ -1,0 +1,243 @@
+.integrations-container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 1rem;
+}
+
+mat-card {
+  mat-card-header {
+    mat-card-title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #333;
+
+      mat-icon {
+        color: #1976d2;
+      }
+    }
+
+    mat-card-subtitle {
+      margin-top: 0.5rem;
+      color: #666;
+    }
+  }
+
+  mat-card-content {
+    padding-top: 1rem;
+  }
+
+  mat-card-actions {
+    padding: 1rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
+
+    .action-buttons-group {
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+
+      .button-group {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+      }
+
+      button {
+        mat-spinner {
+          display: inline-block;
+          margin-right: 8px;
+        }
+      }
+    }
+  }
+}
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  gap: 1rem;
+  color: #666;
+
+  span {
+    font-size: 1rem;
+  }
+}
+
+.integrations-form {
+  mat-tab-group {
+    margin-top: 1rem;
+  }
+
+  .tab-content {
+    padding: 2rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .integration-form {
+    .integration-header {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      padding: 1rem;
+      background: #f5f5f5;
+      border-radius: 8px;
+      border: 1px solid #e0e0e0;
+      margin-bottom: 1.5rem;
+
+      mat-slide-toggle {
+        font-size: 1rem;
+        font-weight: 500;
+      }
+
+      .integration-description {
+        margin: 0;
+        font-size: 0.875rem;
+        color: #666;
+        line-height: 1.4;
+      }
+    }
+
+    .form-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+
+      .full-width {
+        width: 100%;
+      }
+
+      mat-slide-toggle {
+        margin-top: 0.5rem;
+      }
+
+      .toggle-hint {
+        margin: -0.5rem 0 0.5rem 0;
+        font-size: 0.75rem;
+        color: #666;
+        padding-left: 0.5rem;
+      }
+
+      .events-section {
+        margin-top: 1.5rem;
+        padding: 1.5rem;
+        background: #f9f9f9;
+        border-radius: 8px;
+        border: 1px solid #e0e0e0;
+
+        h3 {
+          margin: 0 0 0.5rem 0;
+          font-size: 1.1rem;
+          font-weight: 600;
+          color: #333;
+        }
+
+        .section-description {
+          margin: 0 0 1rem 0;
+          font-size: 0.875rem;
+          color: #666;
+        }
+
+        .event-checkboxes {
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+
+          .event-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+
+            mat-slide-toggle {
+              font-weight: 500;
+            }
+
+            .event-hint {
+              margin: 0 0 0 2.5rem;
+              font-size: 0.75rem;
+              color: #666;
+              line-height: 1.4;
+            }
+          }
+        }
+      }
+
+      .advanced-settings {
+        margin-top: 1.5rem;
+        padding: 1.5rem;
+        background: #f9f9f9;
+        border-radius: 8px;
+        border: 1px solid #e0e0e0;
+
+        h3 {
+          margin: 0 0 1rem 0;
+          font-size: 1.1rem;
+          font-weight: 600;
+          color: #333;
+        }
+      }
+
+      .receipt-preview-section {
+        margin-top: 2rem;
+        padding: 1.5rem;
+        background: #f9f9f9;
+        border-radius: 8px;
+        border: 1px solid #e0e0e0;
+
+        h3 {
+          margin: 0 0 0.5rem 0;
+          font-size: 1.1rem;
+          font-weight: 600;
+          color: #333;
+        }
+
+        .preview-description {
+          margin: 0 0 1rem 0;
+          font-size: 0.875rem;
+          color: #666;
+        }
+
+        .canvas-container {
+          display: flex;
+          justify-content: center;
+          padding: 1rem;
+          background: white;
+          border-radius: 4px;
+          border: 2px dashed #ccc;
+          overflow-x: auto;
+
+          .receipt-canvas {
+            border: 1px solid #ddd;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            max-width: 100%;
+            height: auto;
+          }
+        }
+      }
+
+      .tab-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(0, 0, 0, 0.12);
+        justify-content: flex-end;
+
+        button {
+          mat-spinner {
+            display: inline-block;
+            margin-right: 8px;
+          }
+        }
+      }
+    }
+  }
+}
+

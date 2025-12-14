@@ -1,0 +1,271 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>
+      <mat-icon>business</mat-icon>
+      Tenant Management
+    </mat-card-title>
+    <mat-card-subtitle> Manage system tenants, subscriptions, and limits </mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <!-- Loading Indicator -->
+    @if (isLoading()) {
+      <div class="loading-container">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p>Loading tenants...</p>
+      </div>
+    }
+
+    <!-- Error Message -->
+    @if (error()) {
+      <mat-card class="error-card">
+        <mat-card-content>
+          <mat-icon color="warn">error</mat-icon>
+          {{ error() }}
+          <button mat-button color="primary" (click)="loadTenants()">Retry</button>
+        </mat-card-content>
+      </mat-card>
+    }
+
+    <!-- Create/Edit Form -->
+    <mat-card class="form-card">
+      <mat-card-header>
+        <mat-card-title>
+          {{ editingTenant() ? 'Edit Tenant' : 'Create New Tenant' }}
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <form
+          [formGroup]="tenantForm"
+          (ngSubmit)="editingTenant() ? updateTenant() : createTenant()"
+        >
+          <div class="form-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>Tenant Name</mat-label>
+              <input matInput formControlName="name" placeholder="Enter tenant name" required />
+              @if (tenantForm.get('name')?.hasError('required')) {
+                <mat-error>
+                  Name is required
+                </mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Slug</mat-label>
+              <input matInput formControlName="slug" placeholder="tenant-slug" required />
+              <mat-hint>Used in URLs and API calls</mat-hint>
+              @if (tenantForm.get('slug')?.hasError('required')) {
+                <mat-error>
+                  Slug is required
+                </mat-error>
+              }
+              @if (tenantForm.get('slug')?.hasError('pattern')) {
+                <mat-error>
+                  Only lowercase letters, numbers, and hyphens allowed
+                </mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Subdomain URL</mat-label>
+              <input matInput [value]="getFullSubdomainURL()" readonly />
+              <mat-hint>Auto-generated from slug</mat-hint>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Plan</mat-label>
+              <mat-select formControlName="plan" required>
+                <mat-option value="free">Free Plan</mat-option>
+                <mat-option value="basic">Basic Plan</mat-option>
+                <mat-option value="premium">Premium Plan</mat-option>
+                <mat-option value="enterprise">Enterprise Plan</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Max Tables</mat-label>
+              <input matInput type="number" formControlName="maxTables" min="1" required />
+              @if (tenantForm.get('maxTables')?.hasError('min')) {
+                <mat-error>
+                  Must be at least 1
+                </mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Max Users</mat-label>
+              <input matInput type="number" formControlName="maxUsers" min="1" required />
+              @if (tenantForm.get('maxUsers')?.hasError('min')) {
+                <mat-error>
+                  Must be at least 1
+                </mat-error>
+              }
+            </mat-form-field>
+          </div>
+
+          <div class="form-actions">
+            <mat-slide-toggle formControlName="active">
+              <mat-icon>{{ tenantForm.get('active')?.value ? 'check_circle' : 'cancel' }}</mat-icon>
+              {{ tenantForm.get('active')?.value ? 'Active' : 'Inactive' }}
+            </mat-slide-toggle>
+
+            <div class="button-group">
+              <button
+                mat-raised-button
+                color="primary"
+                type="submit"
+                [disabled]="tenantForm.invalid || isLoading()"
+              >
+                <mat-icon>{{ editingTenant() ? 'save' : 'add' }}</mat-icon>
+                {{ editingTenant() ? 'Update' : 'Create' }} Tenant
+              </button>
+              @if (editingTenant()) {
+                <button mat-button type="button" (click)="cancelEdit()">
+                  <mat-icon>cancel</mat-icon>
+                  Cancel
+                </button>
+              }
+            </div>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Tenants Table -->
+    <mat-card class="table-card">
+      <mat-card-header>
+        <mat-card-title>All Tenants ({{ tenants().length }})</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="table-container">
+          <table mat-table [dataSource]="tenants()" class="mat-elevation-z2">
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef>Name</th>
+              <td mat-cell *matCellDef="let item">
+                <strong>{{ item.tenant.name }}</strong>
+                <br />
+                <small class="text-muted">{{ item.tenant.slug }}</small>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="subdomain">
+              <th mat-header-cell *matHeaderCellDef>Subdomain</th>
+              <td mat-cell *matCellDef="let item">
+                <code>{{ item.tenant.subdomain }}</code>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="plan">
+              <th mat-header-cell *matHeaderCellDef>Plan</th>
+              <td mat-cell *matCellDef="let item">
+                <div class="plan-icon" [matTooltip]="item.tenant.plan | titlecase">
+                  @if (item.tenant.plan === 'free') {
+                    <mat-icon>currency_exchange</mat-icon>
+                  } @else if (item.tenant.plan === 'basic') {
+                    <mat-icon>workspace_premium</mat-icon>
+                  } @else if (item.tenant.plan === 'premium') {
+                    <mat-icon>diamond</mat-icon>
+                  } @else {
+                    <mat-icon>stars</mat-icon>
+                  }
+                </div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="maxTables">
+              <th mat-header-cell *matHeaderCellDef>Limits</th>
+              <td mat-cell *matCellDef="let item">
+                <div class="limits-info">
+                  <span><mat-icon>table_restaurant</mat-icon> {{ item.tenant.maxTables }}</span>
+                  <span><mat-icon>group</mat-icon> {{ item.tenant.maxUsers }}</span>
+                </div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef>Status</th>
+              <td mat-cell *matCellDef="let item">
+                <div class="status-column">
+                  <mat-icon
+                    class="status-icon"
+                    [class.active]="item.tenant.active"
+                    [class.inactive]="!item.tenant.active"
+                    [matTooltip]="item.tenant.active ? 'Active' : 'Inactive'"
+                  >
+                    {{ item.tenant.active ? 'check_circle' : 'cancel' }}
+                  </mat-icon>
+                  @if (item.warning) {
+                    <mat-icon class="warning-icon" [matTooltip]="item.warning">warning</mat-icon>
+                  }
+                </div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="subscription">
+              <th mat-header-cell *matHeaderCellDef>Subscription</th>
+              <td mat-cell *matCellDef="let item">
+                @if (item.subscription) {
+                  <div class="subscription-compact">
+                    <mat-icon
+                      class="sub-icon"
+                      [class.sub-active]="item.subscription.status === 'active'"
+                      [class.sub-expired]="item.subscription.status === 'expired'"
+                      [class.sub-cancelled]="item.subscription.status === 'cancelled'"
+                      [matTooltip]="item.subscription.status | titlecase"
+                    >
+                      {{
+                        item.subscription.status === 'active'
+                          ? 'verified'
+                          : item.subscription.status === 'expired'
+                            ? 'schedule'
+                            : 'block'
+                      }}
+                    </mat-icon>
+                    <span
+                      class="sub-amount"
+                      [matTooltip]="'Ends: ' + formatDate(item.subscription.endDate)"
+                    >
+                      ${{ (item.subscription.amount / 100).toFixed(0) }}
+                    </span>
+                  </div>
+                } @else {
+                  <mat-icon class="no-sub-icon" matTooltip="No subscription"
+                    >remove_circle_outline</mat-icon
+                  >
+                }
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef>Actions</th>
+              <td mat-cell *matCellDef="let item">
+                <div class="action-buttons">
+                  <button mat-icon-button (click)="editTenant(item)" matTooltip="Edit">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button mat-icon-button (click)="deleteTenant(item)" matTooltip="Delete">
+                    <mat-icon>delete_outline</mat-icon>
+                  </button>
+                </div>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="tenantColumns"></tr>
+            <tr
+              mat-row
+              *matRowDef="let row; columns: tenantColumns"
+              [ngClass]="{ 'inactive-row': !row.tenant.active }"
+            ></tr>
+          </table>
+
+          @if (tenants().length === 0 && !isLoading()) {
+            <div class="no-data">
+              <mat-icon>business</mat-icon>
+              <h3>No tenants found</h3>
+              <p>Create your first tenant to get started.</p>
+            </div>
+          }
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </mat-card-content>
+</mat-card>

@@ -1,0 +1,159 @@
+<div class="qr-generator-container">
+  <div class="header">
+    <div class="title-section">
+      <h2>{{ 'admin.qrGenerator.title' | translate }}</h2>
+      <p class="subtitle">{{ 'admin.qrGenerator.subtitle' | translate }}</p>
+    </div>
+    <div class="actions">
+      <button 
+        mat-raised-button 
+        color="primary" 
+        (click)="refreshTables()"
+        [disabled]="loading()"
+      >
+        <mat-icon>refresh</mat-icon>
+        {{ 'admin.qrGenerator.refresh' | translate }}
+      </button>
+      
+      <div class="view-toggle">
+        <button 
+          mat-button 
+          [class.active]="isClassicMode()"
+          (click)="viewMode.set('classic')"
+          [disabled]="tableQRData().length === 0"
+        >
+          <mat-icon>qr_code_2</mat-icon>
+          Classic
+        </button>
+        <button 
+          mat-button 
+          [class.active]="isBrandedMode()"
+          (click)="toggleViewMode()"
+          [disabled]="tableQRData().length === 0 || loadingStickers()"
+        >
+          <mat-icon>{{ loadingStickers() ? 'hourglass_empty' : 'auto_awesome' }}</mat-icon>
+          Branded
+        </button>
+      </div>
+      
+      <button 
+        mat-raised-button 
+        color="accent" 
+        (click)="downloadAllQRs()"
+        [disabled]="tableQRData().length === 0 || loading()"
+      >
+        <mat-icon>download</mat-icon>
+        {{ 'admin.qrGenerator.downloadAll' | translate }}
+      </button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p>{{ 'admin.qrGenerator.loading' | translate }}</p>
+    </div>
+  } @else if (tableQRData().length === 0) {
+    <div class="empty-state">
+      <mat-icon>qr_code_2</mat-icon>
+      <h3>{{ 'admin.qrGenerator.noTables' | translate }}</h3>
+      <p>{{ 'admin.qrGenerator.noTablesDesc' | translate }}</p>
+    </div>
+  } @else {
+    <div class="qr-grid">
+      @for (tableQR of tableQRData(); track tableQR.table.id) {
+        <mat-card class="qr-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>table_restaurant</mat-icon>
+              {{ tableQR.table.name || tableQR.table.tableNumber }}
+            </mat-card-title>
+            @if (tableQR.table.zone) {
+              <mat-card-subtitle>
+                <mat-icon>location_on</mat-icon>
+                {{ tableQR.table.zone }}
+              </mat-card-subtitle>
+            }
+          </mat-card-header>
+          
+          <mat-card-content>
+            <div class="qr-code-wrapper" [id]="'qr-' + tableQR.table.id">
+              @if (isBrandedMode() && getBrandedSticker(tableQR.table.id)) {
+                <div class="branded-sticker-preview">
+                  <img 
+                    [src]="getBrandedSticker(tableQR.table.id)" 
+                    alt="Branded QR Sticker" 
+                    class="branded-sticker"
+                  />
+                  <div class="sticker-badge">
+                    <mat-icon>auto_awesome</mat-icon>
+                    Branded
+                  </div>
+                </div>
+              } @else if (loadingStickers() && isBrandedMode()) {
+                <div class="loading-sticker">
+                  <mat-spinner diameter="40"></mat-spinner>
+                  <p>Generating branded sticker...</p>
+                </div>
+              } @else {
+                <img [src]="tableQR.qrImage" alt="QR Code" width="300" height="300" />
+              }
+            </div>
+            
+            <div class="table-info">
+              <div class="info-row">
+                <span class="label">{{ 'admin.qrGenerator.tableNumber' | translate }}:</span>
+                <span class="value">{{ tableQR.table.tableNumber }}</span>
+              </div>
+              @if (tableQR.table.capacity) {
+                <div class="info-row">
+                  <span class="label">{{ 'admin.qrGenerator.capacity' | translate }}:</span>
+                  <span class="value">{{ tableQR.table.capacity }}</span>
+                </div>
+              }
+              <div class="info-row">
+                <span class="label">{{ 'admin.qrGenerator.status' | translate }}:</span>
+                <span class="value status" [class.active]="tableQR.table.status === 'active'">
+                  {{ tableQR.table.status }}
+                </span>
+              </div>
+            </div>
+            
+            <div class="qr-url">
+              <mat-icon>link</mat-icon>
+              <code>{{ getQRUrl(tableQR) }}</code>
+              <button 
+                mat-icon-button 
+                (click)="copyQRUrl(getQRUrl(tableQR))"
+                matTooltip="{{ 'admin.qrGenerator.copyUrl' | translate }}"
+                class="copy-btn"
+              >
+                <mat-icon>content_copy</mat-icon>
+              </button>
+            </div>
+          </mat-card-content>
+          
+          <mat-card-actions>
+            <button mat-button (click)="downloadQR(tableQR, 'png')">
+              <mat-icon>download</mat-icon>
+              {{ isBrandedMode() ? 'Sticker' : 'PNG' }}
+            </button>
+            <button 
+              mat-button 
+              (click)="downloadQR(tableQR, 'svg')"
+              [disabled]="isBrandedMode()"
+              [matTooltip]="isBrandedMode() ? 'SVG not available for branded stickers' : ''"
+            >
+              <mat-icon>download</mat-icon>
+              SVG
+            </button>
+            <button mat-button (click)="printQR(tableQR)">
+              <mat-icon>print</mat-icon>
+              {{ 'admin.qrGenerator.print' | translate }}
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      }
+    </div>
+  }
+</div>

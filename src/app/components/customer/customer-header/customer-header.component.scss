@@ -1,0 +1,95 @@
+.customer-header {
+  width: 100%;
+  max-width: 100%;
+  background: linear-gradient(
+    135deg,
+    var(--tenant-primary-color, #667eea) 0%,
+    var(--tenant-secondary-color, #764ba2) 100%
+  );
+  padding: 0.875rem 1rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+  flex-shrink: 0;
+  box-sizing: border-box;
+  overflow: hidden; // Prevent any content from overflowing
+
+  .header-content {
+    width: 100%;
+    max-width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    box-sizing: border-box;
+    overflow: hidden; // Prevent content from overflowing
+
+    // Logo section on the left
+    .header-left {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      min-width: 0; // Allow shrinking
+      max-width: 120px; // Limit logo width
+      overflow: hidden;
+
+      .logo {
+        max-height: 44px;
+        max-width: 100%;
+        height: auto;
+        width: auto;
+        object-fit: contain;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+        display: block;
+      }
+
+      .logo-icon {
+        font-size: 1.75rem;
+        line-height: 1;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+    }
+
+    // Restaurant name in the center
+    .header-center {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      overflow: hidden;
+      min-width: 0; // Allows flex item to shrink below content size
+      padding: 0 0.5rem; // Add padding for spacing
+
+      .restaurant-name {
+        font-size: clamp(0.875rem, 2.5vw, 1.25rem); // Responsive font size
+        font-weight: 700;
+        color: white;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        letter-spacing: 0.5px;
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+        text-align: center;
+      }
+    }
+
+    // Language switcher on the right
+    .header-right {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      min-width: 0; // Allow shrinking
+      max-width: 120px; // Limit button area width
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+  }
+}

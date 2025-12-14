@@ -1,0 +1,17 @@
+<header class="customer-header">
+  <div class="header-content">
+    <div class="header-left">
+      @if (branding()?.logoUrl) {
+        <img [src]="branding()?.logoUrl" [alt]="'customer.restaurantLogo' | translate" class="logo" />
+      } @else {
+        <div class="logo-icon">🍽️</div>
+      }
+    </div>
+    <div class="header-center">
+      <h1 class="restaurant-name">{{ branding()?.name || ('customer.restaurant' | translate) }}</h1>
+    </div>
+    <div class="header-right">
+      <app-change-language [color]="'dark'"></app-change-language>
+    </div>
+  </div>
+</header>

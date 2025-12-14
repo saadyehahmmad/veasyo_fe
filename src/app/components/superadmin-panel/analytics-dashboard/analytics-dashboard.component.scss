@@ -1,0 +1,469 @@
+.analytics-dashboard {
+  padding: 0;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px;
+  text-align: center;
+
+  p {
+    margin-top: 20px;
+    color: #666;
+    font-size: 1rem;
+  }
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding: 16px 0;
+
+  .header-info {
+    h2 {
+      margin: 0 0 4px 0;
+      font-size: 1.75rem;
+      font-weight: 600;
+      color: #1e293b;
+    }
+
+    .last-updated {
+      margin: 0;
+      font-size: 0.875rem;
+      color: #64748b;
+    }
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 12px;
+
+    button {
+      mat-icon {
+        margin-right: 8px;
+      }
+    }
+  }
+}
+
+.health-card {
+  margin-bottom: 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+
+  mat-card-content {
+    padding: 32px;
+  }
+
+  .health-overview {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 40px;
+
+    .health-status {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+
+      .large-icon {
+        font-size: 64px;
+        width: 64px;
+        height: 64px;
+      }
+
+      .health-info {
+        h3 {
+          margin: 0 0 8px 0;
+          font-size: 1.125rem;
+          font-weight: 500;
+          opacity: 0.9;
+        }
+
+        .status-text {
+          margin: 0;
+          font-size: 2rem;
+          font-weight: 700;
+        }
+      }
+    }
+
+    .health-metrics {
+      display: flex;
+      gap: 40px;
+
+      .metric-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+
+        .metric-label {
+          font-size: 0.875rem;
+          opacity: 0.8;
+          text-align: center;
+        }
+
+        .metric-value {
+          font-size: 2rem;
+          font-weight: 700;
+        }
+      }
+    }
+  }
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+  }
+
+  &.tenants-card::before {
+    background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 100%);
+  }
+
+  &.users-card::before {
+    background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+  }
+
+  &.tables-card::before {
+    background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
+  }
+
+  &.requests-card::before {
+    background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%);
+  }
+
+  &.subscriptions-card::before {
+    background: linear-gradient(90deg, #8b5cf6 0%, #7c3aed 100%);
+  }
+
+  &.metrics-card::before {
+    background: linear-gradient(90deg, #06b6d4 0%, #0891b2 100%);
+  }
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+  }
+
+  mat-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 20px 0;
+
+    .card-icon {
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
+      color: #64748b;
+    }
+
+    mat-card-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #475569;
+      margin: 0;
+    }
+  }
+
+  mat-card-content {
+    padding: 16px 20px 20px;
+
+    .stat-number {
+      font-size: 3rem;
+      font-weight: 700;
+      color: #0f172a;
+      line-height: 1;
+      margin-bottom: 16px;
+    }
+
+    .stat-breakdown {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 12px;
+
+      .breakdown-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.875rem;
+
+        .breakdown-label {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          color: #64748b;
+
+          .small-icon {
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
+          }
+        }
+
+        .breakdown-value {
+          font-weight: 600;
+          color: #1e293b;
+        }
+      }
+    }
+
+    .stat-detail {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #e2e8f0;
+      font-size: 0.875rem;
+
+      .detail-label {
+        color: #64748b;
+      }
+
+      .detail-value {
+        font-weight: 600;
+        color: #1e293b;
+      }
+    }
+
+    .progress-bar {
+      display: flex;
+      height: 8px;
+      border-radius: 4px;
+      overflow: hidden;
+      background: #f1f5f9;
+      margin-top: 12px;
+
+      .progress-segment {
+        transition: width 0.3s ease;
+      }
+    }
+
+    .key-metrics {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+
+      .metric-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .metric-name {
+          font-size: 0.875rem;
+          color: #64748b;
+        }
+
+        .metric-chip {
+          font-weight: 600;
+
+          &.success {
+            background: #dcfce7;
+            color: #166534;
+          }
+
+          &.info {
+            background: #dbeafe;
+            color: #1e40af;
+          }
+
+          &.default {
+            background: #f1f5f9;
+            color: #475569;
+          }
+        }
+      }
+    }
+  }
+}
+
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+
+  &.active {
+    background: #22c55e;
+  }
+
+  &.inactive {
+    background: #ef4444;
+  }
+
+  &.pending {
+    background: #f59e0b;
+  }
+
+  &.completed {
+    background: #22c55e;
+  }
+
+  &.expired {
+    background: #ef4444;
+  }
+}
+
+.no-data {
+  text-align: center;
+  padding: 80px 20px;
+  color: #64748b;
+
+  mat-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    margin-bottom: 20px;
+    opacity: 0.5;
+  }
+
+  h3 {
+    margin: 20px 0 8px 0;
+    font-weight: 600;
+    color: #1e293b;
+  }
+
+  p {
+    margin: 0 0 20px 0;
+    font-size: 0.95rem;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 1200px) {
+  .health-card .health-overview {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+
+    .health-metrics {
+      width: 100%;
+      justify-content: space-around;
+    }
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+
+    .header-actions {
+      width: 100%;
+      flex-direction: column;
+
+      button {
+        width: 100%;
+      }
+    }
+  }
+
+  .health-card .health-overview .health-metrics {
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+
+    .metric-item {
+      width: 100%;
+    }
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Tenant Analytics Table Styles
+.tenant-analytics-card {
+  margin-top: 24px;
+
+  .table-container {
+    overflow-x: auto;
+  }
+
+  .analytics-table {
+    width: 100%;
+    min-width: 800px;
+
+    th {
+      font-weight: 600;
+      color: #374151;
+      background-color: #f9fafb;
+      padding: 16px 12px;
+      text-align: left;
+      border-bottom: 2px solid #e5e7eb;
+    }
+
+    td {
+      padding: 16px 12px;
+      border-bottom: 1px solid #e5e7eb;
+
+      mat-chip {
+        font-size: 0.875rem;
+        min-height: 24px;
+      }
+    }
+
+    tr:hover {
+      background-color: #f9fafb;
+    }
+  }
+
+  .mat-mdc-card-header {
+    margin-bottom: 16px;
+
+    .card-icon {
+      color: #6366f1;
+      margin-right: 8px;
+    }
+
+    .mat-mdc-card-header-text {
+      margin: 0;
+    }
+
+    .mat-mdc-card-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #1f2937;
+    }
+
+    .mat-mdc-card-subtitle {
+      font-size: 0.875rem;
+      color: #6b7280;
+      margin-top: 4px;
+    }
+  }
+}

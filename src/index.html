@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Frontend</title>
+    <base href="/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    
+    <!-- Security Headers -->
+    <!-- XSS Protection (legacy, but still useful) -->
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
+    <!-- Prevent MIME type sniffing -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <!-- Referrer Policy -->
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <!-- Note: CSP is handled by Helmet.js in the backend for better control -->
+    <!-- Removing CSP meta tag to avoid conflicts with backend CSP headers -->
+    
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    
+    <!-- External Resources with Subresource Integrity (SRI) -->
+    <!-- Note: SRI hashes need to be updated if Google Fonts change -->
+    <!-- For production, consider self-hosting fonts to avoid SRI maintenance -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&family=Tajawal:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+      crossorigin="anonymous"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+      crossorigin="anonymous"
+    />
+    <!-- 7-Segment Display Font for Calculator Timer -->
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap"
+      crossorigin="anonymous"
+    />
+    <!-- DS-Digital 7-Segment Font -->
+    <link
+      rel="stylesheet"
+      href="https://fonts.cdnfonts.com/css/ds-digital"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body>
+    <app-root></app-root>
+  </body>
+</html>

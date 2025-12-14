@@ -1,0 +1,221 @@
+<div class="tab-content">
+  <!-- Create New Table -->
+  <mat-card class="create-card">
+    <mat-card-header>
+      <mat-card-title>{{ 'admin.tableManagement.addTable' | translate }}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="createForm" class="form-row">
+        <mat-form-field>
+          <mat-label>{{ 'admin.tableManagement.tableNumber' | translate }}</mat-label>
+          <input
+            matInput
+            formControlName="tableNumber"
+            [placeholder]="'admin.tableManagement.tableNumberPlaceholder' | translate"
+            required
+          />
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>{{ 'admin.tableManagement.nameOptional' | translate }}</mat-label>
+          <input matInput formControlName="name" [placeholder]="'admin.tableManagement.namePlaceholder' | translate" />
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>{{ 'admin.tableManagement.zoneOptional' | translate }}</mat-label>
+          <input matInput formControlName="zone" [placeholder]="'admin.tableManagement.zonePlaceholder' | translate" />
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>{{ 'admin.tableManagement.capacityOptional' | translate }}</mat-label>
+          <input matInput type="number" formControlName="capacity" [placeholder]="'admin.tableManagement.capacityPlaceholder' | translate" />
+        </mat-form-field>
+
+        <div class="status-toggle">
+          <mat-slide-toggle
+            [checked]="createForm.get('status')?.value === 'active'"
+            (change)="onStatusChange($event, 'create')"
+            >{{ 'admin.tableManagement.active' | translate }}</mat-slide-toggle
+          >
+        </div>
+
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="createTable()"
+          [disabled]="createForm.invalid"
+        >
+          <mat-icon>add</mat-icon>
+          {{ 'admin.tableManagement.createTable' | translate }}
+        </button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Tables List -->
+  <mat-card class="data-card">
+    <mat-card-header>
+      <mat-card-title>{{ 'admin.tableManagement.tablesList' | translate }} ({{ tables().length }})</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      @if (loading()) {
+        <div class="loading">
+          <mat-spinner diameter="40"></mat-spinner>
+          <span>{{ 'admin.tableManagement.loadingTables' | translate }}</span>
+        </div>
+      }
+      @if (!loading()) {
+        <table mat-table [dataSource]="tables()" class="data-table">
+        <ng-container matColumnDef="id">
+          <th mat-header-cell *matHeaderCellDef>{{ 'admin.tableManagement.uuid' | translate }}</th>
+          <td mat-cell *matCellDef="let table" class="uuid-cell">
+            <code (click)="copyUuid(table.id)" title="Click to copy">
+              {{ table.id }}
+              <mat-icon class="copy-icon">content_copy</mat-icon>
+            </code>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="tableNumber">
+          <th mat-header-cell *matHeaderCellDef>{{ 'admin.tableManagement.tableNumber' | translate }}</th>
+          <td mat-cell *matCellDef="let table">
+            @if (editingTable()?.id !== table.id) {
+              <span class="display-value">{{
+                table.tableNumber
+              }}</span>
+            } @else {
+              <div [formGroup]="editForm">
+              <mat-form-field appearance="outline" class="inline-edit">
+                <input matInput formControlName="tableNumber" required [placeholder]="'admin.tableManagement.tableNumberPlaceholder' | translate" />
+                @if (editForm.get('tableNumber')?.hasError('required')) {
+                  <mat-error>
+                    {{ 'admin.tableManagement.required' | translate }}
+                  </mat-error>
+                }
+              </mat-form-field>
+              </div>
+            }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>{{ 'admin.tableManagement.name' | translate }}</th>
+          <td mat-cell *matCellDef="let table">
+            @if (editingTable()?.id !== table.id) {
+              <span class="display-value">{{
+                table.name || '-'
+              }}</span>
+            } @else {
+              <div [formGroup]="editForm">
+              <mat-form-field appearance="outline" class="inline-edit">
+                <input matInput formControlName="name" [placeholder]="'admin.tableManagement.namePlaceholder' | translate" />
+              </mat-form-field>
+              </div>
+            }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="zone">
+          <th mat-header-cell *matHeaderCellDef>{{ 'admin.tableManagement.zone' | translate }}</th>
+          <td mat-cell *matCellDef="let table">
+            @if (editingTable()?.id !== table.id) {
+              <span class="display-value">{{
+                table.zone || '-'
+              }}</span>
+            } @else {
+              <div [formGroup]="editForm">
+              <mat-form-field appearance="outline" class="inline-edit">
+                <input matInput formControlName="zone" [placeholder]="'admin.tableManagement.zonePlaceholder' | translate" />
+              </mat-form-field>
+              </div>
+            }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="capacity">
+          <th mat-header-cell *matHeaderCellDef>{{ 'admin.tableManagement.capacity' | translate }}</th>
+          <td mat-cell *matCellDef="let table">
+            @if (editingTable()?.id !== table.id) {
+              <span class="display-value">{{
+                table.capacity || '-'
+              }}</span>
+            } @else {
+              <div [formGroup]="editForm">
+              <mat-form-field appearance="outline" class="inline-edit">
+                <input
+                  matInput
+                  type="number"
+                  formControlName="capacity"
+                  min="1"
+                  [placeholder]="'admin.tableManagement.capacityPlaceholder' | translate"
+                />
+                @if (editForm.get('capacity')?.hasError('min')) {
+                  <mat-error>
+                    {{ 'admin.tableManagement.capacityMinError' | translate }}
+                  </mat-error>
+                }
+              </mat-form-field>
+              </div>
+            }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>{{ 'admin.tableManagement.status' | translate }}</th>
+          <td mat-cell *matCellDef="let table">
+            @if (editingTable()?.id !== table.id) {
+              <mat-chip
+                [color]="table.status === 'active' ? 'primary' : 'warn'"
+              >
+                {{ table.status === 'active' ? ('admin.tableManagement.active' | translate) : ('admin.tableManagement.inactive' | translate) }}
+              </mat-chip>
+            } @else {
+              <div class="status-toggle">
+              <mat-slide-toggle
+                [checked]="editForm.get('status')?.value === 'active'"
+                (change)="onStatusChange($event, 'edit')"
+                >{{ 'admin.tableManagement.active' | translate }}</mat-slide-toggle
+              >
+              </div>
+            }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>{{ 'admin.tableManagement.actions' | translate }}</th>
+          <td mat-cell *matCellDef="let table">
+            @if (editingTable()?.id !== table.id) {
+              <div>
+                <button mat-icon-button color="primary" (click)="editTable(table)" [matTooltip]="'admin.tableManagement.edit' | translate">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button color="warn" (click)="deleteTable(table.id)" [matTooltip]="'admin.tableManagement.delete' | translate">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            } @else {
+              <div>
+              <button
+                mat-icon-button
+                color="primary"
+                (click)="updateTable()"
+                [disabled]="editForm.invalid"
+                [matTooltip]="'admin.tableManagement.save' | translate"
+              >
+                <mat-icon>save</mat-icon>
+              </button>
+              <button mat-icon-button (click)="cancelTableEdit()" [matTooltip]="'admin.tableManagement.cancel' | translate">
+                <mat-icon>cancel</mat-icon>
+              </button>
+              </div>
+            }
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="tableColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: tableColumns"></tr>
+        </table>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>

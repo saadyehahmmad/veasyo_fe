@@ -1,0 +1,62 @@
+{
+  "name": "frontend",
+  "version": "1.0.0",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "start:network": "ng serve --host 0.0.0.0",
+    "build": "ng build",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test",
+    "format": "prettier --write \"src/**/*.{ts,js,json,html,scss,css,md}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,js,json,html,scss,css,md}\"",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix"
+  },
+  "prettier": {
+    "printWidth": 100,
+    "singleQuote": true,
+    "overrides": [
+      {
+        "files": "*.html",
+        "options": {
+          "parser": "angular"
+        }
+      }
+    ]
+  },
+  "private": true,
+  "packageManager": "npm@10.9.2",
+  "dependencies": {
+    "@angular/cdk": "^21.0.1",
+    "@angular/common": "^21.0.0",
+    "@angular/compiler": "^21.0.0",
+    "@angular/core": "^21.0.0",
+    "@angular/forms": "^21.0.0",
+    "@angular/material": "^21.0.1",
+    "@angular/platform-browser": "^21.0.0",
+    "@angular/router": "^21.0.0",
+    "@ngx-translate/core": "^17.0.0",
+    "angularx-qrcode": "^21.0.4",
+    "arabic-reshaper": "^1.1.0",
+    "html2canvas": "^1.4.1",
+    "rxjs": "~7.8.0",
+    "socket.io-client": "^4.8.1",
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@angular/build": "^21.0.1",
+    "@angular/cli": "^21.0.1",
+    "@angular/compiler-cli": "^21.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.48.1",
+    "@typescript-eslint/parser": "^8.48.1",
+    "eslint": "^8.57.1",
+    "eslint-plugin-sonarjs": "^3.0.5",
+    "globals": "^16.5.0",
+    "jsdom": "^27.1.0",
+    "prettier": "^3.7.4",
+    "typescript": "~5.9.2",
+    "typescript-eslint": "^8.48.1",
+    "vitest": "^4.0.8"
+  }
+}

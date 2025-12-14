@@ -1,0 +1,202 @@
+<div class="tab-content">
+  <!-- Create New Waiter -->
+  <mat-card class="create-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>person_add</mat-icon>
+        {{ 'admin.userManagement.addNewWaiter' | translate }}
+      </mat-card-title>
+      <mat-card-subtitle>{{ 'admin.userManagement.createWaiterDescription' | translate }}</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="userForm" class="form-grid">
+        <mat-form-field>
+          <mat-label>{{ 'admin.userManagement.username' | translate }}</mat-label>
+          <input matInput formControlName="username" [placeholder]="'admin.userManagement.usernamePlaceholder' | translate" />
+          <mat-hint>{{ 'admin.userManagement.usernameHint' | translate }}</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>{{ 'admin.userManagement.email' | translate }}</mat-label>
+          <input matInput formControlName="email" type="email" [placeholder]="'admin.userManagement.emailPlaceholder' | translate" />
+          <mat-hint>{{ 'admin.userManagement.emailHint' | translate }}</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>{{ 'admin.userManagement.fullName' | translate }}</mat-label>
+          <input matInput formControlName="fullName" [placeholder]="'admin.userManagement.fullNamePlaceholder' | translate" />
+          <mat-hint>{{ 'admin.userManagement.fullNameHint' | translate }}</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>{{ 'admin.userManagement.initialPassword' | translate }}</mat-label>
+          <input
+            matInput
+            formControlName="password"
+            type="password"
+            [placeholder]="'admin.userManagement.passwordPlaceholder' | translate"
+          />
+          <mat-hint>{{ 'admin.userManagement.passwordHint' | translate }}</mat-hint>
+        </mat-form-field>
+
+        <div class="form-actions">
+          <button
+            mat-raised-button
+            color="primary"
+            (click)="createUser()"
+            [disabled]="userForm.invalid || loading()"
+          >
+            <mat-icon>person_add</mat-icon>
+            {{ 'admin.userManagement.addWaiter' | translate }}
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Waiters List -->
+  <mat-card class="data-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>group</mat-icon>
+        {{ 'admin.userManagement.waiters' | translate }} ({{ users().length }})
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      @if (loading()) {
+        <div class="loading">
+          <mat-spinner diameter="40"></mat-spinner>
+          <span>{{ 'admin.userManagement.loadingWaiters' | translate }}</span>
+        </div>
+      }
+      @if (!loading()) {
+        <table mat-table [dataSource]="users()" class="data-table">
+        <ng-container matColumnDef="username">
+          <th mat-header-cell *matHeaderCellDef>{{ 'admin.userManagement.username' | translate }}</th>
+          <td mat-cell *matCellDef="let user">{{ user.username }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="email">
+          <th mat-header-cell *matHeaderCellDef>{{ 'admin.userManagement.email' | translate }}</th>
+          <td mat-cell *matCellDef="let user">{{ user.email }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="fullName">
+          <th mat-header-cell *matHeaderCellDef>{{ 'admin.userManagement.fullName' | translate }}</th>
+          <td mat-cell *matCellDef="let user">{{ user.fullName }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="active">
+          <th mat-header-cell *matHeaderCellDef>{{ 'admin.userManagement.status' | translate }}</th>
+          <td mat-cell *matCellDef="let user">
+            <mat-chip [color]="user.active ? 'primary' : ''">
+              {{ user.active ? ('admin.userManagement.active' | translate) : ('admin.userManagement.inactive' | translate) }}
+            </mat-chip>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="tenantSubdomain">
+          <th mat-header-cell *matHeaderCellDef>{{ 'admin.userManagement.restaurant' | translate }}</th>
+          <td mat-cell *matCellDef="let user">
+            <strong>{{ user.tenantSubdomain || user.tenantName || ('admin.userManagement.na' | translate) }}</strong>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>{{ 'admin.userManagement.actions' | translate }}</th>
+          <td mat-cell *matCellDef="let user">
+            <button
+              mat-icon-button
+              [color]="user.active ? 'warn' : 'primary'"
+              (click)="toggleUserStatus(user)"
+              [matTooltip]="user.active ? ('admin.userManagement.deactivateWaiter' | translate) : ('admin.userManagement.activateWaiter' | translate)"
+            >
+              <mat-icon>{{ user.active ? 'person_off' : 'person' }}</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              color="accent"
+              (click)="openChangePassword(user)"
+              [matTooltip]="'admin.userManagement.changePassword' | translate"
+            >
+              <mat-icon>lock_reset</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              color="warn"
+              (click)="deleteUser(user)"
+              [matTooltip]="'admin.userManagement.deleteWaiter' | translate"
+            >
+              <mat-icon>delete_forever</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="userColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: userColumns"></tr>
+        </table>
+      }
+
+      <!-- Friendly Empty State -->
+      @if (!loading() && users().length === 0) {
+        <div class="no-data">
+        <mat-icon>person_add</mat-icon>
+        <h3>{{ 'admin.userManagement.noWaiters' | translate }}</h3>
+        <p>{{ 'admin.userManagement.noWaitersDescription' | translate }}</p>
+      </div>
+      }
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Change Password Dialog -->
+  @if (changingPasswordUser()) {
+    <mat-card class="password-dialog">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>lock_reset</mat-icon>
+        {{ 'admin.userManagement.changePasswordFor' | translate }} {{ changingPasswordUser()?.fullName }}
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="passwordForm" class="password-form">
+        <mat-form-field>
+          <mat-label>{{ 'admin.userManagement.newPassword' | translate }}</mat-label>
+          <input
+            matInput
+            formControlName="newPassword"
+            type="password"
+            [placeholder]="'admin.userManagement.passwordPlaceholder' | translate"
+          />
+          <mat-hint>{{ 'admin.userManagement.strongPasswordHint' | translate }}</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>{{ 'admin.userManagement.confirmPassword' | translate }}</mat-label>
+          <input matInput formControlName="confirmPassword" type="password" />
+          @if (passwordForm.hasError('passwordMismatch')) {
+            <mat-error>
+              {{ 'admin.userManagement.passwordMismatch' | translate }}
+            </mat-error>
+          }
+        </mat-form-field>
+
+        <div class="form-actions">
+          <button
+            mat-raised-button
+            color="primary"
+            (click)="changePassword()"
+            [disabled]="passwordForm.invalid || loading()"
+          >
+            <mat-icon>save</mat-icon>
+            {{ 'admin.userManagement.updatePassword' | translate }}
+          </button>
+          <button mat-button (click)="cancelPasswordChange()" [disabled]="loading()">
+            <mat-icon>cancel</mat-icon>
+            {{ 'admin.userManagement.cancel' | translate }}
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+    </mat-card>
+  }
+</div>

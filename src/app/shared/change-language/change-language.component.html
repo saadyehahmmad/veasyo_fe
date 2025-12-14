@@ -1,0 +1,10 @@
+<button
+  mat-button
+  class="language-button"
+  [class.dark]="color() === 'dark'"
+  [title]="'Switch to ' + notCurrentLanguage()"
+  (click)="switchLang()"
+>
+  <mat-icon>language</mat-icon>
+  {{ notCurrentLanguage() | translate }}
+</button>

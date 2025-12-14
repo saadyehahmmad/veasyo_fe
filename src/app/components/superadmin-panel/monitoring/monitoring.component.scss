@@ -1,0 +1,290 @@
+.monitoring-container {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.monitoring-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+
+  h2 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 500;
+  }
+
+  button {
+    mat-icon {
+      margin-right: 8px;
+    }
+  }
+}
+
+.health-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.health-card {
+  mat-card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    mat-card-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 18px;
+      font-weight: 500;
+
+      mat-icon {
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+      }
+    }
+  }
+
+  mat-card-content {
+    padding-top: 16px;
+  }
+
+  &.comprehensive {
+    grid-column: 1 / -1;
+    margin-bottom: 20px;
+  }
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+  justify-content: center;
+}
+
+.error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 20px;
+  color: var(--mat-warn-default);
+}
+
+.health-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+
+  .timestamp {
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.6);
+  }
+}
+
+.health-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.metric {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  .metric-label {
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.6);
+  }
+
+  .metric-value {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--mat-primary-default);
+
+    &.large {
+      font-size: 24px;
+      font-weight: 600;
+    }
+  }
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  font-size: 14px;
+
+  span {
+    color: rgba(0, 0, 0, 0.6);
+  }
+
+  strong,
+  code {
+    font-weight: 500;
+    font-family: 'Courier New', monospace;
+    background: rgba(0, 0, 0, 0.05);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+}
+
+.service-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.service-item {
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 8px;
+  border-left: 4px solid var(--mat-primary-default);
+}
+
+.service-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+
+  mat-icon {
+    &.healthy {
+      color: var(--mat-primary-default);
+    }
+
+    &.unhealthy {
+      color: var(--mat-warn-default);
+    }
+  }
+
+  .service-name {
+    flex: 1;
+    font-weight: 500;
+    font-size: 16px;
+  }
+}
+
+.service-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+  padding-left: 40px;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+
+  span {
+    color: rgba(0, 0, 0, 0.6);
+  }
+
+  strong {
+    font-weight: 500;
+  }
+}
+
+.error-message {
+  margin-top: 8px;
+  padding: 8px;
+  background: rgba(244, 67, 54, 0.1);
+  border-radius: 4px;
+  color: var(--mat-warn-default);
+  font-size: 14px;
+}
+
+.system-info {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.section {
+  h4 {
+    margin: 0 0 12px 0;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--mat-primary-default);
+  }
+
+  .info-item {
+    padding: 6px 0;
+  }
+}
+
+.rooms-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.room-item {
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+  font-size: 12px;
+
+  code {
+    font-family: 'Courier New', monospace;
+    color: var(--mat-primary-default);
+  }
+}
+
+.note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 8px 12px;
+  background-color: var(--mat-surface-container-low);
+  border-radius: 4px;
+  border-left: 3px solid var(--mat-primary-default);
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: var(--mat-primary-default);
+  }
+
+  span {
+    font-size: 14px;
+    color: var(--mat-text-secondary);
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .health-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .monitoring-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}
+

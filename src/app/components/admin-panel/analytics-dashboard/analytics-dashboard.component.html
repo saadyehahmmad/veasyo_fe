@@ -1,0 +1,93 @@
+@if (analytics()) {
+  <div class="tab-content">
+    <div class="analytics-grid">
+      <mat-card class="stat-card">
+        <mat-card-header>
+          <mat-icon>assessment</mat-icon>
+          <mat-card-title>Total Requests</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <h2>{{ analytics()!.totalRequests }}</h2>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card">
+        <mat-card-header>
+          <mat-icon>pending</mat-icon>
+          <mat-card-title>Pending</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <h2>{{ analytics()!.pendingRequests }}</h2>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card">
+        <mat-card-header>
+          <mat-icon>check_circle</mat-icon>
+          <mat-card-title>Completed</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <h2>{{ analytics()!.completedRequests }}</h2>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card">
+        <mat-card-header>
+          <mat-icon>timer</mat-icon>
+          <mat-card-title>Avg Response Time</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <h2>{{ analytics()!.averageResponseTime }}s</h2>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <div class="charts-grid">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Requests by Type</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="chart-list">
+            @for (entry of getRequestTypeEntries(); track entry[0]) {
+              <div class="chart-item">
+                <span>{{ entry[0] }}</span>
+                <span class="count">{{ entry[1] }}</span>
+              </div>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Requests by Table</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="chart-list">
+            @for (entry of getRequestTableEntries(); track entry[0]) {
+              <div class="chart-item">
+                <span>Table {{ entry[0] }}</span>
+                <span class="count">{{ entry[1] }}</span>
+              </div>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+}
+
+@if (!analytics() && !loading()) {
+  <div class="no-data">
+    <mat-icon>analytics</mat-icon>
+    <p>No analytics data available</p>
+  </div>
+}
+
+@if (loading()) {
+  <div class="loading">
+    <mat-spinner diameter="40"></mat-spinner>
+    <span>Loading analytics...</span>
+  </div>
+}

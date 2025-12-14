@@ -1,0 +1,307 @@
+<div class="branding-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>palette</mat-icon>
+        {{ 'admin.tenantBranding.title' | translate }}
+      </mat-card-title>
+      <mat-card-subtitle>{{ 'admin.tenantBranding.subtitle' | translate }}</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="brandingForm" class="branding-form">
+        <mat-tab-group>
+          <!-- General Tab -->
+          <mat-tab [label]="'admin.tenantBranding.general' | translate">
+            <div class="tab-content">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>{{ 'admin.tenantBranding.restaurantName' | translate }}</mat-label>
+                <input matInput formControlName="name" [placeholder]="'admin.tenantBranding.restaurantNamePlaceholder' | translate" />
+                <mat-icon matSuffix>restaurant</mat-icon>
+                <mat-hint>{{ 'admin.tenantBranding.restaurantNameHint' | translate }}</mat-hint>
+                @if (brandingForm.get('name')?.invalid && brandingForm.get('name')?.touched) {
+                  <mat-error>
+                    {{ 'admin.tenantBranding.nameRequired' | translate }}
+                  </mat-error>
+                }
+              </mat-form-field>
+
+              <!-- Menu URL Configuration - Global for all restaurants -->
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>{{ 'admin.tenantBranding.menuUrl' | translate }}</mat-label>
+                <input 
+                  matInput 
+                  formControlName="menuUrl" 
+                  [placeholder]="'admin.tenantBranding.menuUrlPlaceholder' | translate"
+                  type="url"
+                />
+                <mat-icon matSuffix>restaurant_menu</mat-icon>
+                <mat-hint>{{ 'admin.tenantBranding.menuUrlHint' | translate }}</mat-hint>
+              </mat-form-field>
+
+              <!-- Custom Request Toggle -->
+              <div class="custom-request-toggle">
+                <mat-slide-toggle 
+                  formControlName="customRequestEnabled"
+                  [matTooltip]="brandingForm.get('customRequestEnabled')?.value ? ('admin.tenantBranding.customRequestEnabledHint' | translate) : ('admin.tenantBranding.customRequestDisabledHint' | translate)"
+                >
+                  {{ 'admin.tenantBranding.customRequestEnabled' | translate }}
+                </mat-slide-toggle>
+                <p class="toggle-hint">{{ 'admin.tenantBranding.customRequestEnabledDescription' | translate }}</p>
+              </div>
+            </div>
+          </mat-tab>
+
+          <!-- Colors Tab -->
+          <mat-tab [label]="'admin.tenantBranding.colors' | translate">
+            <div class="tab-content">
+              <div class="color-grid">
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'admin.tenantBranding.primaryColor' | translate }}</mat-label>
+                  <input matInput type="color" formControlName="primaryColor" />
+                  <mat-hint>{{ 'admin.tenantBranding.primaryColorHint' | translate }}</mat-hint>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'admin.tenantBranding.secondaryColor' | translate }}</mat-label>
+                  <input matInput type="color" formControlName="secondaryColor" />
+                  <mat-hint>{{ 'admin.tenantBranding.secondaryColorHint' | translate }}</mat-hint>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'admin.tenantBranding.accentColor' | translate }}</mat-label>
+                  <input matInput type="color" formControlName="accentColor" />
+                  <mat-hint>{{ 'admin.tenantBranding.accentColorHint' | translate }}</mat-hint>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'admin.tenantBranding.backgroundColor' | translate }}</mat-label>
+                  <input matInput type="color" formControlName="backgroundColor" />
+                  <mat-hint>{{ 'admin.tenantBranding.backgroundColorHint' | translate }}</mat-hint>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'admin.tenantBranding.textColor' | translate }}</mat-label>
+                  <input matInput type="color" formControlName="textColor" />
+                  <mat-hint>{{ 'admin.tenantBranding.textColorHint' | translate }}</mat-hint>
+                </mat-form-field>
+              </div>
+
+              <button mat-stroked-button type="button" (click)="resetToDefaults()">
+                <mat-icon>refresh</mat-icon>
+                {{ 'admin.tenantBranding.resetToDefaults' | translate }}
+              </button>
+            </div>
+          </mat-tab>
+
+          <!-- Logos Tab -->
+          <mat-tab [label]="'admin.tenantBranding.logos' | translate">
+            <div class="tab-content">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>{{ 'admin.tenantBranding.logo' | translate }}</mat-label>
+                <input
+                  matInput
+                  formControlName="logoUrl"
+                  [placeholder]="'admin.tenantBranding.logoPlaceholder' | translate"
+                />
+                <mat-icon matSuffix>image</mat-icon>
+                <mat-hint>{{ 'admin.tenantBranding.logoHint' | translate }}</mat-hint>
+              </mat-form-field>
+
+              <div class="upload-hint">
+                <p><strong>{{ 'admin.tenantBranding.orUploadFile' | translate }}</strong></p>
+                <input
+                  type="file"
+                  accept="image/*"
+                  (change)="handleFileUpload($event, 'logoUrl')"
+                  #logoInput
+                />
+                <button mat-stroked-button type="button" (click)="logoInput.click()">
+                  <mat-icon>upload</mat-icon>
+                  {{ 'admin.tenantBranding.uploadLogo' | translate }}
+                </button>
+              </div>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>{{ 'admin.tenantBranding.favicon' | translate }}</mat-label>
+                <input
+                  matInput
+                  formControlName="faviconUrl"
+                  [placeholder]="'admin.tenantBranding.faviconPlaceholder' | translate"
+                />
+                <mat-icon matSuffix>tab</mat-icon>
+                <mat-hint>{{ 'admin.tenantBranding.faviconHint' | translate }}</mat-hint>
+              </mat-form-field>
+
+              <div class="upload-hint">
+                <p><strong>{{ 'admin.tenantBranding.orUploadFile' | translate }}</strong></p>
+                <input
+                  type="file"
+                  accept="image/*"
+                  (change)="handleFileUpload($event, 'faviconUrl')"
+                  #faviconInput
+                />
+                <button mat-stroked-button type="button" (click)="faviconInput.click()">
+                  <mat-icon>upload</mat-icon>
+                  {{ 'admin.tenantBranding.uploadFavicon' | translate }}
+                </button>
+              </div>
+
+              @if (brandingForm.get('logoUrl')?.value) {
+                <div class="logo-preview">
+                <p><strong>{{ 'admin.tenantBranding.logoPreview' | translate }}</strong></p>
+                <img
+                  [src]="brandingForm.get('logoUrl')?.value"
+                  [alt]="'admin.tenantBranding.logoPreview' | translate"
+                  (error)="$any($event.target).src = '/assets/placeholder-logo.png'"
+                />
+                </div>
+              }
+            </div>
+          </mat-tab>
+
+          <!-- Social Media Tab -->
+          <mat-tab [label]="'admin.tenantBranding.socialMedia' | translate">
+            <div class="tab-content">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>{{ 'admin.tenantBranding.facebook' | translate }}</mat-label>
+                <input
+                  matInput
+                  formControlName="facebookUrl"
+                  [placeholder]="'admin.tenantBranding.facebookPlaceholder' | translate"
+                />
+                <mat-icon matSuffix>link</mat-icon>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>{{ 'admin.tenantBranding.instagram' | translate }}</mat-label>
+                <input
+                  matInput
+                  formControlName="instagramUrl"
+                  [placeholder]="'admin.tenantBranding.instagramPlaceholder' | translate"
+                />
+                <mat-icon matSuffix>link</mat-icon>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>{{ 'admin.tenantBranding.twitter' | translate }}</mat-label>
+                <input
+                  matInput
+                  formControlName="twitterUrl"
+                  [placeholder]="'admin.tenantBranding.twitterPlaceholder' | translate"
+                />
+                <mat-icon matSuffix>link</mat-icon>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>{{ 'admin.tenantBranding.linkedin' | translate }}</mat-label>
+                <input
+                  matInput
+                  formControlName="linkedinUrl"
+                  [placeholder]="'admin.tenantBranding.linkedinPlaceholder' | translate"
+                />
+                <mat-icon matSuffix>link</mat-icon>
+              </mat-form-field>
+            </div>
+          </mat-tab>
+
+          <!-- Advanced Tab -->
+          <mat-tab [label]="'admin.tenantBranding.advanced' | translate">
+            <div class="tab-content">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>{{ 'admin.tenantBranding.customCss' | translate }}</mat-label>
+                <textarea
+                  matInput
+                  formControlName="customCss"
+                  rows="10"
+                  [placeholder]="'admin.tenantBranding.customCssPlaceholder' | translate"
+                ></textarea>
+                <mat-hint>{{ 'admin.tenantBranding.customCssHint' | translate }}</mat-hint>
+              </mat-form-field>
+
+              <div class="warning-box">
+                <mat-icon>warning</mat-icon>
+                <p><strong>{{ 'admin.tenantBranding.warning' | translate }}</strong> {{ 'admin.tenantBranding.customCssWarning' | translate }}</p>
+              </div>
+            </div>
+          </mat-tab>
+
+          <!-- Preview Tab -->
+          <mat-tab [label]="'admin.tenantBranding.preview' | translate">
+            <div class="tab-content">
+              <div
+                class="preview-container"
+                [style.background]="previewColors().backgroundColor"
+                [style.color]="previewColors().textColor"
+              >
+                <div class="preview-header" [style.background]="previewColors().primaryColor">
+                  <h2>{{ 'admin.tenantBranding.sampleHeader' | translate }}</h2>
+                </div>
+
+                <div class="preview-content">
+                  <button class="preview-button" [style.background]="previewColors().primaryColor">
+                    {{ 'admin.tenantBranding.primaryButton' | translate }}
+                  </button>
+                  <button
+                    class="preview-button"
+                    [style.background]="previewColors().secondaryColor"
+                  >
+                    {{ 'admin.tenantBranding.secondaryButton' | translate }}
+                  </button>
+                  <button class="preview-button" [style.background]="previewColors().accentColor">
+                    {{ 'admin.tenantBranding.accentButton' | translate }}
+                  </button>
+
+                  <p>{{ 'admin.tenantBranding.sampleText' | translate }}</p>
+
+                  <div class="preview-card" [style.border-color]="previewColors().primaryColor">
+                    <h3>{{ 'admin.tenantBranding.sampleCard' | translate }}</h3>
+                    <p>{{ 'admin.tenantBranding.sampleCardText' | translate }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </mat-tab>
+        </mat-tab-group>
+      </form>
+    </mat-card-content>
+
+    <mat-card-actions>
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="saveBranding()"
+        [disabled]="brandingForm.invalid || loading()"
+      >
+        @if (loading()) {
+          <mat-spinner
+            diameter="20"
+            style="display: inline-block; margin-right: 8px"
+          ></mat-spinner>
+        } @else {
+          <mat-icon>save</mat-icon>
+        }
+        {{ 'admin.tenantBranding.save' | translate }}
+      </button>
+      <button
+        mat-raised-button
+        color="accent"
+        type="button"
+        (click)="testBranding()"
+        [disabled]="brandingForm.invalid || loading()"
+      >
+        <mat-icon>visibility</mat-icon>
+        {{ 'admin.tenantBranding.testLive' | translate }}
+      </button>
+      <button
+        mat-stroked-button
+        type="button"
+        (click)="loadCurrentBranding()"
+        [disabled]="loading()"
+      >
+        <mat-icon>refresh</mat-icon>
+        {{ 'admin.tenantBranding.reset' | translate }}
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>

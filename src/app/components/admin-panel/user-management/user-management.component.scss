@@ -1,0 +1,38 @@
+// Styles inherited from parent admin-panel component
+:host {
+  display: block;
+}
+
+.form-grid {
+  display: flex !important;
+  flex-direction: row;
+  gap: 1.25rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: nowrap; // Prevent wrapping to keep all fields in one row
+
+  mat-form-field {
+    flex: 1; // Make each form field take equal width
+    min-width: 0; // Allow shrinking below content width
+  }
+}
+
+.form-actions {
+  margin-top: 0.5rem !important;
+  display: flex;
+  gap: 1rem;
+  padding-top: 0 !important;
+  border-top: 1px solid #f1f5f9;
+
+  button {
+    width: 100%;
+    border-radius: 10px;
+    font-weight: 600;
+    padding: 0.625rem 1.5rem;
+    transition: all 0.2s ease;
+
+    &:hover:not([disabled]) {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+  }
+}

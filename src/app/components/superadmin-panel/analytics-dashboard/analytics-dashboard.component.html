@@ -1,0 +1,387 @@
+<div class="analytics-dashboard">
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Loading analytics...</p>
+    </div>
+  }
+
+  @if (analytics()) {
+    <!-- Header with Controls -->
+    <div class="dashboard-header">
+      <div class="header-info">
+        <h2>Platform Analytics</h2>
+        <p class="last-updated">Last updated: {{ formatLastUpdated() }}</p>
+      </div>
+      <div class="header-actions">
+        <button
+          mat-stroked-button
+          (click)="toggleAutoRefresh()"
+          [color]="autoRefresh() ? 'primary' : 'default'"
+        >
+          <mat-icon>{{ autoRefresh() ? 'pause' : 'play_arrow' }}</mat-icon>
+          {{ autoRefresh() ? 'Auto-refresh ON' : 'Auto-refresh OFF' }}
+        </button>
+        <button mat-raised-button color="primary" (click)="refreshData()" [disabled]="isLoading()">
+          <mat-icon>refresh</mat-icon>
+          Refresh
+        </button>
+      </div>
+    </div>
+
+    <!-- System Health Overview -->
+    <mat-card class="health-card">
+      <mat-card-content>
+        <div class="health-overview">
+          <div class="health-status">
+            <mat-icon [style.color]="getHealthStatus().color" class="large-icon">
+              {{ getHealthStatus().icon }}
+            </mat-icon>
+            <div class="health-info">
+              <h3>System Health</h3>
+              <p class="status-text" [style.color]="getHealthStatus().color">
+                {{ getHealthStatus().status }}
+              </p>
+            </div>
+          </div>
+          <div class="health-metrics">
+            <div class="metric-item">
+              <span class="metric-label">Tenant Uptime</span>
+              <span class="metric-value"
+                >{{
+                  (analytics()!.platform.tenants.active / analytics()!.platform.tenants.total) * 100
+                    | number: '1.0-1'
+                }}%</span
+              >
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">User Activity</span>
+              <span class="metric-value">{{ getActiveRate() | number: '1.0-1' }}%</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">Request Completion</span>
+              <span class="metric-value">{{ getCompletionRate() | number: '1.0-1' }}%</span>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Main Statistics Grid -->
+    <div class="stats-grid">
+      <!-- Tenants Card -->
+      <mat-card class="stat-card tenants-card">
+        <mat-card-header>
+          <mat-icon class="card-icon">business</mat-icon>
+          <mat-card-title>Tenants</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="stat-number">{{ analytics()!.platform.tenants.total }}</div>
+          <div class="stat-breakdown">
+            <div class="breakdown-item">
+              <span class="breakdown-label">
+                <span class="status-dot active"></span>
+                Active
+              </span>
+              <span class="breakdown-value">{{ analytics()!.platform.tenants.active }}</span>
+            </div>
+            <div class="breakdown-item">
+              <span class="breakdown-label">
+                <span class="status-dot inactive"></span>
+                Inactive
+              </span>
+              <span class="breakdown-value">{{ analytics()!.platform.tenants.inactive }}</span>
+            </div>
+          </div>
+          <div class="progress-bar">
+            @for (item of tenantStatusData(); track item.label) {
+              <div
+                class="progress-segment"
+                [style.width.%]="item.percentage"
+                [style.background-color]="item.color"
+                [title]="item.label + ': ' + item.value"
+              ></div>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Users Card -->
+      <mat-card class="stat-card users-card">
+        <mat-card-header>
+          <mat-icon class="card-icon">group</mat-icon>
+          <mat-card-title>Users</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="stat-number">{{ analytics()!.platform.users.total }}</div>
+          <div class="stat-breakdown">
+            <div class="breakdown-item">
+              <span class="breakdown-label">
+                <mat-icon class="small-icon">admin_panel_settings</mat-icon>
+                Admins
+              </span>
+              <span class="breakdown-value">{{ analytics()!.platform.users.admins }}</span>
+            </div>
+            <div class="breakdown-item">
+              <span class="breakdown-label">
+                <mat-icon class="small-icon">room_service</mat-icon>
+                Waiters
+              </span>
+              <span class="breakdown-value">{{ analytics()!.platform.users.waiters }}</span>
+            </div>
+            <div class="breakdown-item">
+              <span class="breakdown-label">
+                <span class="status-dot active"></span>
+                Active
+              </span>
+              <span class="breakdown-value">{{ analytics()!.platform.users.active }}</span>
+            </div>
+          </div>
+          <div class="progress-bar">
+            @for (item of userRoleData(); track item.label) {
+              <div
+                class="progress-segment"
+                [style.width.%]="item.percentage"
+                [style.background-color]="item.color"
+                [title]="item.label + ': ' + item.value"
+              ></div>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Tables Card -->
+      <mat-card class="stat-card tables-card">
+        <mat-card-header>
+          <mat-icon class="card-icon">table_restaurant</mat-icon>
+          <mat-card-title>Tables</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="stat-number">{{ analytics()!.platform.tables.total }}</div>
+          <div class="stat-breakdown">
+            <div class="breakdown-item">
+              <span class="breakdown-label">
+                <span class="status-dot active"></span>
+                Active
+              </span>
+              <span class="breakdown-value">{{ analytics()!.platform.tables.active }}</span>
+            </div>
+            <div class="breakdown-item">
+              <span class="breakdown-label">
+                <span class="status-dot inactive"></span>
+                Inactive
+              </span>
+              <span class="breakdown-value">{{
+                analytics()!.platform.tables.total - analytics()!.platform.tables.active
+              }}</span>
+            </div>
+          </div>
+          <div class="stat-detail">
+            <span class="detail-label">Average per tenant</span>
+            <span class="detail-value">{{
+              analytics()!.platform.tables.total / analytics()!.platform.tenants.total
+                | number: '1.0-1'
+            }}</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Service Requests Card -->
+      <mat-card class="stat-card requests-card">
+        <mat-card-header>
+          <mat-icon class="card-icon">notifications_active</mat-icon>
+          <mat-card-title>Service Requests</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="stat-number">{{ analytics()!.platform.requests.total }}</div>
+          <div class="stat-breakdown">
+            <div class="breakdown-item">
+              <span class="breakdown-label">
+                <span class="status-dot pending"></span>
+                Pending
+              </span>
+              <span class="breakdown-value">{{ analytics()!.platform.requests.pending }}</span>
+            </div>
+            <div class="breakdown-item">
+              <span class="breakdown-label">
+                <span class="status-dot completed"></span>
+                Completed
+              </span>
+              <span class="breakdown-value">{{ analytics()!.platform.requests.completed }}</span>
+            </div>
+          </div>
+          <div class="progress-bar">
+            @for (item of requestStatusData(); track item.label) {
+              <div
+                class="progress-segment"
+                [style.width.%]="item.percentage"
+                [style.background-color]="item.color"
+                [title]="item.label + ': ' + item.value"
+              ></div>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Subscriptions Card -->
+      <mat-card class="stat-card subscriptions-card">
+        <mat-card-header>
+          <mat-icon class="card-icon">card_membership</mat-icon>
+          <mat-card-title>Subscriptions</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="stat-number">{{ analytics()!.subscriptions.total }}</div>
+          <div class="stat-breakdown">
+            <div class="breakdown-item">
+              <span class="breakdown-label">
+                <span class="status-dot active"></span>
+                Active
+              </span>
+              <span class="breakdown-value">{{ analytics()!.subscriptions.active }}</span>
+            </div>
+            <div class="breakdown-item">
+              <span class="breakdown-label">
+                <span class="status-dot expired"></span>
+                Expired
+              </span>
+              <span class="breakdown-value">{{ analytics()!.subscriptions.expired }}</span>
+            </div>
+          </div>
+          <div class="progress-bar">
+            @for (item of subscriptionStatusData(); track item.label) {
+              <div
+                class="progress-segment"
+                [style.width.%]="item.percentage"
+                [style.background-color]="item.color"
+                [title]="item.label + ': ' + item.value"
+              ></div>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Key Metrics Card -->
+      <mat-card class="stat-card metrics-card">
+        <mat-card-header>
+          <mat-icon class="card-icon">analytics</mat-icon>
+          <mat-card-title>Key Metrics</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="key-metrics">
+            <div class="metric-row">
+              <span class="metric-name">Completion Rate</span>
+              <mat-chip class="metric-chip success">
+                {{ getCompletionRate() | number: '1.0-1' }}%
+              </mat-chip>
+            </div>
+            <div class="metric-row">
+              <span class="metric-name">User Activity</span>
+              <mat-chip class="metric-chip info">
+                {{ getActiveRate() | number: '1.0-1' }}%
+              </mat-chip>
+            </div>
+            <div class="metric-row">
+              <span class="metric-name">Avg Tables/Tenant</span>
+              <mat-chip class="metric-chip default">
+                {{
+                  analytics()!.platform.tables.total / analytics()!.platform.tenants.total
+                    | number: '1.0-1'
+                }}
+              </mat-chip>
+            </div>
+            <div class="metric-row">
+              <span class="metric-name">Avg Users/Tenant</span>
+              <mat-chip class="metric-chip default">
+                {{
+                  analytics()!.platform.users.total / analytics()!.platform.tenants.total
+                    | number: '1.0-1'
+                }}
+              </mat-chip>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Tenant Analytics Table -->
+    @if (getTenantAnalyticsData().length > 0) {
+      <mat-card class="tenant-analytics-card">
+        <mat-card-header>
+          <mat-icon class="card-icon">table_chart</mat-icon>
+          <mat-card-title>Tenant Performance Analytics</mat-card-title>
+          <mat-card-subtitle>Detailed analytics for active tenants</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="table-container">
+            <table mat-table [dataSource]="getTenantAnalyticsData()" class="analytics-table">
+              <!-- Tenant Name Column -->
+              <ng-container matColumnDef="tenantName">
+                <th mat-header-cell *matHeaderCellDef>Tenant</th>
+                <td mat-cell *matCellDef="let tenant">{{ tenant.tenantName }}</td>
+              </ng-container>
+
+              <!-- Total Requests Column -->
+              <ng-container matColumnDef="totalRequests">
+                <th mat-header-cell *matHeaderCellDef>Total Requests</th>
+                <td mat-cell *matCellDef="let tenant">{{ tenant.analytics!.totalRequests }}</td>
+              </ng-container>
+
+              <!-- Pending Requests Column -->
+              <ng-container matColumnDef="pendingRequests">
+                <th mat-header-cell *matHeaderCellDef>Pending</th>
+                <td mat-cell *matCellDef="let tenant">
+                  <mat-chip [color]="tenant.analytics!.pendingRequests > 0 ? 'warn' : 'default'" selected>
+                    {{ tenant.analytics!.pendingRequests }}
+                  </mat-chip>
+                </td>
+              </ng-container>
+
+              <!-- Completed Requests Column -->
+              <ng-container matColumnDef="completedRequests">
+                <th mat-header-cell *matHeaderCellDef>Completed</th>
+                <td mat-cell *matCellDef="let tenant">
+                  <mat-chip color="primary" selected>
+                    {{ tenant.analytics!.completedRequests }}
+                  </mat-chip>
+                </td>
+              </ng-container>
+
+              <!-- Average Response Time Column -->
+              <ng-container matColumnDef="avgResponseTime">
+                <th mat-header-cell *matHeaderCellDef>Avg Response Time</th>
+                <td mat-cell *matCellDef="let tenant">
+                  {{ formatTime(tenant.analytics!.averageResponseTime) }}
+                </td>
+              </ng-container>
+
+              <!-- Average Completion Time Column -->
+              <ng-container matColumnDef="avgCompletionTime">
+                <th mat-header-cell *matHeaderCellDef>Avg Completion Time</th>
+                <td mat-cell *matCellDef="let tenant">
+                  {{ formatTime(tenant.analytics!.averageCompletionTime) }}
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+
+  }
+
+  @if (!analytics() && !isLoading()) {
+    <div class="no-data">
+      <mat-icon>analytics</mat-icon>
+      <h3>No analytics data available</h3>
+      <p>Unable to load platform analytics. Please try refreshing.</p>
+      <button mat-raised-button color="primary" (click)="refreshData()">
+        <mat-icon>refresh</mat-icon>
+        Retry
+      </button>
+    </div>
+  }
+</div>

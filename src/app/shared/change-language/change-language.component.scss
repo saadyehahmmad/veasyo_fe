@@ -1,0 +1,75 @@
+.language-button {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  min-width: auto;
+  padding: 0 0.5rem !important;
+  font-size: clamp(0.75rem, 2vw, 0.875rem); // Responsive font size
+  border-radius: 4px;
+  transition: all 0.2s ease-in-out;
+  position: relative;
+
+  .mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    margin-right: 0.25rem;
+    flex-shrink: 0;
+    transition: transform 0.2s ease-in-out;
+  }
+
+  // Default light theme
+  color: rgba(0, 0, 0, 0.87) !important;
+  background-color: rgba(0, 0, 0, 0.04);
+
+  .mat-icon {
+    color: rgba(0, 0, 0, 0.87);
+  }
+
+  // Style the button text content
+  ::ng-deep {
+    color: rgba(0, 0, 0, 0.87);
+  }
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.08);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+    .mat-icon {
+      transform: rotate(15deg);
+    }
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  &.dark {
+    color: white !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.649);
+    background-color: rgba(255, 255, 255, 0.1);
+
+    .mat-icon {
+      color: white;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.649);
+    }
+
+    // Style the button text content
+    ::ng-deep {
+      color: white;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.649);
+    }
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    &:active {
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+    }
+  }
+}

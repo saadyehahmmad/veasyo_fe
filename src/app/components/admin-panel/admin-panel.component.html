@@ -1,0 +1,92 @@
+<div class="admin-layout">
+  <!-- Sidebar Navigation -->
+  <aside class="sidebar" [class.collapsed]="sidebarCollapsed()">
+    <div class="sidebar-header">
+      <div class="logo">
+        @if (!sidebarCollapsed()) {
+          <mat-icon>admin_panel_settings</mat-icon>
+          <span class="logo-text">{{ 'admin.title' | translate }}</span>
+        }
+      </div>
+      <button mat-icon-button class="toggle-btn" (click)="toggleSidebar()">
+        <mat-icon>{{ sidebarCollapsed() ? 'menu_open' : 'menu' }}</mat-icon>
+      </button>
+    </div>
+
+    <nav class="sidebar-nav">
+      @for (tab of visibleTabs(); track tab.label) {
+        <button
+          class="nav-item"
+          [class.active]="selectedTab() === tab.label"
+          (click)="selectTab(tab.label)"
+          [title]="tab.label | translate"
+        >
+          <mat-icon>{{ tab.icon }}</mat-icon>
+          @if (!sidebarCollapsed()) {
+            <span>{{ tab.label | translate }}</span>
+          }
+        </button>
+      }
+    </nav>
+    <div class="sidebar-footer">
+      <button mat-button class="logout-btn" (click)="logout()" [title]="'admin.logout' | translate">
+        <mat-icon>logout</mat-icon>
+        @if (!sidebarCollapsed()) {
+          <span>{{ 'admin.logout' | translate }}</span>
+        }
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content Area -->
+  <div class="main-content">
+    <!-- Top Header -->
+    <header class="top-header">
+      <div class="header-left">
+        <h1>{{ selectedTab() | translate }}</h1>
+        <p class="subtitle">{{ getTabSubtitle() | translate }}</p>
+      </div>
+      <div class="header-right">
+        @if (currentUser) {
+          <div class="user-badge">
+            <div class="avatar">
+              <mat-icon>account_circle</mat-icon>
+            </div>
+            <div class="user-details">
+              <span class="user-name">{{ currentUser.fullName }}</span>
+              <span class="user-role">{{ currentUser.role }}</span>
+            </div>
+            <app-change-language [color]="'light'"></app-change-language>
+          </div>
+        }
+      </div>
+    </header>
+
+    <!-- Content Container -->
+    <div class="content-area">
+      @switch (selectedTab()) {
+        @case ('admin.menu.userManagement') {
+          <app-user-management></app-user-management>
+        }
+        @case ('admin.menu.tableManagement') {
+          <app-table-management></app-table-management>
+        }
+        @case ('admin.menu.serviceRequests') {
+          <app-service-requests></app-service-requests>
+        }
+        @case ('admin.menu.requestTypeManagement') {
+          <app-request-type-management></app-request-type-management>
+        }
+        @case ('admin.menu.qrGenerator') {
+          <app-qr-generator></app-qr-generator>
+        }
+        @case ('admin.menu.tenantBranding') {
+          <app-tenant-branding></app-tenant-branding>
+        }
+        @case ('admin.menu.integrations') {
+          <app-integrations></app-integrations>
+        }
+      }
+    </div>
+  </div>
+</div>

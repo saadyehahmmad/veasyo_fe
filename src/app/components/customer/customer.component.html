@@ -1,0 +1,136 @@
+<div class="customer-wrapper">
+  <app-customer-header></app-customer-header>
+
+  @if (tableId() && !tableNotFound()) {
+    <div class="customer-container">
+      <div class="table-info">
+        @if (tableDisplay()) {
+          <h1>
+            {{ tableDisplay()!.number }}
+            @if (tableDisplay()!.name) {
+              <span class="table-name"> - {{ tableDisplay()!.name }}</span>
+            }
+          </h1>
+        }
+        @if (tableDisplay()) {
+          <div class="table-details">
+            @if (tableDisplay()!.zone) {
+              <span class="zone">
+                <mat-icon>place</mat-icon> {{ tableDisplay()!.zone }}
+              </span>
+            }
+            @if (tableDisplay()!.capacity) {
+              <span class="capacity">
+                <mat-icon>people</mat-icon> {{ tableDisplay()!.capacity }} {{ 'customer.seats' | translate }}
+              </span>
+            }
+          </div>
+        }
+        @if (requestStatus()) {
+          <p class="status">{{ requestStatus() }}</p>
+        }
+      </div>
+
+      @if (!hasActiveRequest()) {
+        <div class="actions">
+          <!-- Menu Button - small height, full width, at the top -->
+          @if (menuUrl()) {
+            <a
+              [href]="menuUrl()"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="menu-button"
+            >
+              <mat-icon>restaurant_menu</mat-icon>
+              {{ 'customer.viewMenu' | translate }}
+            </a>
+          }
+
+          <!-- Request Types Grid - 2 columns -->
+          <div class="request-types-grid">
+            @for (requestType of requestTypes(); track requestType.id) {
+              <button
+                mat-fab
+                extended
+                class="request-type-button"
+                (click)="sendRequest(requestType.id)"
+                [disabled]="isLoading()"
+              >
+                <mat-icon class="request-type-icon">{{ requestType.icon }}</mat-icon>
+                {{ isLoading() ? ('customer.sending' | translate) : getRequestTypeName(requestType) }}
+              </button>
+            }
+
+            <!-- Custom Request Button (shown only if enabled) -->
+            @if (customRequestEnabled()) {
+              <button
+                mat-fab
+                extended
+                class="custom-button"
+                (click)="toggleCustomInput()"
+                [disabled]="isLoading()"
+              >
+                <mat-icon class="custom-icon">edit</mat-icon>
+                {{ 'customer.customRequest' | translate }}
+              </button>
+            }
+          </div>
+
+          <!-- Custom Request Input -->
+          @if (showCustomInput()) {
+            <div class="custom-input">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>{{ 'customer.enterCustomRequest' | translate }}</mat-label>
+                <input
+                  matInput
+                  [(ngModel)]="customMessage"
+                  [placeholder]="'customer.customRequestPlaceholder' | translate"
+                  (keyup.enter)="sendCustomRequest()"
+                />
+              </mat-form-field>
+              <button
+                mat-raised-button
+                color="primary"
+                (click)="sendCustomRequest()"
+                [disabled]="!customMessage().trim()"
+              >
+                {{ 'customer.sendCustomRequest' | translate }}
+              </button>
+            </div>
+          }
+        </div>
+      }
+
+    <!-- Action Buttons when request is active -->
+    @if (hasActiveRequest()) {
+      <div class="action-section">
+        <div class="action-buttons">
+          @if (isWaiterComing()) {
+            <button
+              mat-raised-button
+              color="primary"
+              (click)="completeRequest()"
+            >
+              <mat-icon>check_circle</mat-icon>
+              {{ 'customer.complete' | translate }}
+            </button>
+          }
+          <button mat-raised-button color="warn" (click)="cancelRequest()">
+            <mat-icon>cancel</mat-icon>
+            {{ 'customer.cancel' | translate }}
+          </button>
+        </div>
+        <p class="timer">{{ timerDisplay() }}</p>
+      </div>
+    }
+  </div>
+  }
+  @if (!tableId() || tableNotFound()) {
+    <div class="error">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ !tableId() ? ('customer.invalidTableId' | translate) : ('customer.tableNotRegistered' | translate) }}</p>
+    </div>
+  }
+
+  <app-customer-footer></app-customer-footer>
+</div>

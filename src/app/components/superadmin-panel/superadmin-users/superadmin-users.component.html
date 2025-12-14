@@ -1,0 +1,244 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>Global User Management</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <!-- Create/Edit Form -->
+    <form [formGroup]="userForm" (ngSubmit)="editingUser() ? updateUser() : createUser()">
+      <div class="form-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>Tenant</mat-label>
+          <input
+            type="text"
+            matInput
+            [formControl]="getTenantSearchControl()"
+            [matAutocomplete]="tenantAuto"
+            placeholder="Search tenant..."
+          />
+          <mat-autocomplete
+            #tenantAuto="matAutocomplete"
+            [displayWith]="displayTenantFn"
+            (optionSelected)="onTenantSelected($event)"
+          >
+            @for (tenant of filteredTenants$ | async; track tenant.id) {
+              <mat-option [value]="tenant">
+                <div class="tenant-option">
+                  <mat-icon>business</mat-icon>
+                  <span class="tenant-name">{{ tenant.name }}</span>
+                  <span class="tenant-subdomain">{{ tenant.subdomain }}</span>
+                </div>
+              </mat-option>
+            }
+          </mat-autocomplete>
+          @if (userForm.get('tenantId')?.value) {
+            <mat-hint>Selected: {{ getTenantDisplay() }}</mat-hint>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Username</mat-label>
+          <input matInput formControlName="username" placeholder="username" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Email</mat-label>
+          <input
+            matInput
+            type="email"
+            formControlName="email"
+            placeholder="user@example.com"
+            readonly
+          />
+          <mat-hint>Auto-generated from username and tenant</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Full Name</mat-label>
+          <input matInput formControlName="fullName" placeholder="John Doe" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Role</mat-label>
+          <mat-select formControlName="role">
+            @for (role of userRoles; track role) {
+              <mat-option [value]="role">
+                {{ role }}
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        @if (!editingUser()) {
+          <mat-form-field appearance="outline">
+            <mat-label>Password</mat-label>
+            <input matInput type="password" formControlName="password" placeholder="Password" />
+          </mat-form-field>
+        }
+      </div>
+
+      <div class="form-actions">
+        <mat-slide-toggle formControlName="active">Active</mat-slide-toggle>
+        <div class="button-group">
+          <button mat-raised-button color="primary" type="submit" [disabled]="userForm.invalid">
+            <mat-icon>{{ editingUser() ? 'save' : 'person_add' }}</mat-icon>
+            {{ editingUser() ? 'Update' : 'Create' }} User
+          </button>
+          @if (editingUser()) {
+            <button mat-button type="button" (click)="cancelEdit()">
+              <mat-icon>cancel</mat-icon>
+              Cancel
+            </button>
+          }
+        </div>
+      </div>
+    </form>
+
+    <!-- Search and Filters -->
+    <div class="filters-container">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search Users</mat-label>
+        <input
+          matInput
+          [value]="searchTerm()"
+          (input)="onSearchChange($any($event.target).value)"
+          placeholder="Search by name, email, username..."
+        />
+        <mat-icon matPrefix>search</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Filter by Tenant</mat-label>
+        <input
+          type="text"
+          matInput
+          [formControl]="getTenantFilterControl()"
+          [matAutocomplete]="tenantFilterAuto"
+          placeholder="All tenants"
+        />
+        <mat-autocomplete
+          #tenantFilterAuto="matAutocomplete"
+          [displayWith]="displayTenantFn"
+          (optionSelected)="onTenantFilterChange($event.option.value?.id || '')"
+        >
+          <mat-option [value]="null">
+            <div class="tenant-option">
+              <mat-icon>clear_all</mat-icon>
+              <span>All Tenants</span>
+            </div>
+          </mat-option>
+          @for (tenant of filteredTenantsFilter$ | async; track tenant.id) {
+            <mat-option [value]="tenant">
+              <div class="tenant-option">
+                <mat-icon>business</mat-icon>
+                <span class="tenant-name">{{ tenant.name }}</span>
+                <span class="tenant-subdomain">{{ tenant.subdomain }}</span>
+              </div>
+            </mat-option>
+          }
+        </mat-autocomplete>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Filter by Role</mat-label>
+        <mat-select
+          [value]="selectedRoleFilter()"
+          (selectionChange)="onRoleFilterChange($event.value)"
+        >
+          <mat-option value="">All Roles</mat-option>
+          <mat-option value="superadmin">Superadmin</mat-option>
+          <mat-option value="admin">Admin</mat-option>
+          <mat-option value="waiter">Waiter</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <button mat-raised-button (click)="clearFilters()">
+        <mat-icon>filter_alt_off</mat-icon>
+        Clear Filters
+      </button>
+    </div>
+
+    <!-- Users Table -->
+    <div class="table-container">
+      <table mat-table [dataSource]="dataSource" class="mat-elevation-z2">
+        <ng-container matColumnDef="username">
+          <th mat-header-cell *matHeaderCellDef>Username</th>
+          <td mat-cell *matCellDef="let user">{{ user.username }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="email">
+          <th mat-header-cell *matHeaderCellDef>Email</th>
+          <td mat-cell *matCellDef="let user">{{ user.email }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="role">
+          <th mat-header-cell *matHeaderCellDef>Role</th>
+          <td mat-cell *matCellDef="let user">
+            <mat-chip
+              [color]="
+                user.role === 'superadmin' ? 'accent' : user.role === 'admin' ? 'primary' : 'basic'
+              "
+            >
+              {{ user.role }}
+            </mat-chip>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="fullName">
+          <th mat-header-cell *matHeaderCellDef>Full Name</th>
+          <td mat-cell *matCellDef="let user">{{ user.fullName }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="active">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let user">
+            <mat-chip [color]="user.active ? 'primary' : 'warn'" selected>
+              {{ user.active ? 'Active' : 'Inactive' }}
+            </mat-chip>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="tenantName">
+          <th mat-header-cell *matHeaderCellDef>Tenant</th>
+          <td mat-cell *matCellDef="let user">{{ user.tenantName }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <td mat-cell *matCellDef="let user">
+            <button mat-icon-button color="accent" (click)="viewUserDetails(user)" matTooltip="View Details">
+              <mat-icon>visibility</mat-icon>
+            </button>
+            @if (user.role !== 'superadmin') {
+              <button mat-icon-button color="primary" (click)="editUser(user)" matTooltip="Edit User">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" (click)="resetUserPassword(user)" matTooltip="Reset Password">
+                <mat-icon>lock_reset</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" (click)="deleteUser(user)" matTooltip="Delete User">
+                <mat-icon>delete</mat-icon>
+              </button>
+            } @else {
+              <span class="protected-badge">
+                <mat-icon>lock</mat-icon>
+                Protected
+              </span>
+            }
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="userColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: userColumns"></tr>
+      </table>
+
+      <mat-paginator
+        [length]="totalUsers()"
+        [pageSize]="pageSize()"
+        [pageSizeOptions]="[10, 25, 50, 100]"
+        [pageIndex]="currentPage() - 1"
+        showFirstLastButtons
+      >
+      </mat-paginator>
+    </div>
+  </mat-card-content>
+</mat-card>

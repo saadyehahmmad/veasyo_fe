@@ -1,0 +1,165 @@
+<app-waiter-header></app-waiter-header>
+<div class="dashboard-container">
+  <header>
+    <h1>
+      <mat-icon>restaurant</mat-icon>
+      {{ 'waiter.dashboard' | translate }}
+    </h1>
+    <div class="stats">
+      <span class="stat-badge pending" [matBadge]="pendingRequests().length" matBadgeColor="warn">
+        {{ 'waiter.pending' | translate }}
+      </span>
+      <span
+        class="stat-badge progress"
+        [matBadge]="inProgressRequests().length"
+        matBadgeColor="primary"
+      >
+        {{ 'waiter.inProgress' | translate }}
+      </span>
+    </div>
+  </header>
+
+  <div class="columns">
+    <div class="column pending">
+      <h2>
+        <mat-icon>notifications_active</mat-icon>
+        {{ 'waiter.pendingRequests' | translate }}
+      </h2>
+      @for (req of pendingRequests(); track req.id) {
+        <mat-card class="request-card pending-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>table_restaurant</mat-icon>
+            {{ 'waiter.table' | translate }} {{ getTableDisplayInfo(req.tableId).number }}
+            @if (getTableDisplayInfo(req.tableId).name) {
+              <span class="table-name">
+                ({{ getTableDisplayInfo(req.tableId).name }})
+              </span>
+            }
+          </mat-card-title>
+          <mat-card-subtitle>{{ req.timestampCreated | date: 'shortTime' }}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          @if (
+            getTableDisplayInfo(req.tableId).zone || getTableDisplayInfo(req.tableId).capacity
+          ) {
+            <div class="table-details">
+              @if (getTableDisplayInfo(req.tableId).zone) {
+                <span class="table-zone">
+                  <mat-icon>location_on</mat-icon>
+                  {{ getTableDisplayInfo(req.tableId).zone }}
+                </span>
+              }
+              @if (getTableDisplayInfo(req.tableId).capacity) {
+                <span class="table-capacity">
+                  <mat-icon>people</mat-icon>
+                  {{ getTableDisplayInfo(req.tableId).capacity }} {{ 'waiter.seats' | translate }}
+                </span>
+              }
+            </div>
+          }
+          <p class="request-type">
+            <mat-icon>{{ getRequestTypeIcon(req.requestType) }}</mat-icon>
+            {{ getRequestTypeLabel(req.requestType) }}
+          </p>
+          @if (req.customNote) {
+            <p class="custom-note">
+              <mat-icon>message</mat-icon>
+              "{{ req.customNote }}"
+            </p>
+          }
+          <mat-chip-set>
+            <mat-chip color="warn" selected>
+              <mat-icon>notification_important</mat-icon>
+              {{ 'waiter.statusPending' | translate }}
+            </mat-chip>
+          </mat-chip-set>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-raised-button color="primary" (click)="acknowledge(req.id)">
+            <mat-icon>check_circle</mat-icon>
+            {{ 'waiter.acknowledge' | translate }}
+          </button>
+        </mat-card-actions>
+        </mat-card>
+      }
+      @if (pendingRequests().length === 0) {
+        <div class="empty-state">
+          <mat-icon>check_circle_outline</mat-icon>
+          <p>{{ 'waiter.noPendingRequests' | translate }}</p>
+        </div>
+      }
+    </div>
+
+    <div class="column in-progress">
+      <h2>
+        <mat-icon>pending_actions</mat-icon>
+        {{ 'waiter.inProgressRequests' | translate }}
+      </h2>
+      @for (req of inProgressRequests(); track req.id) {
+        <mat-card class="request-card progress-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>table_restaurant</mat-icon>
+            {{ 'waiter.table' | translate }} {{ getTableDisplayInfo(req.tableId).number }}
+            @if (getTableDisplayInfo(req.tableId).name) {
+              <span class="table-name">
+                ({{ getTableDisplayInfo(req.tableId).name }})
+              </span>
+            }
+          </mat-card-title>
+          <mat-card-subtitle>{{ req.timestampCreated | date: 'shortTime' }}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          @if (
+            getTableDisplayInfo(req.tableId).zone || getTableDisplayInfo(req.tableId).capacity
+          ) {
+            <div class="table-details">
+              @if (getTableDisplayInfo(req.tableId).zone) {
+                <span class="table-zone">
+                  <mat-icon>location_on</mat-icon>
+                  {{ getTableDisplayInfo(req.tableId).zone }}
+                </span>
+              }
+              @if (getTableDisplayInfo(req.tableId).capacity) {
+                <span class="table-capacity">
+                  <mat-icon>people</mat-icon>
+                  {{ getTableDisplayInfo(req.tableId).capacity }} {{ 'waiter.seats' | translate }}
+                </span>
+              }
+            </div>
+          }
+          <p class="request-type">
+            <mat-icon>{{ getRequestTypeIcon(req.requestType) }}</mat-icon>
+            {{ getRequestTypeLabel(req.requestType) }}
+          </p>
+          @if (req.customNote) {
+            <p class="custom-note">
+              <mat-icon>message</mat-icon>
+              "{{ req.customNote }}"
+            </p>
+          }
+          <mat-chip-set>
+            <mat-chip color="accent" selected>
+              <mat-icon>hourglass_empty</mat-icon>
+              {{ 'waiter.statusInProgress' | translate }}
+            </mat-chip>
+          </mat-chip-set>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-raised-button color="warn" (click)="complete(req.id)">
+            <mat-icon>done_all</mat-icon>
+            {{ 'waiter.complete' | translate }}
+          </button>
+        </mat-card-actions>
+        </mat-card>
+      }
+      @if (inProgressRequests().length === 0) {
+        <div class="empty-state">
+          <mat-icon>task_alt</mat-icon>
+          <p>{{ 'waiter.noActiveTasks' | translate }}</p>
+        </div>
+      }
+    </div>
+  </div>
+</div>

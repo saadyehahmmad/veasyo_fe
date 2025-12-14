@@ -1,0 +1,434 @@
+<div class="integrations-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>settings_input_component</mat-icon>
+        {{ 'admin.integrations.title' | translate }}
+      </mat-card-title>
+      <mat-card-subtitle>{{ 'admin.integrations.subtitle' | translate }}</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      @if (loading()) {
+        <div class="loading-state">
+          <mat-spinner diameter="40"></mat-spinner>
+          <span>{{ 'admin.integrations.loading' | translate }}</span>
+        </div>
+      } @else {
+        <form class="integrations-form">
+          <mat-tab-group>
+            <!-- Printer Integration Tab -->
+            <mat-tab [label]="'admin.integrations.printer.title' | translate">
+              <div class="tab-content">
+                <form [formGroup]="printerForm" class="integration-form">
+                  <div class="integration-header">
+                    <mat-slide-toggle 
+                      formControlName="enabled"
+                      [matTooltip]="printerForm.get('enabled')?.value ? ('admin.integrations.printer.enabledHint' | translate) : ('admin.integrations.printer.disabledHint' | translate)"
+                    >
+                      {{ 'admin.integrations.printer.enable' | translate }}
+                    </mat-slide-toggle>
+                    <p class="integration-description">
+                      {{ 'admin.integrations.printer.description' | translate }}
+                    </p>
+                  </div>
+
+                  @if (printerForm.get('enabled')?.value) {
+                    <div class="form-section">
+                      <mat-form-field appearance="outline" class="full-width">
+                        <mat-label>{{ 'admin.integrations.printer.ipAddress' | translate }}</mat-label>
+                        <input 
+                          matInput 
+                          formControlName="printerIp" 
+                          type="text" 
+                          [placeholder]="'admin.integrations.printer.ipPlaceholder' | translate"
+                          required
+                        />
+                        <mat-icon matSuffix>router</mat-icon>
+                        <mat-hint>{{ 'admin.integrations.printer.ipHint' | translate }}</mat-hint>
+                        @if (printerForm.get('printerIp')?.invalid && printerForm.get('printerIp')?.touched) {
+                          <mat-error>
+                            {{ 'admin.integrations.printer.ipRequired' | translate }}
+                          </mat-error>
+                        }
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline" class="full-width">
+                        <mat-label>{{ 'admin.integrations.printer.port' | translate }}</mat-label>
+                        <input 
+                          matInput 
+                          formControlName="printerPort" 
+                          type="number" 
+                          [placeholder]="'admin.integrations.printer.portPlaceholder' | translate"
+                          required
+                        />
+                        <mat-icon matSuffix>settings_ethernet</mat-icon>
+                        <mat-hint>{{ 'admin.integrations.printer.portHint' | translate }}</mat-hint>
+                        @if (printerForm.get('printerPort')?.invalid && printerForm.get('printerPort')?.touched) {
+                          <mat-error>
+                            {{ 'admin.integrations.printer.portRequired' | translate }}
+                          </mat-error>
+                        }
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline" class="full-width">
+                        <mat-label>{{ 'admin.integrations.printer.name' | translate }}</mat-label>
+                        <input matInput formControlName="printerName" [placeholder]="'admin.integrations.printer.namePlaceholder' | translate" />
+                        <mat-icon matSuffix>label</mat-icon>
+                        <mat-hint>{{ 'admin.integrations.printer.nameHint' | translate }}</mat-hint>
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline" class="full-width">
+                        <mat-label>{{ 'admin.integrations.printer.paperWidth' | translate }}</mat-label>
+                        <mat-select formControlName="paperWidth">
+                          <mat-option [value]="58">58mm (2.3")</mat-option>
+                          <mat-option [value]="80">80mm (3.1")</mat-option>
+                        </mat-select>
+                        <mat-icon matSuffix>straighten</mat-icon>
+                        <mat-hint>{{ 'admin.integrations.printer.paperWidthHint' | translate }}</mat-hint>
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline" class="full-width">
+                        <mat-label>{{ 'admin.integrations.printer.language' | translate }}</mat-label>
+                        <mat-select formControlName="language">
+                          <mat-option value="en">{{ 'admin.integrations.printer.languageEn' | translate }}</mat-option>
+                          <mat-option value="ar">{{ 'admin.integrations.printer.languageAr' | translate }}</mat-option>
+                          <mat-option value="both">{{ 'admin.integrations.printer.languageBoth' | translate }}</mat-option>
+                        </mat-select>
+                        <mat-icon matSuffix>language</mat-icon>
+                        <mat-hint>{{ 'admin.integrations.printer.languageHint' | translate }}</mat-hint>
+                      </mat-form-field>
+
+                      <mat-slide-toggle formControlName="autoPrint">
+                        {{ 'admin.integrations.printer.autoPrint' | translate }}
+                      </mat-slide-toggle>
+                      <p class="toggle-hint">{{ 'admin.integrations.printer.autoPrintHint' | translate }}</p>
+
+                      <mat-slide-toggle formControlName="printHeader">
+                        {{ 'admin.integrations.printer.printHeader' | translate }}
+                      </mat-slide-toggle>
+                      <p class="toggle-hint">{{ 'admin.integrations.printer.printHeaderHint' | translate }}</p>
+
+                      <mat-slide-toggle formControlName="printFooter">
+                        {{ 'admin.integrations.printer.printFooter' | translate }}
+                      </mat-slide-toggle>
+                      <p class="toggle-hint">{{ 'admin.integrations.printer.printFooterHint' | translate }}</p>
+
+                      <!-- Receipt Preview -->
+                      <div class="receipt-preview-section">
+                        <h3>{{ 'admin.integrations.printer.receiptPreview' | translate }}</h3>
+                        <p class="preview-description">{{ 'admin.integrations.printer.receiptPreviewDescription' | translate }}</p>
+                        <div class="canvas-container">
+                          <canvas #receiptCanvas class="receipt-canvas"></canvas>
+                        </div>
+                      </div>
+
+                      <div class="tab-actions">
+                        <button
+                          mat-raised-button
+                          color="primary"
+                          (click)="savePrinterIntegration()"
+                          [disabled]="printerForm.invalid || saving()"
+                        >
+                          @if (saving()) {
+                            <mat-spinner diameter="20" style="display: inline-block; margin-right: 8px"></mat-spinner>
+                          } @else {
+                            <mat-icon>save</mat-icon>
+                          }
+                          {{ 'admin.integrations.printer.save' | translate }}
+                        </button>
+                        <button
+                          mat-stroked-button
+                          (click)="testPrinter()"
+                          [disabled]="!printerForm.get('enabled')?.value || saving()"
+                        >
+                          <mat-icon>print</mat-icon>
+                          {{ 'admin.integrations.printer.test' | translate }}
+                        </button>
+                      </div>
+                    </div>
+                  }
+                </form>
+              </div>
+            </mat-tab>
+
+            <!-- Alarm Integration Tab -->
+            <mat-tab [label]="'admin.integrations.alarm.title' | translate">
+              <div class="tab-content">
+                <form [formGroup]="alarmForm" class="integration-form">
+                  <div class="integration-header">
+                    <mat-slide-toggle 
+                      formControlName="enabled"
+                      [matTooltip]="alarmForm.get('enabled')?.value ? ('admin.integrations.alarm.enabledHint' | translate) : ('admin.integrations.alarm.disabledHint' | translate)"
+                    >
+                      {{ 'admin.integrations.alarm.enable' | translate }}
+                    </mat-slide-toggle>
+                    <p class="integration-description">
+                      {{ 'admin.integrations.alarm.description' | translate }}
+                    </p>
+                  </div>
+
+                  @if (alarmForm.get('enabled')?.value) {
+                    <div class="form-section">
+                      <mat-form-field appearance="outline" class="full-width">
+                        <mat-label>{{ 'admin.integrations.alarm.speakerIp' | translate }}</mat-label>
+                        <input 
+                          matInput 
+                          formControlName="speakerIp" 
+                          type="text" 
+                          [placeholder]="'admin.integrations.alarm.speakerIpPlaceholder' | translate"
+                          required
+                        />
+                        <mat-icon matSuffix>router</mat-icon>
+                        <mat-hint>{{ 'admin.integrations.alarm.speakerIpHint' | translate }}</mat-hint>
+                        @if (alarmForm.get('speakerIp')?.invalid && alarmForm.get('speakerIp')?.touched) {
+                          <mat-error>
+                            {{ 'admin.integrations.alarm.speakerIpRequired' | translate }}
+                          </mat-error>
+                        }
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline" class="full-width">
+                        <mat-label>{{ 'admin.integrations.alarm.speakerPort' | translate }}</mat-label>
+                        <input 
+                          matInput 
+                          formControlName="speakerPort" 
+                          type="number" 
+                          [placeholder]="'admin.integrations.alarm.speakerPortPlaceholder' | translate"
+                          required
+                        />
+                        <mat-icon matSuffix>settings_ethernet</mat-icon>
+                        <mat-hint>{{ 'admin.integrations.alarm.speakerPortHint' | translate }}</mat-hint>
+                        @if (alarmForm.get('speakerPort')?.invalid && alarmForm.get('speakerPort')?.touched) {
+                          <mat-error>
+                            {{ 'admin.integrations.alarm.speakerPortRequired' | translate }}
+                          </mat-error>
+                        }
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline" class="full-width">
+                        <mat-label>{{ 'admin.integrations.alarm.soundType' | translate }}</mat-label>
+                        <mat-select formControlName="soundType">
+                          <mat-option value="beep">{{ 'admin.integrations.alarm.beep' | translate }}</mat-option>
+                          <mat-option value="alert">{{ 'admin.integrations.alarm.alert' | translate }}</mat-option>
+                          <mat-option value="custom">{{ 'admin.integrations.alarm.custom' | translate }}</mat-option>
+                        </mat-select>
+                        <mat-icon matSuffix>volume_up</mat-icon>
+                        <mat-hint>{{ 'admin.integrations.alarm.soundTypeHint' | translate }}</mat-hint>
+                      </mat-form-field>
+
+                      @if (alarmForm.get('soundType')?.value === 'custom') {
+                        <mat-form-field appearance="outline" class="full-width">
+                          <mat-label>{{ 'admin.integrations.alarm.customSoundUrl' | translate }}</mat-label>
+                          <input matInput formControlName="customSoundUrl" type="url" [placeholder]="'admin.integrations.alarm.customSoundUrlPlaceholder' | translate" />
+                          <mat-icon matSuffix>audiotrack</mat-icon>
+                          <mat-hint>{{ 'admin.integrations.alarm.customSoundUrlHint' | translate }}</mat-hint>
+                        </mat-form-field>
+                      }
+
+                      <mat-form-field appearance="outline" class="full-width">
+                        <mat-label>{{ 'admin.integrations.alarm.volume' | translate }}</mat-label>
+                        <input 
+                          matInput 
+                          formControlName="volume" 
+                          type="number" 
+                          min="0" 
+                          max="100" 
+                          [placeholder]="'admin.integrations.alarm.volumePlaceholder' | translate"
+                        />
+                        <mat-icon matSuffix>volume_up</mat-icon>
+                        <mat-hint>{{ 'admin.integrations.alarm.volumeHint' | translate }}</mat-hint>
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline" class="full-width">
+                        <mat-label>{{ 'admin.integrations.alarm.duration' | translate }}</mat-label>
+                        <input 
+                          matInput 
+                          formControlName="duration" 
+                          type="number" 
+                          min="1" 
+                          max="60" 
+                          [placeholder]="'admin.integrations.alarm.durationPlaceholder' | translate"
+                        />
+                        <mat-icon matSuffix>timer</mat-icon>
+                        <mat-hint>{{ 'admin.integrations.alarm.durationHint' | translate }}</mat-hint>
+                      </mat-form-field>
+
+                      <div class="tab-actions">
+                        <button
+                          mat-raised-button
+                          color="primary"
+                          (click)="saveAlarmIntegration()"
+                          [disabled]="alarmForm.invalid || saving()"
+                        >
+                          @if (saving()) {
+                            <mat-spinner diameter="20" style="display: inline-block; margin-right: 8px"></mat-spinner>
+                          } @else {
+                            <mat-icon>save</mat-icon>
+                          }
+                          {{ 'admin.integrations.alarm.save' | translate }}
+                        </button>
+                        <button
+                          mat-stroked-button
+                          (click)="testAlarm()"
+                          [disabled]="!alarmForm.get('enabled')?.value || saving()"
+                        >
+                          <mat-icon>notifications</mat-icon>
+                          {{ 'admin.integrations.alarm.test' | translate }}
+                        </button>
+                      </div>
+                    </div>
+                  }
+                </form>
+              </div>
+            </mat-tab>
+
+            <!-- Webhook Integration Tab -->
+            <mat-tab [label]="'admin.integrations.webhook.title' | translate">
+              <div class="tab-content">
+                <form [formGroup]="webhookForm" class="integration-form">
+                  <div class="integration-header">
+                    <mat-slide-toggle 
+                      formControlName="enabled"
+                      [matTooltip]="webhookForm.get('enabled')?.value ? ('admin.integrations.webhook.enabledHint' | translate) : ('admin.integrations.webhook.disabledHint' | translate)"
+                    >
+                      {{ 'admin.integrations.webhook.enable' | translate }}
+                    </mat-slide-toggle>
+                    <p class="integration-description">
+                      {{ 'admin.integrations.webhook.description' | translate }}
+                    </p>
+                  </div>
+
+                  @if (webhookForm.get('enabled')?.value) {
+                    <div class="form-section">
+                      <mat-form-field appearance="outline" class="full-width">
+                        <mat-label>{{ 'admin.integrations.webhook.url' | translate }}</mat-label>
+                        <input 
+                          matInput 
+                          formControlName="webhookUrl" 
+                          type="url" 
+                          [placeholder]="'admin.integrations.webhook.urlPlaceholder' | translate"
+                          required
+                        />
+                        <mat-icon matSuffix>webhook</mat-icon>
+                        <mat-hint>{{ 'admin.integrations.webhook.urlHint' | translate }}</mat-hint>
+                        @if (webhookForm.get('webhookUrl')?.invalid && webhookForm.get('webhookUrl')?.touched) {
+                          <mat-error>
+                            {{ 'admin.integrations.webhook.urlRequired' | translate }}
+                          </mat-error>
+                        }
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline" class="full-width">
+                        <mat-label>{{ 'admin.integrations.webhook.secretKey' | translate }}</mat-label>
+                        <input 
+                          matInput 
+                          formControlName="secretKey" 
+                          type="password"
+                          [placeholder]="'admin.integrations.webhook.secretKeyPlaceholder' | translate"
+                        />
+                        <mat-icon matSuffix>vpn_key</mat-icon>
+                        <mat-hint>{{ 'admin.integrations.webhook.secretKeyHint' | translate }}</mat-hint>
+                      </mat-form-field>
+
+                      <div class="events-section">
+                        <h3>{{ 'admin.integrations.webhook.events' | translate }}</h3>
+                        <p class="section-description">{{ 'admin.integrations.webhook.eventsDescription' | translate }}</p>
+                        
+                        <div class="event-checkboxes" [formGroup]="eventsFormGroup">
+                          <div class="event-item">
+                            <mat-slide-toggle formControlName="newRequest">
+                              {{ 'admin.integrations.webhook.eventNewRequest' | translate }}
+                            </mat-slide-toggle>
+                            <p class="event-hint">{{ 'admin.integrations.webhook.eventNewRequestHint' | translate }}</p>
+                          </div>
+
+                          <div class="event-item">
+                            <mat-slide-toggle formControlName="requestAcknowledged">
+                              {{ 'admin.integrations.webhook.eventAcknowledged' | translate }}
+                            </mat-slide-toggle>
+                            <p class="event-hint">{{ 'admin.integrations.webhook.eventAcknowledgedHint' | translate }}</p>
+                          </div>
+
+                          <div class="event-item">
+                            <mat-slide-toggle formControlName="requestCompleted">
+                              {{ 'admin.integrations.webhook.eventCompleted' | translate }}
+                            </mat-slide-toggle>
+                            <p class="event-hint">{{ 'admin.integrations.webhook.eventCompletedHint' | translate }}</p>
+                          </div>
+
+                          <div class="event-item">
+                            <mat-slide-toggle formControlName="requestCancelled">
+                              {{ 'admin.integrations.webhook.eventCancelled' | translate }}
+                            </mat-slide-toggle>
+                            <p class="event-hint">{{ 'admin.integrations.webhook.eventCancelledHint' | translate }}</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="advanced-settings">
+                        <h3>{{ 'admin.integrations.webhook.advancedSettings' | translate }}</h3>
+                        
+                        <mat-form-field appearance="outline" class="full-width">
+                          <mat-label>{{ 'admin.integrations.webhook.retryAttempts' | translate }}</mat-label>
+                          <input 
+                            matInput 
+                            formControlName="retryAttempts" 
+                            type="number" 
+                            min="0" 
+                            max="10"
+                            [placeholder]="'admin.integrations.webhook.retryAttemptsPlaceholder' | translate"
+                          />
+                          <mat-icon matSuffix>refresh</mat-icon>
+                          <mat-hint>{{ 'admin.integrations.webhook.retryAttemptsHint' | translate }}</mat-hint>
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="full-width">
+                          <mat-label>{{ 'admin.integrations.webhook.timeout' | translate }}</mat-label>
+                          <input 
+                            matInput 
+                            formControlName="timeout" 
+                            type="number" 
+                            min="1000" 
+                            max="30000"
+                            [placeholder]="'admin.integrations.webhook.timeoutPlaceholder' | translate"
+                          />
+                          <mat-icon matSuffix>timer</mat-icon>
+                          <mat-hint>{{ 'admin.integrations.webhook.timeoutHint' | translate }}</mat-hint>
+                        </mat-form-field>
+                      </div>
+
+                      <div class="tab-actions">
+                        <button
+                          mat-raised-button
+                          color="primary"
+                          (click)="saveWebhookIntegration()"
+                          [disabled]="webhookForm.invalid || saving()"
+                        >
+                          @if (saving()) {
+                            <mat-spinner diameter="20" style="display: inline-block; margin-right: 8px"></mat-spinner>
+                          } @else {
+                            <mat-icon>save</mat-icon>
+                          }
+                          {{ 'admin.integrations.webhook.save' | translate }}
+                        </button>
+                        <button
+                          mat-stroked-button
+                          (click)="testWebhook()"
+                          [disabled]="!webhookForm.get('enabled')?.value || !webhookForm.get('webhookUrl')?.value || saving()"
+                        >
+                          <mat-icon>send</mat-icon>
+                          {{ 'admin.integrations.webhook.test' | translate }}
+                        </button>
+                      </div>
+                    </div>
+                  }
+                </form>
+              </div>
+            </mat-tab>
+          </mat-tab-group>
+        </form>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -1,0 +1,75 @@
+<div class="login-container">
+  <mat-card class="login-card">
+    <mat-card-header class="login-title">
+      <mat-card-title>Login</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email or Username</mat-label>
+          <input
+            matInput
+            formControlName="identifier"
+            placeholder="Enter your email or username"
+            required
+          />
+          @if (loginForm.get('identifier')?.hasError('required')) {
+            <mat-error>
+              Email or username is required
+            </mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Password</mat-label>
+          <input
+            matInput
+            type="password"
+            formControlName="password"
+            placeholder="Enter your password"
+            required
+          />
+          @if (loginForm.get('password')?.hasError('required')) {
+            <mat-error>
+              Password is required
+            </mat-error>
+          }
+        </mat-form-field>
+
+        @if (showTenantField()) {
+          <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Tenant ID (Optional)</mat-label>
+          <input matInput formControlName="tenantId"             placeholder="Enter tenant ID if required" />
+          </mat-form-field>
+        }
+
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          [disabled]="loginForm.invalid || isLoading()"
+          class="login-button"
+        >
+          @if (isLoading()) {
+            <mat-spinner diameter="20"></mat-spinner>
+          }
+          @if (!isLoading() && !isRetrying()) {
+            <span>Login</span>
+          }
+          @if (isRetrying()) {
+            <span>
+              Retrying... ({{ retryCount() }}/{{ MAX_RETRIES }})
+            </span>
+          }
+        </button>
+      </form>
+    </mat-card-content>
+
+    @if (errorMessage()) {
+      <mat-card-actions class="error-message">
+        <mat-error>{{ errorMessage() }}</mat-error>
+      </mat-card-actions>
+    }
+  </mat-card>
+</div>

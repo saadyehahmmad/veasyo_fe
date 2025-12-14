@@ -1,0 +1,178 @@
+    <div class="request-type-management">
+      <div class="header">
+        <h2>{{ 'admin.requestTypeManagement.title' | translate }}</h2>
+        <button mat-raised-button color="primary" (click)="openCreateDialog()">
+          <mat-icon>add</mat-icon>
+          {{ 'admin.requestTypeManagement.create' | translate }}
+        </button>
+      </div>
+
+  <mat-card class="request-types-card">
+    <mat-card-content>
+      @if (loading()) {
+        <div class="loading-state">
+          <mat-spinner diameter="40"></mat-spinner>
+          <span>{{ 'admin.requestTypeManagement.loading' | translate }}</span>
+        </div>
+      } @else if (requestTypes().length === 0) {
+        <div class="empty-state">
+          <mat-icon class="empty-icon">category</mat-icon>
+          <h3>{{ 'admin.requestTypeManagement.noRequestTypes' | translate }}</h3>
+          <p>{{ 'admin.requestTypeManagement.noRequestTypesMessage' | translate }}</p>
+          <button mat-raised-button color="primary" (click)="openCreateDialog()">
+            <mat-icon>add</mat-icon>
+            {{ 'admin.requestTypeManagement.createFirst' | translate }}
+          </button>
+        </div>
+      } @else {
+        <div 
+          class="request-types-grid" 
+          cdkDropList 
+          cdkDropListOrientation="mixed" 
+          (cdkDropListDropped)="onDrop($event)"
+        >
+          @for (requestType of requestTypes(); track requestType.id) {
+            <div 
+              class="request-type-card" 
+              cdkDrag
+              [class.inactive]="!requestType.active"
+            >
+              <div class="drag-handle" cdkDragHandle>
+                <mat-icon>drag_indicator</mat-icon>
+              </div>
+              
+              <div class="card-content">
+                <div class="card-header">
+                  <mat-icon 
+                    class="type-icon" 
+                    [style.color]="requestType.active ? 'primary' : 'gray'"
+                  >
+                    {{ requestType.icon }}
+                  </mat-icon>
+                  <div class="type-names">
+                    <span class="name-text">{{ requestType.nameEn }}</span>
+                    <span class="name-text arabic">{{ requestType.nameAr }}</span>
+                  </div>
+                </div>
+                
+                <div class="card-footer">
+                  <div class="order-badge">
+                    <mat-icon>sort</mat-icon>
+                    <span>{{ requestType.displayOrder }}</span>
+                  </div>
+                  
+                  <div class="card-actions">
+                    <mat-slide-toggle
+                      [checked]="requestType.active"
+                      (change)="toggleActive(requestType)"
+                      [matTooltip]="requestType.active ? ('admin.requestTypeManagement.clickToDeactivate' | translate) : ('admin.requestTypeManagement.clickToActivate' | translate)"
+                    ></mat-slide-toggle>
+                    
+                    <button
+                      mat-icon-button
+                      color="primary"
+                      (click)="editRequestType(requestType)"
+                      [matTooltip]="'admin.requestTypeManagement.edit' | translate"
+                    >
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button
+                      mat-icon-button
+                      color="warn"
+                      (click)="deleteRequestType(requestType)"
+                      [matTooltip]="'admin.requestTypeManagement.delete' | translate"
+                    >
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </mat-card-content>
+  </mat-card>
+
+      <!-- Create/Edit Dialog -->
+      @if (showDialog()) {
+        <div class="dialog-overlay" (click)="closeDialog()">
+          <div class="dialog-content" (click)="$event.stopPropagation()">
+            <h3>
+              <mat-icon>{{ isEditMode() ? 'edit' : 'add_circle' }}</mat-icon>
+              {{ isEditMode() ? ('admin.requestTypeManagement.edit' | translate) : ('admin.requestTypeManagement.create' | translate) }}
+            </h3>
+            <form (ngSubmit)="saveRequestType()">
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'admin.requestTypeManagement.nameEn' | translate }}</mat-label>
+                <input matInput [(ngModel)]="formData().nameEn" name="nameEn" required
+                       placeholder="{{ 'admin.requestTypeManagement.nameEnPlaceholder' | translate }}" />
+                <mat-hint>{{ 'admin.requestTypeManagement.nameEnHint' | translate }}</mat-hint>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="arabic-field">
+                <mat-label>{{ 'admin.requestTypeManagement.nameAr' | translate }}</mat-label>
+                <input matInput [(ngModel)]="formData().nameAr" name="nameAr" required
+                       placeholder="{{ 'admin.requestTypeManagement.nameArPlaceholder' | translate }}"
+                       dir="rtl" />
+                <mat-hint>{{ 'admin.requestTypeManagement.nameArHint' | translate }}</mat-hint>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'admin.requestTypeManagement.icon' | translate }}</mat-label>
+                <mat-select [(ngModel)]="formData().icon" name="icon" required>
+                  <mat-option value="notifications">
+                    <mat-icon>notifications</mat-icon>
+                    {{ 'admin.requestTypeManagement.iconNotifications' | translate }}
+                  </mat-option>
+                  <mat-option value="receipt">
+                    <mat-icon>receipt</mat-icon>
+                    {{ 'admin.requestTypeManagement.iconReceipt' | translate }}
+                  </mat-option>
+                  <mat-option value="help">
+                    <mat-icon>help</mat-icon>
+                    {{ 'admin.requestTypeManagement.iconHelp' | translate }}
+                  </mat-option>
+                  <mat-option value="restaurant">
+                    <mat-icon>restaurant</mat-icon>
+                    {{ 'admin.requestTypeManagement.iconRestaurant' | translate }}
+                  </mat-option>
+                  <mat-option value="room_service">
+                    <mat-icon>room_service</mat-icon>
+                    {{ 'admin.requestTypeManagement.iconRoomService' | translate }}
+                  </mat-option>
+                  <mat-option value="local_cafe">
+                    <mat-icon>local_cafe</mat-icon>
+                    {{ 'admin.requestTypeManagement.iconCafe' | translate }}
+                  </mat-option>
+                  <mat-option value="support_agent">
+                    <mat-icon>support_agent</mat-icon>
+                    {{ 'admin.requestTypeManagement.iconSupport' | translate }}
+                  </mat-option>
+                  <mat-option value="shopping_cart">
+                    <mat-icon>shopping_cart</mat-icon>
+                    {{ 'admin.requestTypeManagement.iconCart' | translate }}
+                  </mat-option>
+                  <mat-option value="event">
+                    <mat-icon>event</mat-icon>
+                    {{ 'admin.requestTypeManagement.iconEvent' | translate }}
+                  </mat-option>
+                </mat-select>
+                <mat-hint>{{ 'admin.requestTypeManagement.iconHint' | translate }}</mat-hint>
+              </mat-form-field>
+
+              <div class="dialog-actions">
+                <button type="button" mat-stroked-button (click)="closeDialog()">
+                  <mat-icon>close</mat-icon>
+                  {{ 'admin.requestTypeManagement.cancel' | translate }}
+                </button>
+                <button type="submit" mat-raised-button color="primary">
+                  <mat-icon>{{ isEditMode() ? 'save' : 'add' }}</mat-icon>
+                  {{ isEditMode() ? ('admin.requestTypeManagement.update' | translate) : ('admin.requestTypeManagement.create' | translate) }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      }
+    </div>

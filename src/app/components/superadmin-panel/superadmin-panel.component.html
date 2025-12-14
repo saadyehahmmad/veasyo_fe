@@ -1,0 +1,83 @@
+<div class="admin-layout">
+  <!-- Sidebar Navigation -->
+  <aside class="sidebar" [class.collapsed]="sidebarCollapsed()">
+    <div class="sidebar-header">
+      <div class="logo">
+        @if (!sidebarCollapsed()) {
+          <mat-icon>admin_panel_settings</mat-icon>
+          <span class="logo-text">Super Admin</span>
+        }
+      </div>
+      <button mat-icon-button class="toggle-btn" (click)="toggleSidebar()">
+        <mat-icon>{{ sidebarCollapsed() ? 'menu_open' : 'menu' }}</mat-icon>
+      </button>
+    </div>
+
+    <nav class="sidebar-nav">
+      @for (tab of visibleTabs(); track tab.label) {
+        <button
+          class="nav-item"
+          [class.active]="selectedTab() === tab.label"
+          (click)="selectTab(tab.label)"
+          [title]="tab.label"
+        >
+          <mat-icon>{{ tab.icon }}</mat-icon>
+          @if (!sidebarCollapsed()) {
+            <span>{{ tab.label }}</span>
+          }
+        </button>
+      }
+    </nav>
+
+    <div class="sidebar-footer">
+      <button mat-button class="logout-btn" (click)="logout()" [title]="'Logout'">
+        <mat-icon>logout</mat-icon>
+        @if (!sidebarCollapsed()) {
+          <span>Logout</span>
+        }
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content Area -->
+  <div class="main-content">
+    <!-- Top Header -->
+    <header class="top-header">
+      <div class="header-left">
+        <h1>{{ selectedTab() }}</h1>
+        <p class="subtitle">{{ getTabSubtitle() }}</p>
+      </div>
+      <div class="header-right">
+        @if (currentUser()) {
+          <div class="user-badge">
+            <div class="avatar">
+              <mat-icon>admin_panel_settings</mat-icon>
+            </div>
+            <div class="user-details">
+              <span class="user-name">{{ currentUser().fullName }}</span>
+              <span class="user-role">{{ currentUser().role | titlecase }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    </header>
+
+    <!-- Content Container -->
+    <div class="content-area">
+      @switch (selectedTab()) {
+        @case ('Tenants') {
+          <app-tenant-management></app-tenant-management>
+        }
+        @case ('Users') {
+          <app-superadmin-users></app-superadmin-users>
+        }
+        @case ('Analytics') {
+          <app-superadmin-analytics-dashboard></app-superadmin-analytics-dashboard>
+        }
+        @case ('Monitoring') {
+          <app-monitoring></app-monitoring>
+        }
+      }
+    </div>
+  </div>
+</div>

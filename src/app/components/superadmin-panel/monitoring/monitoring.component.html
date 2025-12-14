@@ -1,0 +1,442 @@
+<div class="monitoring-container">
+  <!-- Header with refresh button -->
+  <div class="monitoring-header">
+    <h2>System Monitoring</h2>
+    <button mat-raised-button color="primary" (click)="refreshAll()">
+      <mat-icon>refresh</mat-icon>
+      Refresh All
+    </button>
+  </div>
+
+  <!-- Comprehensive Health Overview -->
+  <mat-card class="health-card comprehensive">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>health_and_safety</mat-icon>
+        Comprehensive Health Check
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      @if (isLoadingComprehensive()) {
+        <div class="loading">
+          <mat-spinner diameter="30"></mat-spinner>
+          <span>Loading comprehensive health...</span>
+        </div>
+      } @else if (errors()['comprehensive']) {
+        <div class="error">
+          <mat-icon color="warn">error</mat-icon>
+          <span>{{ errors()['comprehensive'] }}</span>
+        </div>
+      } @else if (comprehensiveHealth()) {
+        @let health = comprehensiveHealth()!;
+        <div class="health-status">
+          <mat-chip [color]="getStatusColor(health.status)">
+            {{ health.status | uppercase }}
+          </mat-chip>
+          <span class="timestamp">{{ health.timestamp | date: 'medium' }}</span>
+        </div>
+
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>Service Status</mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="service-list">
+            <!-- Database Service -->
+            <div class="service-item">
+              <div class="service-header">
+                <mat-icon [class.healthy]="isServiceHealthy(health.services.database.status)"
+                  [class.unhealthy]="!isServiceHealthy(health.services.database.status)">
+                  {{ isServiceHealthy(health.services.database.status) ? 'check_circle' : 'error' }}
+                </mat-icon>
+                <span class="service-name">Database</span>
+                <mat-chip [color]="getStatusColor(health.services.database.status)">
+                  {{ health.services.database.status }}
+                </mat-chip>
+              </div>
+              @if (health.services.database.pool) {
+                <div class="service-details">
+                  <div class="detail-item">
+                    <span>Total Connections:</span>
+                    <strong>{{ health.services.database.pool.total }}</strong>
+                  </div>
+                  <div class="detail-item">
+                    <span>Idle Connections:</span>
+                    <strong>{{ health.services.database.pool.idle }}</strong>
+                  </div>
+                  <div class="detail-item">
+                    <span>Waiting:</span>
+                    <strong>{{ health.services.database.pool.waiting }}</strong>
+                  </div>
+                </div>
+              }
+              @if (health.services.database.error) {
+                <div class="error-message">{{ health.services.database.error }}</div>
+              }
+            </div>
+
+            <!-- Redis Service -->
+            <div class="service-item">
+              <div class="service-header">
+                <mat-icon [class.healthy]="isServiceHealthy(health.services.redis.status)"
+                  [class.unhealthy]="!isServiceHealthy(health.services.redis.status)">
+                  {{ isServiceHealthy(health.services.redis.status) ? 'check_circle' : 'error' }}
+                </mat-icon>
+                <span class="service-name">Redis</span>
+                <mat-chip [color]="getStatusColor(health.services.redis.status)">
+                  {{ health.services.redis.status }}
+                </mat-chip>
+              </div>
+              @if (health.services.redis.error) {
+                <div class="error-message">{{ health.services.redis.error }}</div>
+              }
+            </div>
+
+            <!-- Socket.IO Service -->
+            <div class="service-item">
+              <div class="service-header">
+                <mat-icon [class.healthy]="isServiceHealthy(health.services.socketIO.status)"
+                  [class.unhealthy]="!isServiceHealthy(health.services.socketIO.status)">
+                  {{ isServiceHealthy(health.services.socketIO.status) ? 'check_circle' : 'error' }}
+                </mat-icon>
+                <span class="service-name">Socket.IO</span>
+                <mat-chip [color]="getStatusColor(health.services.socketIO.status)">
+                  {{ health.services.socketIO.status }}
+                </mat-chip>
+              </div>
+              <div class="service-details">
+                <div class="detail-item">
+                  <span>Connected Clients:</span>
+                  <strong>{{ health.services.socketIO.connectedClients }}</strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- License Service -->
+            <div class="service-item">
+              <div class="service-header">
+                <mat-icon [class.healthy]="isServiceHealthy(health.services.license.status)"
+                  [class.unhealthy]="!isServiceHealthy(health.services.license.status)">
+                  {{ isServiceHealthy(health.services.license.status) ? 'verified_user' : 'gpp_bad' }}
+                </mat-icon>
+                <span class="service-name">License</span>
+                <mat-chip [color]="getStatusColor(health.services.license.status)">
+                  {{ health.services.license.status }}
+                </mat-chip>
+              </div>
+              <div class="service-details">
+                <div class="detail-item">
+                  <span>Enabled:</span>
+                  <strong>{{ health.services.license.enabled ? 'Yes' : 'No' }}</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      }
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Detailed Health Checks -->
+  <div class="health-grid">
+    <!-- Basic Health -->
+    <mat-card class="health-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>favorite</mat-icon>
+          Basic Health
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (isLoadingBasic()) {
+          <div class="loading">
+            <mat-spinner diameter="30"></mat-spinner>
+          </div>
+        } @else if (errors()['basic']) {
+          <div class="error">
+            <mat-icon color="warn">error</mat-icon>
+            <span>{{ errors()['basic'] }}</span>
+          </div>
+        } @else if (basicHealth()) {
+          @let health = basicHealth()!;
+          <div class="health-info">
+            <mat-chip [color]="getStatusColor(health.status)">
+              {{ health.status | uppercase }}
+            </mat-chip>
+            <div class="info-item">
+              <span>Environment:</span>
+              <strong>{{ health.environment }}</strong>
+            </div>
+            <div class="info-item">
+              <span>Timestamp:</span>
+              <strong>{{ health.timestamp | date: 'medium' }}</strong>
+            </div>
+            @if (health.requestId) {
+              <div class="info-item">
+                <span>Request ID:</span>
+                <code>{{ health.requestId }}</code>
+              </div>
+            }
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Database Pool -->
+    <mat-card class="health-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>storage</mat-icon>
+          Database Pool
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (isLoadingDbPool()) {
+          <div class="loading">
+            <mat-spinner diameter="30"></mat-spinner>
+          </div>
+        } @else if (errors()['dbPool']) {
+          <div class="error">
+            <mat-icon color="warn">error</mat-icon>
+            <span>{{ errors()['dbPool'] }}</span>
+          </div>
+        } @else if (dbPoolHealth()) {
+          @let pool = dbPoolHealth()!;
+          <div class="health-info">
+            <div class="metric">
+              <span class="metric-label">Total Connections</span>
+              <span class="metric-value">{{ pool.totalCount }}</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">Idle Connections</span>
+              <span class="metric-value">{{ pool.idleCount }}</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">Waiting</span>
+              <span class="metric-value">{{ pool.waitingCount }}</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">Active</span>
+              <span class="metric-value">{{ pool.totalCount - pool.idleCount }}</span>
+            </div>
+            @if (pool.requestId) {
+              <div class="info-item">
+                <span>Request ID:</span>
+                <code>{{ pool.requestId }}</code>
+              </div>
+            }
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Socket.IO -->
+    <mat-card class="health-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>wifi</mat-icon>
+          Socket.IO Connections
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (isLoadingSockets()) {
+          <div class="loading">
+            <mat-spinner diameter="30"></mat-spinner>
+          </div>
+        } @else if (errors()['sockets']) {
+          <div class="error">
+            <mat-icon color="warn">error</mat-icon>
+            <span>{{ errors()['sockets'] }}</span>
+          </div>
+        } @else if (socketHealth()) {
+          @let sockets = socketHealth()!;
+          <div class="health-info">
+            <div class="metric">
+              <span class="metric-label">Connected Clients</span>
+              <span class="metric-value large">{{ sockets.connectedClients }}</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">Total Rooms</span>
+              <span class="metric-value">{{ sockets.totalRooms }}</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">Total Sockets</span>
+              <span class="metric-value">{{ sockets.totalSockets }}</span>
+            </div>
+            @if (sockets.rooms && sockets.rooms.length > 0) {
+              <mat-expansion-panel>
+                <mat-expansion-panel-header>
+                  <mat-panel-title>Rooms ({{ sockets.rooms.length }})</mat-panel-title>
+                </mat-expansion-panel-header>
+                <div class="rooms-list">
+                  @for (room of sockets.rooms; track room) {
+                    <div class="room-item">
+                      <code>{{ room }}</code>
+                    </div>
+                  }
+                </div>
+              </mat-expansion-panel>
+            }
+            @if (sockets.requestId) {
+              <div class="info-item">
+                <span>Request ID:</span>
+                <code>{{ sockets.requestId }}</code>
+              </div>
+            }
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <!-- System Metrics -->
+    <mat-card class="health-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>computer</mat-icon>
+          System Metrics
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (isLoadingSystem()) {
+          <div class="loading">
+            <mat-spinner diameter="30"></mat-spinner>
+          </div>
+        } @else if (errors()['system']) {
+          <div class="error">
+            <mat-icon color="warn">error</mat-icon>
+            <span>{{ errors()['system'] }}</span>
+          </div>
+        } @else if (systemHealth()) {
+          @let system = systemHealth()!;
+          <mat-expansion-panel [expanded]="true">
+            <mat-expansion-panel-header>
+              <mat-panel-title>System Information</mat-panel-title>
+            </mat-expansion-panel-header>
+
+            <div class="system-info">
+              <!-- Uptime -->
+              <div class="section">
+                <h4>Uptime</h4>
+                <div class="info-item">
+                  <span>Process:</span>
+                  <strong>{{ formatUptime(system.uptime.process) }}</strong>
+                </div>
+                <div class="info-item">
+                  <span>System:</span>
+                  <strong>{{ formatUptime(system.uptime.system) }}</strong>
+                </div>
+              </div>
+
+              <!-- Memory -->
+              <div class="section">
+                <h4>Memory</h4>
+                <div class="info-item">
+                  <span>Process Used:</span>
+                  <strong>{{ system.memory.process.used }} MB</strong>
+                </div>
+                <div class="info-item">
+                  <span>Process Total:</span>
+                  <strong>{{ system.memory.process.total }} MB</strong>
+                </div>
+                <div class="info-item">
+                  <span>System Total:</span>
+                  <strong>{{ formatBytes(system.memory.system.total * 1024 * 1024) }}</strong>
+                </div>
+                <div class="info-item">
+                  <span>System Free:</span>
+                  <strong>{{ formatBytes(system.memory.system.free * 1024 * 1024) }}</strong>
+                </div>
+                <div class="info-item">
+                  <span>System Used:</span>
+                  <strong>{{ formatBytes(system.memory.system.used * 1024 * 1024) }}</strong>
+                </div>
+              </div>
+
+              <!-- CPU -->
+              <div class="section">
+                <h4>CPU</h4>
+                <div class="info-item">
+                  <span>Cores:</span>
+                  <strong>{{ system.cpu.count }}</strong>
+                </div>
+                <div class="info-item">
+                  <span>Model:</span>
+                  <strong>{{ system.cpu.model }}</strong>
+                </div>
+              </div>
+
+              <!-- Platform -->
+              <div class="section">
+                <h4>Platform</h4>
+                <div class="info-item">
+                  <span>Type:</span>
+                  <strong>{{ system.platform.type }}</strong>
+                </div>
+                <div class="info-item">
+                  <span>Platform:</span>
+                  <strong>{{ system.platform.platform }}</strong>
+                </div>
+                <div class="info-item">
+                  <span>Architecture:</span>
+                  <strong>{{ system.platform.arch }}</strong>
+                </div>
+                <div class="info-item">
+                  <span>Release:</span>
+                  <strong>{{ system.platform.release }}</strong>
+                </div>
+                <div class="info-item">
+                  <span>Node Version:</span>
+                  <strong>{{ system.nodeVersion }}</strong>
+                </div>
+              </div>
+
+              @if (system.requestId) {
+                <div class="info-item">
+                  <span>Request ID:</span>
+                  <code>{{ system.requestId }}</code>
+                </div>
+              }
+            </div>
+          </mat-expansion-panel>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <!-- License Status -->
+    <mat-card class="health-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>verified_user</mat-icon>
+          License Status
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (comprehensiveHealth(); as health) {
+          @let license = health.services.license;
+          <div class="health-info">
+            <mat-chip [color]="getStatusColor(license.status)">
+              {{ license.status | uppercase }}
+            </mat-chip>
+            <div class="info-item">
+              <span>Enabled:</span>
+              <strong>{{ license.enabled ? 'Yes' : 'No' }}</strong>
+            </div>
+            <div class="info-item">
+              <span>Controlled by:</span>
+              <strong>Telegram Bot</strong>
+            </div>
+            <div class="note">
+              <mat-icon>info</mat-icon>
+              <span>License is controlled remotely via Telegram bot commands</span>
+            </div>
+          </div>
+        } @else {
+          <div class="loading">
+            <mat-spinner diameter="30"></mat-spinner>
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>
+
