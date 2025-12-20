@@ -69,6 +69,7 @@ export class SocketService {
 
     // Socket.IO configuration matching backend settings
     this._socket = io(environment.socketUrl, {
+      path: environment.socketPath || '/socket.io', // Custom path configuration
       autoConnect: true,
       reconnection: true,
       reconnectionDelay: 1000,
