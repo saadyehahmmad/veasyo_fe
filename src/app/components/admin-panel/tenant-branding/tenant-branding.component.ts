@@ -194,13 +194,16 @@ export class TenantBrandingComponent implements OnInit {
     const customRequestEnabled = brandingData.customRequestEnabled;
     delete brandingData.customRequestEnabled;
 
-    // Clean up empty values (but keep menuUrl even if empty to allow clearing it)
+    // Clean up empty values (but keep menuUrl and backgroundPattern even if empty to allow clearing/setting to none)
     Object.keys(brandingData).forEach((key) => {
       if (key === 'menuUrl') {
         // For menuUrl, send null if empty to allow clearing it
         if (brandingData[key] === '' || brandingData[key] === null) {
           brandingData[key] = null;
         }
+      } else if (key === 'backgroundPattern') {
+        // For backgroundPattern, keep empty string to allow setting to "none"
+        // Do nothing, keep as is
       } else if (brandingData[key] === '' || brandingData[key] === null) {
         delete brandingData[key];
       }

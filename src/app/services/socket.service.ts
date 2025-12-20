@@ -67,11 +67,18 @@ export class SocketService {
       return;
     }
 
+    // Socket.IO configuration matching backend settings
     this._socket = io(environment.socketUrl, {
       autoConnect: true,
       reconnection: true,
       reconnectionDelay: 1000,
       reconnectionAttempts: 5,
+      reconnectionDelayMax: 5000, // Max delay between reconnection attempts
+      timeout: 45000, // Connection timeout (matches backend connectTimeout)
+      // Transport options - allow both WebSocket and polling for better compatibility
+      transports: ['websocket', 'polling'],
+      upgrade: true, // Allow transport upgrades
+      // Auth configuration
       auth: {
         token: token,
         tenantSubdomain: tenantSubdomain, // Pass tenant subdomain explicitly
@@ -84,6 +91,10 @@ export class SocketService {
             Authorization: `Bearer ${token}`,
           }
         : {},
+      // Force new connection on reconnection to avoid stale connections
+      forceNew: false,
+      // Enable multiplexing (default: true)
+      multiplex: true,
     });
 
     this._setupEventListeners();
@@ -293,7 +304,25 @@ export class SocketService {
   // Reconnect with new auth token (useful after login/logout)
   reconnect(): void {
     this.disconnect();
+    // Small delay to ensure clean disconnection
+    setTimeout(() => {
     this._initializeSocket();
+    }, 100);
+  }
+
+  /**
+   * Get connection status
+   */
+  getConnectionStatus(): {
+    connected: boolean;
+    id: string | null;
+    transport: string | null;
+  } {
+    return {
+      connected: this.isConnected,
+      id: this._socket?.id || null,
+      transport: this._socket?.io?.engine?.transport?.name || null,
+    };
   }
 
   /**

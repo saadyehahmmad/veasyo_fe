@@ -524,6 +524,20 @@ export class ApiService {
   }
 
   /**
+   * Test PC Agent connection (health check)
+   * Tests if PC Agent is reachable without sending a print job
+   */
+  testPcAgentConnection(pcAgentIp: string, pcAgentPort: number): Observable<any> {
+    return this._http.post(
+      `${this._apiUrl}/api/integrations/printer/test-pc-agent`,
+      { pcAgentIp, pcAgentPort },
+      {
+        headers: this._authService.getAuthHeaders(),
+      }
+    );
+  }
+
+  /**
    * Get speaker integration settings
    */
   getSpeakerIntegration(): Observable<any> {

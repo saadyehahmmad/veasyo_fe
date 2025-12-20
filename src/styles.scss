@@ -33,6 +33,24 @@ body {
 
   // Reset the user agent margin.
   margin: 0;
+
+
+  // Tenant background (gradients only)
+  background-image: var(--tenant-background-image);
+}
+
+// Pattern overlay - appears above background
+body.customer-background::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: var(--tenant-pattern-image);
+  background-size: var(--tenant-pattern-size);
+  pointer-events: none;
+  z-index: -1;
 }
 /* You can add global styles to this file, and also import other style files */
 
@@ -211,29 +229,3 @@ mat-icon,
 /* 7-Segment Display Font for Calculator Timer */
 /* Using Orbitron from Google Fonts for digital calculator look */
 /* Orbitron provides a square/blocky digital appearance similar to 7-segment displays */
-
-/* Background Pattern Classes for Tenant Branding */
-.pattern-dots {
-  background-image: radial-gradient(circle, rgba(0, 0, 0, 0.1) 1px, transparent 1px);
-  background-size: 20px 20px;
-}
-
-.pattern-stripes {
-  background-image: repeating-linear-gradient(
-    45deg,
-    rgba(0, 0, 0, 0.05) 0px,
-    rgba(0, 0, 0, 0.05) 10px,
-    transparent 10px,
-    transparent 20px
-  );
-}
-
-.pattern-waves {
-  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-}
-
-.pattern-squares {
-  background-image: linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px),
-                    linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
-  background-size: 20px 20px;
-}

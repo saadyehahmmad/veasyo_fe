@@ -61,6 +61,10 @@
                     <strong>{{ health.services.database.pool.total }}</strong>
                   </div>
                   <div class="detail-item">
+                    <span>Active Connections:</span>
+                    <strong>{{ health.services.database.pool.active ?? (health.services.database.pool.total - health.services.database.pool.idle) }}</strong>
+                  </div>
+                  <div class="detail-item">
                     <span>Idle Connections:</span>
                     <strong>{{ health.services.database.pool.idle }}</strong>
                   </div>
@@ -68,6 +72,14 @@
                     <span>Waiting:</span>
                     <strong>{{ health.services.database.pool.waiting }}</strong>
                   </div>
+                  @if (health.services.database.pool.utilizationPercent !== undefined) {
+                    <div class="detail-item">
+                      <span>Utilization:</span>
+                      <strong [class.warning]="health.services.database.pool.utilizationPercent >= 80">
+                        {{ health.services.database.pool.utilizationPercent | number: '1.1-1' }}%
+                      </strong>
+                    </div>
+                  }
                 </div>
               }
               @if (health.services.database.error) {
@@ -203,9 +215,30 @@
         } @else if (dbPoolHealth()) {
           @let pool = dbPoolHealth()!;
           <div class="health-info">
+            @if (pool.status) {
+              <div class="status-badge">
+                <mat-chip [color]="getStatusColor(pool.status)">
+                  {{ pool.status | uppercase }}
+                </mat-chip>
+              </div>
+            }
+            @if (pool.alerts && pool.alerts.length > 0) {
+              <div class="alerts">
+                @for (alert of pool.alerts; track alert) {
+                  <div class="alert-item" [class.warning]="pool.status === 'warning'" [class.critical]="pool.status === 'critical'">
+                    <mat-icon>{{ pool.status === 'critical' ? 'error' : 'warning' }}</mat-icon>
+                    <span>{{ alert }}</span>
+                  </div>
+                }
+              </div>
+            }
             <div class="metric">
               <span class="metric-label">Total Connections</span>
               <span class="metric-value">{{ pool.totalCount }}</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">Active Connections</span>
+              <span class="metric-value">{{ pool.activeCount ?? (pool.totalCount - pool.idleCount) }}</span>
             </div>
             <div class="metric">
               <span class="metric-label">Idle Connections</span>
@@ -213,12 +246,21 @@
             </div>
             <div class="metric">
               <span class="metric-label">Waiting</span>
-              <span class="metric-value">{{ pool.waitingCount }}</span>
+              <span class="metric-value" [class.warning]="pool.waitingCount >= 10">{{ pool.waitingCount }}</span>
             </div>
-            <div class="metric">
-              <span class="metric-label">Active</span>
-              <span class="metric-value">{{ pool.totalCount - pool.idleCount }}</span>
-            </div>
+            @if (pool.utilizationPercent !== undefined) {
+              <div class="metric">
+                <span class="metric-label">Utilization</span>
+                <span class="metric-value" [class]="getUtilizationColor(pool.utilizationPercent)">
+                  {{ pool.utilizationPercent | number: '1.1-1' }}%
+                </span>
+                <mat-progress-bar 
+                  mode="determinate" 
+                  [value]="pool.utilizationPercent"
+                  [color]="getUtilizationColor(pool.utilizationPercent)">
+                </mat-progress-bar>
+              </div>
+            }
             @if (pool.requestId) {
               <div class="info-item">
                 <span>Request ID:</span>
@@ -398,6 +440,85 @@
               }
             </div>
           </mat-expansion-panel>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Cache Statistics -->
+    <mat-card class="health-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>memory</mat-icon>
+          Cache Statistics
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (isLoadingCache()) {
+          <div class="loading">
+            <mat-spinner diameter="30"></mat-spinner>
+          </div>
+        } @else if (errors()['cache']) {
+          <div class="error">
+            <mat-icon color="warn">error</mat-icon>
+            <span>{{ errors()['cache'] }}</span>
+          </div>
+        } @else if (cacheHealth()) {
+          @let cache = cacheHealth()!;
+          <div class="health-info">
+            <div class="metric">
+              <span class="metric-label">Total Tenants</span>
+              <span class="metric-value">{{ cache.tenantCount }}</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">Total Cache Entries</span>
+              <span class="metric-value" [class.warning]="cache.totalEntries > 5000">
+                {{ cache.totalEntries }}
+              </span>
+            </div>
+            @if (cache.tenants && cache.tenants.length > 0) {
+              <mat-expansion-panel>
+                <mat-expansion-panel-header>
+                  <mat-panel-title>Per-Tenant Details ({{ cache.tenants.length }})</mat-panel-title>
+                </mat-expansion-panel-header>
+                <div class="tenants-list">
+                  @for (tenant of cache.tenants; track tenant.tenantId) {
+                    <div class="tenant-item">
+                      <div class="tenant-header">
+                        <strong>{{ tenant.tenantId }}</strong>
+                        <mat-chip [color]="tenant.stats.size >= tenant.stats.maxSize * 0.8 ? 'warn' : 'primary'">
+                          {{ tenant.stats.size }} / {{ tenant.stats.maxSize }}
+                        </mat-chip>
+                      </div>
+                      <div class="tenant-details">
+                        <div class="detail-item">
+                          <span>Entries:</span>
+                          <strong>{{ tenant.stats.size }}</strong>
+                        </div>
+                        <div class="detail-item">
+                          <span>Expired:</span>
+                          <strong>{{ tenant.stats.expired }}</strong>
+                        </div>
+                        <div class="detail-item">
+                          <span>Oldest Entry:</span>
+                          <strong>{{ formatAge(tenant.stats.oldestAge) }}</strong>
+                        </div>
+                        <div class="detail-item">
+                          <span>Newest Entry:</span>
+                          <strong>{{ formatAge(tenant.stats.newestAge) }}</strong>
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </mat-expansion-panel>
+            }
+            @if (cache.requestId) {
+              <div class="info-item">
+                <span>Request ID:</span>
+                <code>{{ cache.requestId }}</code>
+              </div>
+            }
+          </div>
         }
       </mat-card-content>
     </mat-card>

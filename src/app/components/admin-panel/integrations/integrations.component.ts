@@ -59,35 +59,20 @@ export class IntegrationsComponent implements OnInit, AfterViewInit {
   private _translate = inject(TranslateService);
 
   constructor() {
-    // Printer integration form (xprinter - network only)
-    // Note: Validators are conditional - only required when enabled
+    // Printer integration form
+    // PC Agent is the ONLY method for printer communication (Local Network Bridge)
+    // Architecture: Backend -> Socket.IO -> PC Agent -> TCP -> Printer
+    // PC Agent connects to backend automatically - no IP/Port configuration needed
+    // Printer is configured in PC Agent's .env file (PRINTER_IP, PRINTER_PORT)
     this.printerForm = this._fb.group({
       enabled: [false],
-      printerIp: [''],
-      printerPort: [9100, [Validators.min(1), Validators.max(65535)]],
+      // Common fields
       printerName: [''],
       paperWidth: [80], // mm (58 or 80 for thermal)
       autoPrint: [true],
       printHeader: [true], // Print restaurant name/logo
       printFooter: [true], // Print timestamp/footer
       language: ['both'], // Language: 'en', 'ar', or 'both'
-    });
-
-    // Update validators when enabled state changes
-    this.printerForm.get('enabled')?.valueChanges.subscribe((enabled) => {
-      const ipControl = this.printerForm.get('printerIp');
-      const portControl = this.printerForm.get('printerPort');
-      
-      if (enabled) {
-        ipControl?.setValidators([Validators.required]);
-        portControl?.setValidators([Validators.required, Validators.min(1), Validators.max(65535)]);
-      } else {
-        ipControl?.clearValidators();
-        portControl?.setValidators([Validators.min(1), Validators.max(65535)]);
-      }
-      
-      ipControl?.updateValueAndValidity();
-      portControl?.updateValueAndValidity();
     });
 
     // Alarm integration form (network speaker)
@@ -176,8 +161,6 @@ export class IntegrationsComponent implements OnInit, AfterViewInit {
         if (printer) {
           this.printerForm.patchValue({
             enabled: printer.enabled || false,
-            printerIp: printer.printerIp || '',
-            printerPort: printer.printerPort || 9100,
             printerName: printer.printerName || '',
             paperWidth: printer.paperWidth || 80,
             autoPrint: printer.autoPrint !== undefined ? printer.autoPrint : true,
@@ -368,6 +351,7 @@ export class IntegrationsComponent implements OnInit, AfterViewInit {
       },
     });
   }
+
 
   testAlarm(): void {
     if (!this.alarmForm.get('enabled')?.value) {

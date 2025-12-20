@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { LoggerService } from '../../../services/logger.service';
@@ -20,7 +21,27 @@ interface HealthStatus {
 interface DbPoolStatus {
   totalCount: number;
   idleCount: number;
+  activeCount?: number;
   waitingCount: number;
+  utilizationPercent?: number;
+  status?: 'ok' | 'warning' | 'critical';
+  alerts?: string[];
+  requestId?: string;
+}
+
+interface CacheStatus {
+  tenantCount: number;
+  totalEntries: number;
+  tenants: Array<{
+    tenantId: string;
+    stats: {
+      size: number;
+      maxSize: number;
+      expired: number;
+      oldestAge: number;
+      newestAge: number;
+    };
+  }>;
   requestId?: string;
 }
 
@@ -74,8 +95,10 @@ interface ComprehensiveHealth {
       status: string;
       pool?: {
         total: number;
+        active?: number;
         idle: number;
         waiting: number;
+        utilizationPercent?: number;
       };
       error?: string;
     };
@@ -91,6 +114,11 @@ interface ComprehensiveHealth {
       status: string;
       enabled: boolean;
     };
+    cache?: {
+      status: string;
+      tenantCount: number;
+      totalEntries: number;
+    };
   };
 }
 
@@ -105,6 +133,7 @@ interface ComprehensiveHealth {
     MatProgressSpinnerModule,
     MatExpansionModule,
     MatChipsModule,
+    MatProgressBarModule,
   ],
   templateUrl: './monitoring.component.html',
   styleUrls: ['./monitoring.component.scss'],
@@ -120,6 +149,7 @@ export class MonitoringComponent implements OnInit, OnDestroy {
   socketHealth = signal<SocketStatus | null>(null);
   systemHealth = signal<SystemStatus | null>(null);
   comprehensiveHealth = signal<ComprehensiveHealth | null>(null);
+  cacheHealth = signal<CacheStatus | null>(null);
 
   // Loading states
   isLoadingBasic = signal(false);
@@ -127,6 +157,7 @@ export class MonitoringComponent implements OnInit, OnDestroy {
   isLoadingSockets = signal(false);
   isLoadingSystem = signal(false);
   isLoadingComprehensive = signal(false);
+  isLoadingCache = signal(false);
 
   // Error states
   errors = signal<Record<string, string>>({});
@@ -153,6 +184,7 @@ export class MonitoringComponent implements OnInit, OnDestroy {
     this.loadSocketHealth();
     this.loadSystemHealth();
     this.loadComprehensiveHealth();
+    this.loadCacheHealth();
   }
 
   /**
@@ -338,10 +370,52 @@ export class MonitoringComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Load cache health
+   */
+  loadCacheHealth(): void {
+    this.isLoadingCache.set(true);
+    this._http.get<CacheStatus>(`${this._apiUrl}/api/health/cache`).subscribe({
+      next: (data) => {
+        this.cacheHealth.set(data);
+        this.isLoadingCache.set(false);
+        this.errors.set({ ...this.errors(), cache: '' });
+      },
+      error: (error) => {
+        this._logger.error('Failed to load cache health', error);
+        this.isLoadingCache.set(false);
+        this.errors.set({
+          ...this.errors(),
+          cache: error.message || 'Failed to load cache health',
+        });
+      },
+    });
+  }
+
+  /**
    * Check if service is healthy
    */
   isServiceHealthy(status: string): boolean {
     return status.toLowerCase() === 'ok';
+  }
+
+  /**
+   * Get utilization color based on percentage
+   */
+  getUtilizationColor(percent?: number): string {
+    if (!percent) return '';
+    if (percent >= 95) return 'warn'; // Critical
+    if (percent >= 80) return 'accent'; // Warning
+    return 'primary'; // OK
+  }
+
+  /**
+   * Format age in milliseconds to human-readable format
+   */
+  formatAge(ms: number): string {
+    if (ms < 1000) return `${ms}ms`;
+    if (ms < 60000) return `${Math.round(ms / 1000)}s`;
+    if (ms < 3600000) return `${Math.round(ms / 60000)}m`;
+    return `${Math.round(ms / 3600000)}h`;
   }
 }
 

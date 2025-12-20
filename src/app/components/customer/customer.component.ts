@@ -108,6 +108,9 @@ export class CustomerComponent implements OnInit, OnDestroy {
   private _timerInterval: any = null; // Store interval reference for timer
 
   ngOnInit(): void {
+    // Add customer background class for pattern visibility
+    document.body.classList.add('customer-background');
+
     // Get table ID from route
     this._sub.add(
       this._route.paramMap.subscribe((params) => {
@@ -231,6 +234,9 @@ export class CustomerComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    // Remove customer background class
+    document.body.classList.remove('customer-background');
+
     this._sub.unsubscribe();
     // Clean up timer interval
     this._stopTimer();

@@ -35,41 +35,77 @@
 
                   @if (printerForm.get('enabled')?.value) {
                     <div class="form-section">
-                      <mat-form-field appearance="outline" class="full-width">
-                        <mat-label>{{ 'admin.integrations.printer.ipAddress' | translate }}</mat-label>
-                        <input 
-                          matInput 
-                          formControlName="printerIp" 
-                          type="text" 
-                          [placeholder]="'admin.integrations.printer.ipPlaceholder' | translate"
-                          required
-                        />
-                        <mat-icon matSuffix>router</mat-icon>
-                        <mat-hint>{{ 'admin.integrations.printer.ipHint' | translate }}</mat-hint>
-                        @if (printerForm.get('printerIp')?.invalid && printerForm.get('printerIp')?.touched) {
-                          <mat-error>
-                            {{ 'admin.integrations.printer.ipRequired' | translate }}
-                          </mat-error>
-                        }
-                      </mat-form-field>
+                      <!-- PC Agent Configuration (ONLY method) -->
+                      <div class="connection-mode-info">
+                        <p><strong>PC Agent (Local Network Bridge):</strong> PC Agent is the only method for printer communication. It connects automatically to the backend via Socket.IO - no port forwarding needed!</p>
+                        <div class="installation-instructions">
+                          <h4>Installation Instructions:</h4>
+                          <ol>
+                            <li>Download the PC Agent application from the server</li>
+                            <li>Extract the files to a folder on your PC (e.g., C:\WaiterPCAgent)</li>
+                            <li>Open a terminal/command prompt in that folder</li>
+                            <li>Run: <code>npm install</code></li>
+                            <li>Run: <code>npm run cli</code> to start the setup wizard</li>
+                            <li>Follow the wizard to configure backend URL and tenant ID</li>
+                            <li>Configure your printer IP and port</li>
+                            <li>To run as a Windows service: <code>npm run install-service</code> (requires admin privileges)</li>
+                            <li>Or run manually: <code>npm start</code></li>
+                          </ol>
+                          <p><strong>Important:</strong> The PC Agent must be running on a computer that can access your printer via TCP/IP (same network).</p>
+                          <p><strong>No Port Forwarding Required:</strong> PC Agent connects to the backend automatically. Just configure the backend URL and tenant ID in the PC Agent setup wizard.</p>
+                        </div>
+                      </div>
 
-                      <mat-form-field appearance="outline" class="full-width">
-                        <mat-label>{{ 'admin.integrations.printer.port' | translate }}</mat-label>
-                        <input 
-                          matInput 
-                          formControlName="printerPort" 
-                          type="number" 
-                          [placeholder]="'admin.integrations.printer.portPlaceholder' | translate"
-                          required
-                        />
-                        <mat-icon matSuffix>settings_ethernet</mat-icon>
-                        <mat-hint>{{ 'admin.integrations.printer.portHint' | translate }}</mat-hint>
-                        @if (printerForm.get('printerPort')?.invalid && printerForm.get('printerPort')?.touched) {
-                          <mat-error>
-                            {{ 'admin.integrations.printer.portRequired' | translate }}
-                          </mat-error>
-                        }
-                      </mat-form-field>
+
+                      <!-- Legacy connection mode fields (removed) -->
+                      @if (false) {
+                        <div class="connection-mode-info">
+                          <p><strong>Cloud Print Service Mode:</strong> Works across networks. Install a print agent (e.g., PrintNode) on your local network. The agent connects to the cloud service and receives print jobs.</p>
+                        </div>
+                        <mat-form-field appearance="outline" class="full-width">
+                          <mat-label>API Key</mat-label>
+                          <input 
+                            matInput 
+                            formControlName="cloudServiceApiKey" 
+                            type="password"
+                            placeholder="Enter your cloud print service API key"
+                            required
+                          />
+                          <mat-icon matSuffix>vpn_key</mat-icon>
+                          <mat-hint>Your cloud print service API key (e.g., PrintNode API key)</mat-hint>
+                          @if (printerForm.get('cloudServiceApiKey')?.invalid && printerForm.get('cloudServiceApiKey')?.touched) {
+                            <mat-error>API key is required</mat-error>
+                          }
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="full-width">
+                          <mat-label>Printer ID</mat-label>
+                          <input 
+                            matInput 
+                            formControlName="cloudServicePrinterId" 
+                            type="text"
+                            placeholder="Enter printer ID from your cloud service"
+                            required
+                          />
+                          <mat-icon matSuffix>print</mat-icon>
+                          <mat-hint>Printer ID from your cloud print service</mat-hint>
+                          @if (printerForm.get('cloudServicePrinterId')?.invalid && printerForm.get('cloudServicePrinterId')?.touched) {
+                            <mat-error>Printer ID is required</mat-error>
+                          }
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="full-width">
+                          <mat-label>Service URL (Optional)</mat-label>
+                          <input 
+                            matInput 
+                            formControlName="cloudServiceUrl" 
+                            type="url"
+                            placeholder="https://api.printnode.com/printjobs"
+                          />
+                          <mat-icon matSuffix>link</mat-icon>
+                          <mat-hint>Leave empty to use PrintNode (default). Enter custom URL for other services.</mat-hint>
+                        </mat-form-field>
+                      }
 
                       <mat-form-field appearance="outline" class="full-width">
                         <mat-label>{{ 'admin.integrations.printer.name' | translate }}</mat-label>
