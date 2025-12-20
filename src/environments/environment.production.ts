@@ -17,7 +17,7 @@ function getSocketUrl(): string {
   // Socket.IO should use same domain as API
   // If using nginx proxy, use relative URL
   // If backend is on different domain, use absolute URL
-  return 'https://veasyo.com/devsocket'; // Change to your backend URL
+  return 'https://veasyo.com/devapi'; // Change to your backend URL
 }
 
 export const environment = {
