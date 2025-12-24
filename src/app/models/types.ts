@@ -65,6 +65,7 @@ export interface ServiceRequest {
   timestampAcknowledged: Date | null;
   timestampCompleted: Date | null;
   acknowledgedBy: string | null;
+  completedBy?: 'waiter' | 'customer' | null; // Who completed the request
   durationSeconds: number | null;
   createdAt: Date;
   updatedAt: Date;
@@ -75,6 +76,11 @@ export interface ServiceRequest {
   requestTypeNameEn?: string;
   requestTypeNameAr?: string;
   requestTypeIcon?: string;
+  // Feedback data (from join)
+  feedbackRating?: number | null;
+  feedbackComments?: string | null;
+  feedbackCustomerName?: string | null;
+  feedbackCustomerPhone?: string | null;
 }
 
 export type RequestType = 'call_waiter' | 'bill' | 'assistance' | 'custom';

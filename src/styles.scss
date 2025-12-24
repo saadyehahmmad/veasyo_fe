@@ -18,29 +18,35 @@ html {
   );
 }
 
+/* Global Styles */
+html,
 body {
-  // Default the application to a light color theme. This can be changed to
-  // `dark` to enable the dark color theme, or to `light dark` to defer to the
-  // user's system settings.
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  // Default the application to a light color theme
   color-scheme: light;
 
-  // Set a default background, font and text colors for the application using
-  // Angular Material's system-level CSS variables. Learn more about these
-  // variables at https://material.angular.dev/guide/system-variables
+  // Set a default background, font and text colors using Angular Material's system-level CSS variables
   background-color: var(--mat-sys-surface);
   color: var(--mat-sys-on-surface);
   font: var(--mat-sys-body-medium);
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
 
-  // Reset the user agent margin.
-  margin: 0;
+  // Apply tenant branding
+  color: var(--tenant-text-color, #333333);
 
-
-  // Tenant background (gradients only)
-  background-image: var(--tenant-background-image);
+  // Ensure body is positioned for pseudo-element
+  position: relative;
 }
 
-// Pattern overlay - appears above background
-body.customer-background::before {
+/* ===========================
+   Background Pattern Overlay
+   =========================== */
+// Pattern overlay - appears as a layer on top of background gradient
+body.has-pattern::before {
   content: '';
   position: fixed;
   top: 0;
@@ -48,22 +54,14 @@ body.customer-background::before {
   width: 100%;
   height: 100%;
   background-image: var(--tenant-pattern-image);
-  background-size: var(--tenant-pattern-size);
+  background-size: var(--tenant-pattern-size, auto);
+  background-repeat: repeat;
   pointer-events: none;
   z-index: -1;
 }
-/* You can add global styles to this file, and also import other style files */
-
-html,
-body {
-  height: 100%;
-}
-body {
-  margin: 0;
-  font-family: Roboto, 'Helvetica Neue', sans-serif;
-}
-
-// Tenant branding custom properties
+/* ===========================
+   Tenant Theme Custom Properties
+   =========================== */
 :root {
   --tenant-primary-color: #667eea;
   --tenant-secondary-color: #764ba2;
@@ -72,10 +70,32 @@ body {
   --tenant-language-color: #333333;
 }
 
-// Apply tenant branding
-body {
-  color: var(--tenant-text-color, #333333);
+/* ===========================
+   Tenant Utility Classes
+   =========================== */
+.tenant-primary-bg {
+  background-color: var(--tenant-primary-color) !important;
 }
+
+.tenant-secondary-bg {
+  background-color: var(--tenant-secondary-color) !important;
+}
+
+.tenant-accent-bg {
+  background-color: var(--tenant-accent-color) !important;
+}
+
+.tenant-primary-text {
+  color: var(--tenant-primary-color) !important;
+}
+
+.tenant-secondary-text {
+  color: var(--tenant-secondary-color) !important;
+}
+
+/* ===========================
+   RTL & Arabic Language Support
+   =========================== */
 :lang(ar) {
   font-family: 'Tajawal', Roboto, 'Helvetica Neue', sans-serif;
 }
@@ -86,6 +106,19 @@ html[lang='ar'] * {
   font-family: 'Tajawal', Roboto, 'Helvetica Neue', sans-serif;
 }
 
+// Dialog RTL support
+.dialog-container:lang(ar) {
+  direction: ltr;
+  text-align: start;
+
+  .mat-checkbox .mat-internal-form-field {
+    direction: ltr;
+  }
+}
+
+/* ===========================
+   Material Icons Override
+   =========================== */
 // Material Icons must always use Material Icons font, regardless of language
 mat-icon,
 .material-icons,
@@ -107,46 +140,10 @@ mat-icon,
   -webkit-font-smoothing: antialiased;
 }
 
-/* Tenant Theme Custom Properties */
-:root {
-  --tenant-primary-color: #667eea;
-  --tenant-secondary-color: #764ba2;
-  --tenant-accent-color: #f093fb;
-  --tenant-text-color: #333333;
-}
-
-/* Optional: Apply tenant colors to specific elements */
-.tenant-primary-bg {
-  background-color: var(--tenant-primary-color) !important;
-}
-
-.tenant-secondary-bg {
-  background-color: var(--tenant-secondary-color) !important;
-}
-
-.tenant-accent-bg {
-  background-color: var(--tenant-accent-color) !important;
-}
-
-.tenant-primary-text {
-  color: var(--tenant-primary-color) !important;
-}
-
-.tenant-secondary-text {
-  color: var(--tenant-secondary-color) !important;
-}
-
-.dialog-container:lang(ar) {
-  direction: ltr;
-  text-align: start;
-
-  .mat-checkbox .mat-internal-form-field {
-    direction: ltr;
-  }
-}
-
-/* Snackbar Theme Styles */
-/* Apply tenant theme colors to snackbars */
+/* ===========================
+   Snackbar Theme Styles
+   =========================== */
+// Base tenant-themed snackbar
 .tenant-themed-snackbar {
   background: linear-gradient(
     135deg,
@@ -158,7 +155,6 @@ mat-icon,
   border-radius: 8px !important;
   font-weight: 500 !important;
 
-  // Action button styling
   .mdc-snackbar__action {
     color: white !important;
     font-weight: 600 !important;
@@ -167,45 +163,19 @@ mat-icon,
   }
 }
 
-/* Success snackbar - uses primary color with slight variation */
-.success-snackbar {
+// Success snackbar - uses primary color with slight variation
+.success-snackbar,
+.success-snack {
   background: linear-gradient(
     135deg,
     var(--tenant-primary-color, #667eea) 0%,
     var(--tenant-primary-color, #667eea) 80%,
     var(--tenant-secondary-color, #764ba2) 100%
   ) !important;
+  color: white !important;
 }
 
-/* Error snackbar - uses a darker, more prominent color */
-.error-snackbar {
-  background: linear-gradient(
-    135deg,
-    #d32f2f 0%,
-    #c62828 100%
-  ) !important;
-}
-
-/* Info snackbar - uses balanced blend of primary and secondary */
-.info-snackbar {
-  background: linear-gradient(
-    135deg,
-    var(--tenant-primary-color, #667eea) 0%,
-    var(--tenant-primary-color, #667eea) 50%,
-    var(--tenant-secondary-color, #764ba2) 100%
-  ) !important;
-}
-
-/* Warning snackbar - uses a warm color blend */
-.warning-snackbar {
-  background: linear-gradient(
-    135deg,
-    #f57c00 0%,
-    #ef6c00 100%
-  ) !important;
-}
-
-/* Legacy error snackbar class for backward compatibility */
+// Error snackbar - uses a darker, more prominent color
 .error-snackbar,
 .error-snack {
   background: linear-gradient(
@@ -216,16 +186,21 @@ mat-icon,
   color: white !important;
 }
 
-/* Legacy success snackbar class for backward compatibility */
-.success-snack {
+// Info snackbar - uses balanced blend of primary and secondary
+.info-snackbar {
   background: linear-gradient(
     135deg,
     var(--tenant-primary-color, #667eea) 0%,
+    var(--tenant-primary-color, #667eea) 50%,
     var(--tenant-secondary-color, #764ba2) 100%
   ) !important;
-  color: white !important;
 }
 
-/* 7-Segment Display Font for Calculator Timer */
-/* Using Orbitron from Google Fonts for digital calculator look */
-/* Orbitron provides a square/blocky digital appearance similar to 7-segment displays */
+// Warning snackbar - uses a warm color blend
+.warning-snackbar {
+  background: linear-gradient(
+    135deg,
+    #f57c00 0%,
+    #ef6c00 100%
+  ) !important;
+}

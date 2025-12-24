@@ -26,6 +26,7 @@ import { Subscription } from 'rxjs';
 import { ServiceRequest, RequestType, Table, RequestTypeConfig } from '../../models/types';
 import { CustomerHeaderComponent } from './customer-header/customer-header.component';
 import { CustomerFooterComponent } from './customer-footer/customer-footer.component';
+import { StarRatingComponent } from './star-rating/star-rating.component';
 import { LanguageService } from '../../services/language.service';
 
 @Component({
@@ -41,6 +42,7 @@ import { LanguageService } from '../../services/language.service';
     MatInputModule,
     CustomerHeaderComponent,
     CustomerFooterComponent,
+    StarRatingComponent,
     TranslateModule,
   ],
   templateUrl: './customer.component.html',
@@ -62,6 +64,7 @@ export class CustomerComponent implements OnInit, OnDestroy {
   // Translation keys - constants to avoid duplication
   private readonly WAITER_COMING_KEY = 'customer.waiterIsComing';
   private readonly REQUEST_SENT_KEY = 'customer.requestSent';
+  private readonly REQUEST_COMPLETED_KEY = 'snackbar.requestCompleted';
 
   // Local signals
   isLoading = signal<boolean>(false);
@@ -73,6 +76,14 @@ export class CustomerComponent implements OnInit, OnDestroy {
   requestTypes = signal<RequestTypeConfig[]>([]); // Dynamic request types
   menuUrl = signal<string>(''); // Menu URL - loaded from tenant settings
   customRequestEnabled = signal<boolean>(true); // Custom request enabled - loaded from tenant settings
+  
+  // Feedback form signals
+  showFeedbackForm = signal<boolean>(false);
+  feedbackRating = signal<number>(0);
+  feedbackComments = signal<string>('');
+  feedbackName = signal<string>('');
+  feedbackPhone = signal<string>('');
+  isSubmittingFeedback = signal<boolean>(false);
 
   // Use state service signals
   tableId = this._customerState.tableId;
@@ -179,7 +190,7 @@ export class CustomerComponent implements OnInit, OnDestroy {
         } else if (data.status === 'completed') {
           this._customerState.completeRequest();
           this._stopTimer();
-          this._snackbar.success('snackbar.requestCompleted');
+          this._snackbar.success(this.REQUEST_COMPLETED_KEY);
         }
       }),
     );
@@ -220,17 +231,97 @@ export class CustomerComponent implements OnInit, OnDestroy {
       this._customerState.completeRequest();
       this._stopTimer();
       this._snackbar.info('snackbar.requestCancelled');
+      
+      // Reset feedback form in case it was shown
+      this.showFeedbackForm.set(false);
     }
   }
 
   completeRequest(): void {
     const requestId = this.currentRequestId();
     if (requestId) {
+      // Don't complete the request yet - show feedback form first
+      // The request will be completed when feedback is submitted or skipped
+      this._stopTimer();
+      
+      // Show feedback form
+      this.showFeedbackForm.set(true);
+      
+      // Reset feedback form
+      this.feedbackRating.set(0);
+      this.feedbackComments.set('');
+      this.feedbackName.set('');
+      this.feedbackPhone.set('');
+    }
+  }
+
+  onRatingChange(rating: number): void {
+    this.feedbackRating.set(rating);
+  }
+
+  submitFeedback(): void {
+    const rating = this.feedbackRating();
+    
+    if (rating === 0) {
+      this._snackbar.warning('snackbar.pleaseRateService');
+      return;
+    }
+
+    this.isSubmittingFeedback.set(true);
+
+    const feedbackData = {
+      tableId: this.tableId(),
+      requestId: this.currentRequestId(),
+      rating: rating,
+      comments: this.feedbackComments().trim(),
+      customerName: this.feedbackName().trim(),
+      customerPhone: this.feedbackPhone().trim(),
+      timestamp: new Date().toISOString(),
+    };
+
+    // Submit feedback to backend
+    this._apiService.submitFeedback(feedbackData).subscribe({
+      next: () => {
+        this.isSubmittingFeedback.set(false);
+        this.showFeedbackForm.set(false);
+        
+        // Now complete the request (will be marked as completed by customer)
+        const requestId = this.currentRequestId();
+        if (requestId) {
+          this._socketService.completeRequest(requestId, 'customer');
+          this._customerState.completeRequest();
+        }
+        
+        this._snackbar.success('customer.feedbackSubmitted');
+      },
+      error: (error) => {
+        this._logger.error('Error submitting feedback:', error);
+        this.isSubmittingFeedback.set(false);
+        // Still close the form and complete request even if submission fails
+        this.showFeedbackForm.set(false);
+        
+        const requestId = this.currentRequestId();
+        if (requestId) {
+          this._socketService.completeRequest(requestId, 'customer');
+          this._customerState.completeRequest();
+        }
+        
+        this._snackbar.success(this.REQUEST_COMPLETED_KEY);
+      },
+    });
+  }
+
+  skipFeedback(): void {
+    this.showFeedbackForm.set(false);
+    
+    // Complete the request without feedback (will be marked as completed by customer)
+    const requestId = this.currentRequestId();
+    if (requestId) {
       this._socketService.completeRequest(requestId);
       this._customerState.completeRequest();
-      this._stopTimer();
-      this._snackbar.success('snackbar.requestCompleted');
     }
+    
+    this._snackbar.success(this.REQUEST_COMPLETED_KEY);
   }
 
   ngOnDestroy(): void {

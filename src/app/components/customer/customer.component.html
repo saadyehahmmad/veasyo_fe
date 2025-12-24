@@ -123,6 +123,104 @@
         <p class="timer">{{ timerDisplay() }}</p>
       </div>
     }
+
+    <!-- Feedback Form (shown after completing request) -->
+    @if (showFeedbackForm()) {
+      <div class="feedback-overlay">
+        <div class="feedback-modal">
+          <div class="feedback-header">
+            <mat-icon class="feedback-icon">sentiment_satisfied_alt</mat-icon>
+            <h2>{{ 'customer.feedbackTitle' | translate }}</h2>
+            <p class="feedback-subtitle">{{ 'customer.feedbackSubtitle' | translate }}</p>
+          </div>
+
+          <div class="feedback-content">
+            <!-- Star Rating -->
+            <div class="rating-section">
+              <label class="section-label">{{ 'customer.rateService' | translate }}</label>
+              <app-star-rating
+                [rating]="feedbackRating()"
+                [size]="'large'"
+                (ratingChange)="onRatingChange($event)"
+              ></app-star-rating>
+            </div>
+
+            <!-- Comments/Complaints -->
+            <div class="comments-section">
+              <label class="section-label">{{ 'customer.additionalComments' | translate }}</label>
+              <mat-form-field appearance="outline" class="full-width">
+                <textarea
+                  matInput
+                  [(ngModel)]="feedbackComments"
+                  [placeholder]="'customer.commentsPlaceholder' | translate"
+                  rows="4"
+                  maxlength="500"
+                ></textarea>
+              </mat-form-field>
+            </div>
+
+            <!-- User Info Collection (Creative Design) -->
+            <div class="user-info-section">
+              <div class="info-header">
+                <mat-icon class="gift-icon">card_giftcard</mat-icon>
+                <div class="info-text">
+                  <h3>{{ 'customer.helpUsImprove' | translate }}</h3>
+                  <p>{{ 'customer.shareDetails' | translate }}</p>
+                </div>
+              </div>
+
+              <div class="info-fields">
+                <mat-form-field appearance="outline" class="half-width">
+                  <mat-label>{{ 'customer.yourName' | translate }} {{ 'customer.nameOptional' | translate }}</mat-label>
+                  <input
+                    matInput
+                    [(ngModel)]="feedbackName"
+                    [placeholder]="'customer.namePlaceholder' | translate"
+                  />
+                  <mat-icon matPrefix>person</mat-icon>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="half-width">
+                  <mat-label>{{ 'customer.yourPhone' | translate }} {{ 'customer.phoneOptional' | translate }}</mat-label>
+                  <input
+                    matInput
+                    [(ngModel)]="feedbackPhone"
+                    [placeholder]="'customer.phonePlaceholder' | translate"
+                    type="tel"
+                  />
+                  <mat-icon matPrefix>phone</mat-icon>
+                </mat-form-field>
+              </div>
+            </div>
+          </div>
+
+          <div class="feedback-actions">
+            <button
+              mat-raised-button
+              color="primary"
+              (click)="submitFeedback()"
+              [disabled]="isSubmittingFeedback()"
+              class="submit-button"
+            >
+              @if (isSubmittingFeedback()) {
+                <mat-icon class="spinning">sync</mat-icon>
+              } @else {
+                <mat-icon>send</mat-icon>
+              }
+              {{ 'customer.submitFeedback' | translate }}
+            </button>
+            <button
+              mat-button
+              (click)="skipFeedback()"
+              [disabled]="isSubmittingFeedback()"
+              class="skip-button"
+            >
+              {{ 'customer.skipFeedback' | translate }}
+            </button>
+          </div>
+        </div>
+      </div>
+    }
   </div>
   }
   @if (!tableId() || tableNotFound()) {

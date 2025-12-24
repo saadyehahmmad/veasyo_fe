@@ -1,0 +1,534 @@
+<div class="interactive-demo">
+  <!-- Demo Header with View Switcher -->
+  <div class="demo-header">
+    <h3 class="demo-title">{{ 'landing.interactiveDemoTitle' | translate }}</h3>
+    <p class="demo-subtitle">{{ 'landing.interactiveDemoSubtitle' | translate }}</p>
+    
+    <div class="view-switcher">
+      <button 
+        class="view-button" 
+        [class.active]="currentView() === 'customer'"
+        (click)="switchView('customer')">
+        <mat-icon>smartphone</mat-icon>
+        <span>{{ 'landing.customerView' | translate }}</span>
+      </button>
+      <button 
+        class="view-button" 
+        [class.active]="currentView() === 'waiter'"
+        (click)="switchView('waiter')">
+        <mat-icon>tablet_mac</mat-icon>
+        <span>{{ 'landing.waiterDashboard' | translate }}</span>
+      </button>
+      <button 
+        class="view-button" 
+        [class.active]="currentView() === 'admin'"
+        (click)="switchView('admin')">
+        <mat-icon>laptop_mac</mat-icon>
+        <span>{{ 'landing.adminPanel' | translate }}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Demo Content Area -->
+  <div class="demo-content">
+    
+    <!-- Customer View -->
+    @if (currentView() === 'customer') {
+      <div class="customer-view">
+        <div class="phone-mockup">
+          <div class="phone-frame">
+            <div class="phone-notch"></div>
+            <div class="phone-screen">
+              
+              <!-- Customer Header -->
+              <div class="customer-header">
+                <div class="restaurant-info">
+                  <div class="restaurant-icon">
+                    <mat-icon>restaurant</mat-icon>
+                  </div>
+                  <div>
+                    <h4>Demo Restaurant</h4>
+                    <p>{{ selectedTable().number }} • {{ selectedTable().capacity }} {{ 'customer.seats' | translate }}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Request Type Buttons -->
+              <div class="request-types">
+                @for (requestType of requestTypes; track requestType.nameEn) {
+                  <button 
+                    class="request-button"
+                    (click)="sendRequest(requestType)">
+                    <div class="request-icon">
+                      <mat-icon>{{ requestType.icon }}</mat-icon>
+                    </div>
+                    <span class="request-label">
+                      {{ currentLang === 'ar' ? requestType.nameAr : requestType.nameEn }}
+                    </span>
+                  </button>
+                }
+              </div>
+              
+              <!-- Custom Request Form -->
+              @if (showCustomRequestForm()) {
+                <div class="custom-request-form">
+                  <h5>{{ 'customer.enterCustomRequest' | translate }}</h5>
+                  <textarea 
+                    [(ngModel)]="customRequest"
+                    [placeholder]="'customer.customRequestPlaceholder' | translate"
+                    rows="3"></textarea>
+                  <div class="form-actions">
+                    <button class="btn-cancel" (click)="showCustomRequestForm.set(false)">
+                      {{ 'customer.cancel' | translate }}
+                    </button>
+                    <button class="btn-send" (click)="sendCustomRequest()">
+                      {{ 'customer.sendCustomRequest' | translate }}
+                    </button>
+                  </div>
+                </div>
+              }
+              
+              <!-- Active Requests Status -->
+              @if (activeCustomerRequests().length > 0 && !showFeedbackForm()) {
+                <div class="active-requests-section">
+                  <h5 class="section-title">{{ 'customer.activeRequests' | translate }}</h5>
+                  @for (request of activeCustomerRequests(); track request.id) {
+                    <div class="active-request-card" [class.acknowledged]="request.status === 'acknowledged'">
+                      <div class="request-info">
+                        <div class="request-icon-small">
+                          <mat-icon>{{ request.typeIcon }}</mat-icon>
+                        </div>
+                        <div class="request-details">
+                          <span class="request-type-name">{{ request.type }}</span>
+                          @if (request.customMessage) {
+                            <span class="request-custom-msg">{{ request.customMessage }}</span>
+                          }
+                          <span class="request-time-small">{{ getTimeSince(request.timestamp) }}</span>
+                        </div>
+                      </div>
+                      
+                      @if (request.status === 'pending') {
+                        <div class="request-status-badge pending">
+                          <mat-icon>schedule</mat-icon>
+                          <span>{{ 'waiter.statusPending' | translate }}</span>
+                        </div>
+                      }
+                      
+                      @if (request.status === 'acknowledged') {
+                        <div class="request-status-badge acknowledged">
+                          <mat-icon>check_circle</mat-icon>
+                          <span>{{ 'customer.waiterIsComing' | translate }}</span>
+                        </div>
+                        <button class="btn-complete-request" (click)="openFeedbackForm(request)">
+                          <mat-icon>rate_review</mat-icon>
+                          <span>{{ 'customer.complete' | translate }}</span>
+                        </button>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+              
+              <!-- Feedback Form -->
+              @if (showFeedbackForm() && feedbackRequest()) {
+                <div class="feedback-form">
+                  <div class="feedback-header">
+                    <h5>{{ 'customer.feedbackTitle' | translate }}</h5>
+                    <button class="btn-close-feedback" (click)="closeFeedbackForm()">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </div>
+                  
+                  <p class="feedback-subtitle">{{ 'customer.feedbackSubtitle' | translate }}</p>
+                  
+                  <!-- Star Rating -->
+                  <div class="rating-section">
+                    <label class="rating-label">{{ 'customer.rateService' | translate }}</label>
+                    <div class="star-rating">
+                      @for (star of [1, 2, 3, 4, 5]; track star) {
+                        <button 
+                          class="star-button"
+                          [class.active]="star <= feedbackRating()"
+                          (click)="setRating(star)">
+                          <mat-icon>{{ star <= feedbackRating() ? 'star' : 'star_border' }}</mat-icon>
+                        </button>
+                      }
+                    </div>
+                  </div>
+                  
+                  <!-- Feedback Note -->
+                  <div class="note-section">
+                    <label class="note-label">{{ 'customer.additionalComments' | translate }}</label>
+                    <textarea 
+                      [(ngModel)]="feedbackNote"
+                      [placeholder]="'customer.commentsPlaceholder' | translate"
+                      rows="3"
+                      class="feedback-textarea"></textarea>
+                  </div>
+                  
+                  <!-- Action Buttons -->
+                  <div class="feedback-actions">
+                    <button 
+                      class="btn-skip-feedback" 
+                      (click)="skipFeedback()">
+                      <span>{{ 'customer.skipFeedback' | translate }}</span>
+                    </button>
+                    <button 
+                      class="btn-submit-feedback" 
+                      [disabled]="feedbackRating() === 0"
+                      (click)="submitFeedback()">
+                      <mat-icon>send</mat-icon>
+                      <span>{{ 'customer.submitFeedback' | translate }}</span>
+                    </button>
+                  </div>
+                </div>
+              }
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+    
+    <!-- Waiter View -->
+    @if (currentView() === 'waiter') {
+      <div class="waiter-view">
+        <div class="tablet-mockup">
+          <div class="tablet-frame">
+            <div class="tablet-screen">
+              
+              <!-- Waiter Header -->
+              <div class="waiter-header">
+                <h4>
+                  <mat-icon>dashboard</mat-icon>
+                  {{ 'waiter.dashboard' | translate }}
+                </h4>
+                <div class="stats-badges">
+                  <div class="badge pending-badge">
+                    <span class="badge-count">{{ pendingRequests().length }}</span>
+                    <span class="badge-label">{{ 'waiter.pending' | translate }}</span>
+                  </div>
+                  <div class="badge progress-badge">
+                    <span class="badge-count">{{ acknowledgedRequests().length }}</span>
+                    <span class="badge-label">{{ 'waiter.inProgress' | translate }}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Requests Grid -->
+              <div class="requests-grid">
+                
+                <!-- Pending Column -->
+                <div class="requests-column">
+                  <h5 class="column-title">{{ 'waiter.pendingRequests' | translate }}</h5>
+                  <div class="requests-list">
+                    @for (request of pendingRequests(); track request.id) {
+                      <div class="request-card pending">
+                        <div class="card-header">
+                          <div class="table-info">
+                            <mat-icon>table_restaurant</mat-icon>
+                            <strong>{{ request.tableNumber }}</strong>
+                          </div>
+                          <span class="time">{{ getTimeSince(request.timestamp) }}</span>
+                        </div>
+                        <div class="card-body">
+                          <div class="request-type">
+                            <mat-icon>{{ request.typeIcon }}</mat-icon>
+                            <span>{{ request.type }}</span>
+                          </div>
+                          @if (request.customMessage) {
+                            <p class="custom-message">{{ request.customMessage }}</p>
+                          }
+                        </div>
+                        <div class="card-actions">
+                          <button class="btn-acknowledge" (click)="acknowledgeRequest(request)">
+                            <mat-icon>check_circle</mat-icon>
+                            {{ 'waiter.acknowledge' | translate }}
+                          </button>
+                        </div>
+                      </div>
+                    }
+                    @if (pendingRequests().length === 0) {
+                      <div class="empty-state">
+                        <mat-icon>check_circle_outline</mat-icon>
+                        <p>{{ 'waiter.noPendingRequests' | translate }}</p>
+                      </div>
+                    }
+                  </div>
+                </div>
+                
+                <!-- In Progress Column -->
+                <div class="requests-column">
+                  <h5 class="column-title">{{ 'waiter.inProgressRequests' | translate }}</h5>
+                  <div class="requests-list">
+                    @for (request of acknowledgedRequests(); track request.id) {
+                      <div class="request-card in-progress">
+                        <div class="card-header">
+                          <div class="table-info">
+                            <mat-icon>table_restaurant</mat-icon>
+                            <strong>{{ request.tableNumber }}</strong>
+                          </div>
+                          <span class="time">{{ getTimeSince(request.timestamp) }}</span>
+                        </div>
+                        <div class="card-body">
+                          <div class="request-type">
+                            <mat-icon>{{ request.typeIcon }}</mat-icon>
+                            <span>{{ request.type }}</span>
+                          </div>
+                          @if (request.customMessage) {
+                            <p class="custom-message">{{ request.customMessage }}</p>
+                          }
+                        </div>
+                        <div class="card-actions">
+                          <button class="btn-complete" (click)="completeRequest(request)">
+                            <mat-icon>done_all</mat-icon>
+                            {{ 'waiter.complete' | translate }}
+                          </button>
+                        </div>
+                      </div>
+                    }
+                    @if (acknowledgedRequests().length === 0) {
+                      <div class="empty-state">
+                        <mat-icon>hourglass_empty</mat-icon>
+                        <p>{{ 'waiter.noActiveTasks' | translate }}</p>
+                      </div>
+                    }
+                  </div>
+                </div>
+                
+              </div>
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+    
+    <!-- Admin View -->
+    @if (currentView() === 'admin') {
+      <div class="admin-view">
+        <div class="laptop-mockup">
+          <div class="laptop-frame">
+            <div class="laptop-screen">
+              
+              <!-- Admin Header -->
+              <div class="admin-header">
+                <h4>
+                  <mat-icon>admin_panel_settings</mat-icon>
+                  {{ 'admin.serviceRequests.title' | translate }}
+                </h4>
+                <div class="admin-stats">
+                  <div class="stat-card">
+                    <span class="stat-value">{{ requests().length }}</span>
+                    <span class="stat-label">Total</span>
+                  </div>
+                  <div class="stat-card">
+                    <span class="stat-value">{{ pendingRequests().length }}</span>
+                    <span class="stat-label">Pending</span>
+                  </div>
+                  <div class="stat-card">
+                    <span class="stat-value">{{ completedRequests().length }}</span>
+                    <span class="stat-label">Completed</span>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Requests Table -->
+              <div class="admin-table">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>{{ 'admin.serviceRequests.tableName' | translate }}</th>
+                      <th>{{ 'admin.serviceRequests.type' | translate }}</th>
+                      <th>{{ 'admin.serviceRequests.status' | translate }}</th>
+                      <th>{{ 'admin.serviceRequests.completedBy' | translate }}</th>
+                      <th>{{ 'admin.serviceRequests.feedback' | translate }}</th>
+                      <th>{{ 'admin.serviceRequests.duration' | translate }}</th>
+                      <th>{{ 'admin.serviceRequests.actions' | translate }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (request of requests(); track request.id) {
+                      <tr>
+                        <td>
+                          <div class="table-cell">
+                            <mat-icon>table_restaurant</mat-icon>
+                            <strong>{{ request.tableNumber }}</strong>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="type-cell">
+                            <mat-icon>{{ request.typeIcon }}</mat-icon>
+                            <span>{{ request.type }}</span>
+                          </div>
+                        </td>
+                        <td>
+                          <span class="status-badge" [class]="request.status">
+                            {{ request.status }}
+                          </span>
+                        </td>
+                        <td>
+                          @if (request.completedBy) {
+                            <span class="completed-by" [class]="request.completedBy">
+                              <mat-icon>{{ request.completedBy === 'customer' ? 'person' : 'support_agent' }}</mat-icon>
+                              {{ request.completedBy === 'customer' ? 'Customer' : 'Waiter' }}
+                            </span>
+                          } @else {
+                            <span class="text-muted">-</span>
+                          }
+                        </td>
+                        <td>
+                          @if (request.rating) {
+                            <div class="rating-display">
+                              <div class="stars-small">
+                                @for (star of [1, 2, 3, 4, 5]; track star) {
+                                  <mat-icon class="star-small" [class.filled]="star <= request.rating!">
+                                    {{ star <= request.rating! ? 'star' : 'star_border' }}
+                                  </mat-icon>
+                                }
+                              </div>
+                              @if (request.feedbackNote) {
+                                <span class="note-indicator" [title]="request.feedbackNote">
+                                  <mat-icon>comment</mat-icon>
+                                </span>
+                              }
+                            </div>
+                          } @else {
+                            <span class="text-muted">{{ 'admin.serviceRequests.noFeedback' | translate }}</span>
+                          }
+                        </td>
+                        <td>{{ getDuration(request.timestamp) }}</td>
+                        <td>
+                          <div class="action-buttons">
+                            @if (request.status === 'pending') {
+                              <button 
+                                class="btn-icon" 
+                                (click)="acknowledgeRequest(request)"
+                                title="Acknowledge">
+                                <mat-icon>check_circle</mat-icon>
+                              </button>
+                            }
+                            @if (request.status === 'acknowledged') {
+                              <button 
+                                class="btn-icon" 
+                                (click)="completeRequest(request)"
+                                title="Complete">
+                                <mat-icon>done_all</mat-icon>
+                              </button>
+                            }
+                            <button 
+                              class="btn-icon delete" 
+                              (click)="deleteRequest(request)"
+                              title="Delete">
+                              <mat-icon>delete</mat-icon>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+                
+                @if (requests().length === 0) {
+                  <div class="empty-state">
+                    <mat-icon>inbox</mat-icon>
+                    <p>{{ 'admin.serviceRequests.noRequests' | translate }}</p>
+                  </div>
+                }
+              </div>
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+    
+  </div>
+  
+  <!-- Notification Toast -->
+  @if (showNotification()) {
+    <div class="notification-toast">
+      <mat-icon>check_circle</mat-icon>
+      <span>{{ notificationMessage() }}</span>
+    </div>
+  }
+  
+  <!-- Printer Receipt Animation -->
+  @if (showPrinterReceipt() && printedRequest()) {
+    <div class="printer-container">
+      <div class="printer-device">
+        <div class="printer-top">
+          <div class="printer-light"></div>
+          <mat-icon class="printer-icon">print</mat-icon>
+        </div>
+        <div class="printer-paper-slot">
+          <div class="receipt-paper">
+            <div class="receipt-content">
+              <!-- Receipt Header -->
+              <div class="receipt-header">
+                <mat-icon>restaurant</mat-icon>
+                <h4>Demo Restaurant</h4>
+                <p class="receipt-subtitle">Service Request</p>
+              </div>
+              
+              <!-- Dashed Line -->
+              <div class="receipt-divider"></div>
+              
+              <!-- Receipt Body -->
+              <div class="receipt-body">
+                <div class="receipt-row">
+                  <span class="receipt-label">Table:</span>
+                  <span class="receipt-value">{{ printedRequest()?.tableNumber }}</span>
+                </div>
+                <div class="receipt-row">
+                  <span class="receipt-label">Request:</span>
+                  <span class="receipt-value">{{ printedRequest()?.type }}</span>
+                </div>
+                @if (printedRequest()?.customMessage) {
+                  <div class="receipt-row full-width">
+                    <span class="receipt-label">Message:</span>
+                    <span class="receipt-message">{{ printedRequest()?.customMessage }}</span>
+                  </div>
+                }
+                <div class="receipt-row">
+                  <span class="receipt-label">Time:</span>
+                  <span class="receipt-value">{{ formatTime(printedRequest()!.timestamp) }}</span>
+                </div>
+                <div class="receipt-row">
+                  <span class="receipt-label">Status:</span>
+                  <span class="receipt-value status-pending">PENDING</span>
+                </div>
+              </div>
+              
+              <!-- Dashed Line -->
+              <div class="receipt-divider"></div>
+              
+              <!-- Receipt Footer -->
+              <div class="receipt-footer">
+                <p>Thank you!</p>
+                <p class="receipt-small">Powered by Veasyo</p>
+                <div class="receipt-barcode">
+                  <div class="barcode-line"></div>
+                  <div class="barcode-line"></div>
+                  <div class="barcode-line short"></div>
+                  <div class="barcode-line"></div>
+                  <div class="barcode-line short"></div>
+                  <div class="barcode-line"></div>
+                  <div class="barcode-line"></div>
+                  <div class="barcode-line short"></div>
+                  <div class="barcode-line"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="printer-label">
+          <mat-icon>check_circle</mat-icon>
+          <span>Receipt Printed</span>
+        </div>
+      </div>
+    </div>
+  }
+  
+</div>
+

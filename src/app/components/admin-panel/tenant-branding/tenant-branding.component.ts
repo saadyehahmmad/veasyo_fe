@@ -111,6 +111,7 @@ export class TenantBrandingComponent implements OnInit {
       linkedinUrl: [''],
       menuUrl: [''],
       customRequestEnabled: [true], // Default to enabled
+      waiterCanComplete: [true], // Default to enabled - allow waiters to complete requests
     });
   }
 
@@ -138,6 +139,10 @@ export class TenantBrandingComponent implements OnInit {
           // Get customRequestEnabled from tenant settings
           customRequestEnabled: tenant.settings?.['customRequestEnabled'] !== undefined 
             ? tenant.settings['customRequestEnabled'] 
+            : true, // Default to enabled if not set
+          // Get waiterCanComplete from tenant settings
+          waiterCanComplete: tenant.settings?.['waiterCanComplete'] !== undefined 
+            ? tenant.settings['waiterCanComplete'] 
             : true, // Default to enabled if not set
         });
       },
@@ -190,9 +195,11 @@ export class TenantBrandingComponent implements OnInit {
     this.loading.set(true);
     const brandingData = this.brandingForm.value;
 
-    // Extract customRequestEnabled to settings
+    // Extract settings fields
     const customRequestEnabled = brandingData.customRequestEnabled;
+    const waiterCanComplete = brandingData.waiterCanComplete;
     delete brandingData.customRequestEnabled;
+    delete brandingData.waiterCanComplete;
 
     // Clean up empty values (but keep menuUrl and backgroundPattern even if empty to allow clearing/setting to none)
     Object.keys(brandingData).forEach((key) => {
@@ -209,12 +216,11 @@ export class TenantBrandingComponent implements OnInit {
       }
     });
 
-    // Add settings with customRequestEnabled
-    if (customRequestEnabled !== undefined) {
-      brandingData.settings = {
-        customRequestEnabled: customRequestEnabled,
-      };
-    }
+    // Add settings with customRequestEnabled and waiterCanComplete
+    brandingData.settings = {
+      customRequestEnabled: customRequestEnabled !== undefined ? customRequestEnabled : true,
+      waiterCanComplete: waiterCanComplete !== undefined ? waiterCanComplete : true,
+    };
 
     this._apiService.updateMyBranding(brandingData).subscribe({
       next: async () => {

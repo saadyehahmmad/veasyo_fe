@@ -49,6 +49,17 @@
                 </mat-slide-toggle>
                 <p class="toggle-hint">{{ 'admin.tenantBranding.customRequestEnabledDescription' | translate }}</p>
               </div>
+
+              <!-- Waiter Complete Button Toggle -->
+              <div class="waiter-complete-toggle">
+                <mat-slide-toggle 
+                  formControlName="waiterCanComplete"
+                  [matTooltip]="brandingForm.get('waiterCanComplete')?.value ? ('admin.tenantBranding.waiterCanCompleteHint' | translate) : ('admin.tenantBranding.waiterCannotCompleteHint' | translate)"
+                >
+                  {{ 'admin.tenantBranding.waiterCanComplete' | translate }}
+                </mat-slide-toggle>
+                <p class="toggle-hint">{{ 'admin.tenantBranding.waiterCanCompleteDescription' | translate }}</p>
+              </div>
             </div>
           </mat-tab>
 
@@ -95,6 +106,7 @@
                   <mat-option value="stripes">{{ 'admin.tenantBranding.stripes' | translate }}</mat-option>
                   <mat-option value="waves">{{ 'admin.tenantBranding.waves' | translate }}</mat-option>
                   <mat-option value="squares">{{ 'admin.tenantBranding.squares' | translate }}</mat-option>
+                  <mat-option value="christmas">{{ 'admin.tenantBranding.christmas' | translate }}</mat-option>
                 </mat-select>
                 <mat-hint>{{ 'admin.tenantBranding.backgroundPatternHint' | translate }}</mat-hint>
               </mat-form-field>

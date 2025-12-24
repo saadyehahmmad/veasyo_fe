@@ -113,6 +113,28 @@
             </td>
           </ng-container>
 
+          <ng-container matColumnDef="completedBy">
+            <th mat-header-cell *matHeaderCellDef>
+              <mat-icon>how_to_reg</mat-icon>
+              {{ 'admin.serviceRequests.completedBy' | translate }}
+            </th>
+            <td mat-cell *matCellDef="let request" class="completed-by-cell">
+              @if (request.status === 'completed' && request.completedBy) {
+                <mat-chip [color]="getCompletedByColor(request.completedBy)" class="completed-by-chip">
+                  <mat-icon>{{ getCompletedByIcon(request.completedBy) }}</mat-icon>
+                  {{ getCompletedBy(request) }}
+                </mat-chip>
+              } @else if (request.status === 'completed') {
+                <mat-chip color="basic" class="completed-by-chip">
+                  <mat-icon>help_outline</mat-icon>
+                  Unknown
+                </mat-chip>
+              } @else {
+                <span class="not-completed">—</span>
+              }
+            </td>
+          </ng-container>
+
           <ng-container matColumnDef="createdAt">
             <th mat-header-cell *matHeaderCellDef>
               <button
@@ -190,6 +212,33 @@
                 <mat-icon>{{ getStatusIcon(request.status) }}</mat-icon>
                 {{ request.status | titlecase }}
               </mat-chip>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="feedback">
+            <th mat-header-cell *matHeaderCellDef>
+              <mat-icon>star</mat-icon>
+              {{ 'admin.serviceRequests.feedback' | translate }}
+            </th>
+            <td mat-cell *matCellDef="let request" class="feedback-cell">
+              @if (hasFeedback(request)) {
+                <div class="feedback-info clickable" (click)="showFeedbackDetails(request)">
+                  <div class="stars-rating">
+                    <span class="stars">{{ getFeedbackStars(request.feedbackRating) }}</span>
+                    <span class="rating-number">({{ request.feedbackRating }}/5)</span>
+                  </div>
+                  <div class="feedback-icons">
+                    @if (request.feedbackComments) {
+                      <mat-icon class="comment-icon">comment</mat-icon>
+                    }
+                    @if (request.feedbackCustomerName) {
+                      <mat-icon class="contact-icon">person</mat-icon>
+                    }
+                  </div>
+                </div>
+              } @else {
+                <span class="no-feedback">—</span>
+              }
             </td>
           </ng-container>
 
@@ -304,3 +353,84 @@
     </mat-card-content>
   </mat-card>
 </div>
+
+<!-- Feedback Details Dialog -->
+@if (selectedFeedback()) {
+  <div class="feedback-dialog-overlay" (click)="closeFeedbackDetails()">
+    <div class="feedback-dialog" (click)="$event.stopPropagation()">
+      <div class="feedback-dialog-header">
+        <h2>
+          <mat-icon>star</mat-icon>
+          Customer Feedback
+        </h2>
+        <button mat-icon-button (click)="closeFeedbackDetails()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      
+      <div class="feedback-dialog-content">
+        <!-- Rating -->
+        <div class="feedback-section">
+          <h3>Rating</h3>
+          <div class="rating-display">
+            <span class="stars-large">{{ getFeedbackStars(selectedFeedback()!.feedbackRating) }}</span>
+            <span class="rating-text">{{ selectedFeedback()!.feedbackRating }} out of 5 stars</span>
+          </div>
+        </div>
+
+        <!-- Comments -->
+        @if (selectedFeedback()!.feedbackComments) {
+          <div class="feedback-section">
+            <h3>
+              <mat-icon>comment</mat-icon>
+              Comments
+            </h3>
+            <p class="feedback-text">{{ selectedFeedback()!.feedbackComments }}</p>
+          </div>
+        }
+
+        <!-- Customer Info -->
+        @if (selectedFeedback()!.feedbackCustomerName || selectedFeedback()!.feedbackCustomerPhone) {
+          <div class="feedback-section">
+            <h3>
+              <mat-icon>person</mat-icon>
+              Customer Information
+            </h3>
+            <div class="customer-info">
+              @if (selectedFeedback()!.feedbackCustomerName) {
+                <div class="info-row">
+                  <mat-icon>badge</mat-icon>
+                  <span>{{ selectedFeedback()!.feedbackCustomerName }}</span>
+                </div>
+              }
+              @if (selectedFeedback()!.feedbackCustomerPhone) {
+                <div class="info-row">
+                  <mat-icon>phone</mat-icon>
+                  <span>{{ selectedFeedback()!.feedbackCustomerPhone }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Request Info -->
+        <div class="feedback-section">
+          <h3>
+            <mat-icon>info</mat-icon>
+            Request Details
+          </h3>
+          <div class="request-info">
+            <div class="info-row">
+              <mat-icon>table_restaurant</mat-icon>
+              <span>Table: {{ selectedFeedback()!.tableNumber }}</span>
+            </div>
+            <div class="info-row">
+              <mat-icon>schedule</mat-icon>
+              <span>{{ selectedFeedback()!.timestampCreated | date: 'medium' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+}

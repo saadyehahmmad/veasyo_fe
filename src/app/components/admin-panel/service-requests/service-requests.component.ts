@@ -66,12 +66,17 @@ export class ServiceRequestsComponent implements OnInit {
   requestColumns = [
     'tableName',
     'acknowledgedBy',
+    'completedBy',
     'createdAt',
     'duration',
     'type',
     'status',
+    'feedback',
     'action',
   ];
+  
+  // Feedback dialog
+  selectedFeedback = signal<ServiceRequest | null>(null);
 
   // Pagination
   currentPage = signal(1);
@@ -375,5 +380,63 @@ export class ServiceRequestsComponent implements OnInit {
       return `${minutes}m ${seconds}s`;
     }
     return 'N/A';
+  }
+
+  getCompletedBy(request: ServiceRequest): string {
+    if (!request.completedBy) {
+      return 'N/A';
+    }
+    return request.completedBy === 'waiter' 
+      ? this._translate.instant('admin.serviceRequests.completedByWaiter')
+      : this._translate.instant('admin.serviceRequests.completedByCustomer');
+  }
+
+  getCompletedByIcon(completedBy?: 'waiter' | 'customer' | null): string {
+    if (!completedBy) return 'help_outline';
+    return completedBy === 'waiter' ? 'person' : 'person_outline';
+  }
+
+  getCompletedByColor(completedBy?: 'waiter' | 'customer' | null): string {
+    if (!completedBy) return 'basic';
+    return completedBy === 'waiter' ? 'primary' : 'accent';
+  }
+
+  hasFeedback(request: ServiceRequest): boolean {
+    return request.feedbackRating !== undefined && request.feedbackRating !== null;
+  }
+
+  getFeedbackStars(rating?: number | null): string {
+    if (!rating) return '';
+    return '⭐'.repeat(rating);
+  }
+
+  getFeedbackTooltip(request: ServiceRequest): string {
+    const parts: string[] = [];
+    
+    if (request.feedbackRating) {
+      parts.push(`Rating: ${request.feedbackRating}/5 stars`);
+    }
+    
+    if (request.feedbackComments) {
+      parts.push(`Comments: ${request.feedbackComments}`);
+    }
+    
+    if (request.feedbackCustomerName) {
+      parts.push(`Name: ${request.feedbackCustomerName}`);
+    }
+    
+    if (request.feedbackCustomerPhone) {
+      parts.push(`Phone: ${request.feedbackCustomerPhone}`);
+    }
+    
+    return parts.join('\n');
+  }
+
+  showFeedbackDetails(request: ServiceRequest): void {
+    this.selectedFeedback.set(request);
+  }
+
+  closeFeedbackDetails(): void {
+    this.selectedFeedback.set(null);
   }
 }

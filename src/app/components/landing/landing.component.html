@@ -1,78 +1,253 @@
 <div class="landing-container">
+  <!-- Navigation Bar -->
+  <nav class="navbar" [class.scrolled]="isScrolled()">
+    <div class="nav-content">
+      <div class="logo">
+        <span class="logo-text">{{ 'landing.platformName' | translate }}</span>
+      </div>
+      <div class="nav-links">
+        <a (click)="scrollToSection('features')" class="nav-link">{{ 'landing.navFeatures' | translate }}</a>
+        <a (click)="scrollToSection('how-it-works')" class="nav-link">{{ 'landing.navHowItWorks' | translate }}</a>
+        <app-change-language [color]="'light'"></app-change-language>
+        <button class="nav-button" (click)="navigateToLogin()">{{ 'landing.signIn' | translate }}</button>
+      </div>
+    </div>
+  </nav>
+
   <!-- Hero Section -->
-  <section class="hero">
+  <section class="hero" id="hero">
+    <div class="container">
     <div class="hero-content">
-      <h1 class="hero-title">Modern Restaurant Management Platform</h1>
-      <p class="hero-subtitle">
-        Streamline your service with digital ordering, real-time notifications, and powerful
-        analytics
-      </p>
-      <button class="cta-button" (click)="openEmailClient()">
-        Get Started
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <line x1="5" y1="12" x2="19" y2="12"></line>
-          <polyline points="12 5 19 12 12 19"></polyline>
-        </svg>
+        <h1 class="hero-title">{{ 'landing.platformName' | translate }}</h1>
+        <p class="hero-tagline">{{ 'landing.tagline' | translate }}</p>
+        <p class="hero-description">{{ 'landing.heroDescription' | translate }}</p>
+        <div class="hero-cta">
+          <button class="cta-button primary" (click)="openEmailClient()">
+            {{ 'landing.getStarted' | translate }}
+          </button>
+          <button class="cta-button secondary" (click)="scrollToSection('how-it-works')">
+            {{ 'landing.seeHowItWorks' | translate }}
       </button>
     </div>
-    <div class="hero-image">
-      <div class="phone-mockup">
-        <div class="phone-screen">
-          <div class="mockup-header">
-            <div class="mockup-dot"></div>
-            <div class="mockup-dot"></div>
-            <div class="mockup-dot"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Problem Slider Section -->
+  <section class="problem-slider-section">
+    <div class="container">
+
+        <div class="slider-wrapper">
+          <div class="slider-track">
+            <!-- First set of cards -->
+            <div class="request-card">
+              <div class="card-icon">
+                <mat-icon>person_raised_hand</mat-icon>
+              </div>
+              <p class="card-text">{{ 'landing.requestWaiter' | translate }}</p>
+            </div>
+            <div class="request-card">
+              <div class="card-icon">
+                <mat-icon>restaurant_menu</mat-icon>
+              </div>
+              <p class="card-text">{{ 'landing.requestOrder' | translate }}</p>
+            </div>
+            <div class="request-card">
+              <div class="card-icon">
+                <mat-icon>receipt_long</mat-icon>
+              </div>
+              <p class="card-text">{{ 'landing.requestBill' | translate }}</p>
+            </div>
+            <div class="request-card">
+              <div class="card-icon">
+                <mat-icon>water_drop</mat-icon>
+              </div>
+              <p class="card-text">{{ 'landing.requestWater' | translate }}</p>
+            </div>
+            <div class="request-card">
+              <div class="card-icon">
+                <mat-icon>cleaning_services</mat-icon>
+              </div>
+              <p class="card-text">{{ 'landing.requestClean' | translate }}</p>
+            </div>
+            <div class="request-card">
+              <div class="card-icon">
+                <mat-icon>help_outline</mat-icon>
+              </div>
+              <p class="card-text">{{ 'landing.requestHelp' | translate }}</p>
+            </div>
+            <!-- Duplicate set for seamless loop -->
+            <div class="request-card">
+              <div class="card-icon">
+                <mat-icon>person_raised_hand</mat-icon>
+              </div>
+              <p class="card-text">{{ 'landing.requestWaiter' | translate }}</p>
+            </div>
+            <div class="request-card">
+              <div class="card-icon">
+                <mat-icon>restaurant_menu</mat-icon>
+              </div>
+              <p class="card-text">{{ 'landing.requestOrder' | translate }}</p>
+            </div>
+            <div class="request-card">
+              <div class="card-icon">
+                <mat-icon>receipt_long</mat-icon>
+              </div>
+              <p class="card-text">{{ 'landing.requestBill' | translate }}</p>
+            </div>
+            <div class="request-card">
+              <div class="card-icon">
+                <mat-icon>water_drop</mat-icon>
+              </div>
+              <p class="card-text">{{ 'landing.requestWater' | translate }}</p>
+            </div>
+            <div class="request-card">
+              <div class="card-icon">
+                <mat-icon>cleaning_services</mat-icon>
+              </div>
+              <p class="card-text">{{ 'landing.requestClean' | translate }}</p>
+            </div>
+            <div class="request-card">
+              <div class="card-icon">
+                <mat-icon>help_outline</mat-icon>
+              </div>
+              <p class="card-text">{{ 'landing.requestHelp' | translate }}</p>
+            </div>
           </div>
-          <div class="mockup-content">
-            <div class="mockup-item"></div>
-            <div class="mockup-item short"></div>
-            <div class="mockup-item"></div>
-            <div class="mockup-item medium"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Demo Section -->
+  <section class="interactive-demo-section">
+    <div class="container">
+      <app-interactive-demo></app-interactive-demo>
+    </div>
+  </section>
+
+
+  <!-- Features Section -->
+  <section class="features" id="features">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">{{ 'landing.features' | translate }}</h2>
+        <p class="section-subtitle">{{ 'landing.subTagline' | translate }}</p>
+      </div>
+
+    <div class="features-grid">
+        @for (feature of features; track feature.titleKey) {
+        <div class="feature-card">
+            <div class="feature-icon-wrapper">
+              <mat-icon class="feature-icon">{{ feature.icon }}</mat-icon>
+            </div>
+            <h3 class="feature-title">{{ feature.titleKey | translate }}</h3>
+            <p class="feature-description">{{ feature.descriptionKey | translate }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section class="how-it-works" id="how-it-works">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">{{ 'landing.howItWorksTitle' | translate }}</h2>
+        <p class="section-subtitle">{{ 'landing.howItWorksSubtitle' | translate }}</p>
+      </div>
+      
+      <div class="steps">
+        <div class="step">
+          <div class="step-illustration">
+            <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="50" y="50" width="100" height="100" rx="8" fill="#f4f4f5"/>
+              <rect x="70" y="70" width="60" height="60" rx="4" fill="#09090b"/>
+              <rect x="80" y="80" width="10" height="10" fill="#ffffff"/>
+              <rect x="95" y="80" width="10" height="10" fill="#ffffff"/>
+              <rect x="110" y="80" width="10" height="10" fill="#ffffff"/>
+              <rect x="80" y="95" width="10" height="10" fill="#ffffff"/>
+              <rect x="110" y="95" width="10" height="10" fill="#ffffff"/>
+              <rect x="80" y="110" width="10" height="10" fill="#ffffff"/>
+              <rect x="95" y="110" width="10" height="10" fill="#ffffff"/>
+              <rect x="110" y="110" width="10" height="10" fill="#ffffff"/>
+            </svg>
+          </div>
+          <div class="step-number">1</div>
+          <div class="step-content">
+            <h3 class="step-title">{{ 'landing.step1Title' | translate }}</h3>
+            <p class="step-description">{{ 'landing.step1Desc' | translate }}</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-illustration">
+            <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="50" y="50" width="100" height="140" rx="12" fill="#09090b"/>
+              <rect x="60" y="70" width="80" height="100" rx="4" fill="#ffffff"/>
+              <circle cx="100" cy="110" r="20" fill="none" stroke="#667eea" stroke-width="3"/>
+              <rect x="85" y="95" width="30" height="30" rx="4" fill="none" stroke="#667eea" stroke-width="2"/>
+              <path d="M95 115 L105 125 L105 120" stroke="#667eea" stroke-width="2" fill="none" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="step-number">2</div>
+          <div class="step-content">
+            <h3 class="step-title">{{ 'landing.step2Title' | translate }}</h3>
+            <p class="step-description">{{ 'landing.step2Desc' | translate }}</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-illustration">
+            <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="100" cy="100" r="60" fill="#f4f4f5"/>
+              <circle cx="100" cy="100" r="40" fill="#ffffff"/>
+              <path d="M85 100 L95 110 L115 90" stroke="#667eea" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="150" cy="50" r="15" fill="#667eea"/>
+              <path d="M150 45 L150 55 M145 50 L155 50" stroke="#ffffff" stroke-width="2"/>
+            </svg>
+          </div>
+          <div class="step-number">3</div>
+          <div class="step-content">
+            <h3 class="step-title">{{ 'landing.step3Title' | translate }}</h3>
+            <p class="step-description">{{ 'landing.step3Desc' | translate }}</p>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Features Section -->
-  <section class="features">
-    <h2 class="section-title">Everything You Need</h2>
-    <p class="section-subtitle">Powerful features to enhance your restaurant operations</p>
-
-    <div class="features-grid">
-      @for (feature of features; track feature.title) {
-        <div class="feature-card">
-          <div class="feature-icon">{{ feature.icon }}</div>
-          <h3 class="feature-title">{{ feature.title }}</h3>
-          <p class="feature-description">{{ feature.description }}</p>
-        </div>
-      }
-    </div>
-  </section>
-
   <!-- CTA Section -->
   <section class="cta-section">
+    <div class="container">
     <div class="cta-content">
-      <h2 class="cta-title">Ready to transform your restaurant?</h2>
-      <p class="cta-text">Join restaurants already using our platform to deliver better service</p>
-      <button class="cta-button secondary" (click)="navigateToLogin()">Start Free Trial</button>
+        <h2 class="cta-title">{{ 'landing.ctaTitle' | translate }}</h2>
+        <p class="cta-text">{{ 'landing.ctaText' | translate }}</p>
+        <div class="cta-buttons">
+          <button class="cta-button primary" (click)="openEmailClient()">
+            {{ 'landing.startFreeTrial' | translate }}
+          </button>
+          <button class="cta-button secondary" (click)="navigateToLogin()">
+            {{ 'landing.signIn' | translate }}
+          </button>
+        </div>
+      </div>
     </div>
   </section>
 
   <!-- Footer -->
   <footer class="footer">
+    <div class="container">
     <div class="footer-content">
-      <p>&copy; 2025 Waiter Platform. All rights reserved.</p>
+        <div class="footer-brand">
+          <span class="footer-logo">{{ 'landing.platformName' | translate }}</span>
+          <span class="footer-tagline">{{ 'landing.tagline' | translate }}</span>
+        </div>
+        <div class="footer-links">
+          <a (click)="scrollToSection('features')" class="footer-link">{{ 'landing.navFeatures' | translate }}</a>
+          <a (click)="scrollToSection('how-it-works')" class="footer-link">{{ 'landing.navHowItWorks' | translate }}</a>
+        </div>
+        <div class="footer-copyright">
+          <p>&copy; 2025 {{ 'landing.platformName' | translate }}. {{ 'landing.footerRights' | translate }}.</p>
+        </div>
+      </div>
     </div>
   </footer>
 </div>

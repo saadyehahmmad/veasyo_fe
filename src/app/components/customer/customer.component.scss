@@ -358,3 +358,235 @@
     margin: 0;
   }
 }
+
+// Feedback Form Overlay
+.feedback-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 1rem;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.feedback-modal {
+  background: white;
+  border-radius: 24px;
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.feedback-header {
+  text-align: center;
+  padding: 2rem 1.5rem 1rem;
+  background: linear-gradient(
+    135deg,
+    var(--tenant-primary-color, #667eea) 0%,
+    var(--tenant-secondary-color, #764ba2) 100%
+  );
+  color: white;
+  border-radius: 24px 24px 0 0;
+
+  .feedback-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    margin-bottom: 0.5rem;
+    animation: bounce 1s ease infinite;
+  }
+
+  h2 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+
+  .feedback-subtitle {
+    margin: 0;
+    font-size: 0.875rem;
+    opacity: 0.9;
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.feedback-content {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  .section-label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    color: #333;
+    margin-bottom: 0.75rem;
+  }
+
+  .rating-section {
+    text-align: center;
+    padding: 1rem;
+    background: #f9f9f9;
+    border-radius: 16px;
+  }
+
+  .comments-section {
+    .full-width {
+      width: 100%;
+    }
+  }
+
+  .user-info-section {
+    background: linear-gradient(135deg, #fff5f5 0%, #ffe6f0 100%);
+    border-radius: 16px;
+    padding: 1.25rem;
+    border: 2px dashed var(--tenant-primary-color, #667eea);
+
+    .info-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+
+      .gift-icon {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+        color: var(--tenant-primary-color, #667eea);
+        animation: rotate 2s linear infinite;
+      }
+
+      .info-text {
+        flex: 1;
+
+        h3 {
+          margin: 0 0 0.25rem 0;
+          font-size: 1.125rem;
+          font-weight: 700;
+          color: var(--tenant-primary-color, #667eea);
+        }
+
+        p {
+          margin: 0;
+          font-size: 0.875rem;
+          color: #666;
+        }
+      }
+    }
+
+    .info-fields {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+
+      .half-width {
+        flex: 1;
+        min-width: 200px;
+      }
+
+      @media (max-width: 480px) {
+        flex-direction: column;
+
+        .half-width {
+          width: 100%;
+        }
+      }
+    }
+  }
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.feedback-actions {
+  padding: 0 1.5rem 1.5rem;
+  display: flex;
+  gap: 0.75rem;
+  flex-direction: column;
+
+  .submit-button {
+    width: 100%;
+    height: 52px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+
+    &:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .spinning {
+      animation: spin 1s linear infinite;
+    }
+  }
+
+  .skip-button {
+    width: 100%;
+    height: 44px;
+    font-size: 0.9375rem;
+    color: #666;
+    transition: all 0.2s ease;
+
+    &:hover:not(:disabled) {
+      background: #f5f5f5;
+      color: #333;
+    }
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

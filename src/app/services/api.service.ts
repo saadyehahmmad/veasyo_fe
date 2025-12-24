@@ -583,6 +583,15 @@ export class ApiService {
   }
 
   /**
+   * Submit customer feedback
+   */
+  submitFeedback(feedbackData: any): Observable<any> {
+    return this._http.post(`${this._apiUrl}/api/feedback`, feedbackData, {
+      headers: this._getTableHeaders(),
+    });
+  }
+
+  /**
    * Get headers for table requests (public access for customers, auth for admins)
    */
   private _getTableHeaders(): HttpHeaders {

@@ -283,6 +283,259 @@
   }
 }
 
+// Completed By Cell
+.completed-by-cell {
+  .completed-by-chip {
+    font-size: 0.875rem;
+    padding: 0.25rem 0.5rem;
+    
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      margin-right: 0.25rem;
+    }
+  }
+
+  .not-completed {
+    color: #999;
+    font-style: italic;
+  }
+}
+
+// Feedback Cell
+.feedback-cell {
+  .feedback-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.04);
+    }
+
+    &.clickable {
+      cursor: pointer;
+    }
+
+    .stars-rating {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      .stars {
+        font-size: 1.1rem;
+        line-height: 1;
+      }
+
+      .rating-number {
+        font-size: 0.75rem;
+        color: #666;
+        font-weight: 500;
+      }
+    }
+
+    .feedback-icons {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+
+      .comment-icon,
+      .contact-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+        opacity: 0.7;
+        
+        &:hover {
+          opacity: 1;
+        }
+      }
+
+      .comment-icon {
+        color: #2196f3;
+      }
+
+      .contact-icon {
+        color: #4caf50;
+      }
+    }
+  }
+
+  .no-feedback {
+    color: #ccc;
+    font-size: 1.2rem;
+    font-weight: 300;
+  }
+}
+
+// Feedback Dialog
+.feedback-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.feedback-dialog {
+  background: white;
+  border-radius: 12px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  animation: slideUp 0.3s ease-out;
+
+  .feedback-dialog-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem;
+    border-bottom: 1px solid #e0e0e0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+
+    h2 {
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.5rem;
+
+      mat-icon {
+        font-size: 28px;
+        width: 28px;
+        height: 28px;
+      }
+    }
+
+    button {
+      color: white;
+    }
+  }
+
+  .feedback-dialog-content {
+    padding: 1.5rem;
+    overflow-y: auto;
+
+    .feedback-section {
+      margin-bottom: 1.5rem;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      h3 {
+        margin: 0 0 0.75rem 0;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #333;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        mat-icon {
+          font-size: 20px;
+          width: 20px;
+          height: 20px;
+          color: #667eea;
+        }
+      }
+
+      .rating-display {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        padding: 1rem;
+        background: #f5f5f5;
+        border-radius: 8px;
+
+        .stars-large {
+          font-size: 2rem;
+        }
+
+        .rating-text {
+          font-size: 1rem;
+          color: #666;
+          font-weight: 500;
+        }
+      }
+
+      .feedback-text {
+        margin: 0;
+        padding: 1rem;
+        background: #f5f5f5;
+        border-radius: 8px;
+        line-height: 1.6;
+        color: #333;
+        white-space: pre-wrap;
+      }
+
+      .customer-info,
+      .request-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+
+        .info-row {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          padding: 0.75rem;
+          background: #f5f5f5;
+          border-radius: 8px;
+
+          mat-icon {
+            font-size: 20px;
+            width: 20px;
+            height: 20px;
+            color: #667eea;
+          }
+
+          span {
+            font-size: 0.95rem;
+            color: #333;
+          }
+        }
+      }
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
 // Dark theme support
 @media (prefers-color-scheme: dark) {
   .filters-section {

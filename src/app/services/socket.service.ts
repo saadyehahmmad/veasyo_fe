@@ -270,9 +270,10 @@ export class SocketService {
     this._socket.emit('acknowledge_request', requestId);
   }
 
-  completeRequest(requestId: string): void {
+  completeRequest(requestId: string, completedBy?: 'waiter' | 'customer'): void {
     // Allow both authenticated users (waiters) and unauthenticated users (customers) to complete requests
-    this._socket.emit('complete_request', requestId);
+    // If completedBy is not provided, let the backend determine it based on authentication
+    this._socket.emit('complete_request', { requestId, completedBy });
   }
 
   cancelRequest(requestId: string): void {

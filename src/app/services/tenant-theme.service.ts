@@ -32,6 +32,11 @@ export class TenantThemeService {
   private _themeApplied = signal<boolean>(false);
   private _logger = inject(LoggerService);
 
+  // CSS class and property constants
+  private readonly PATTERN_CLASS = 'has-pattern';
+  private readonly PATTERN_IMAGE_PROPERTY = '--tenant-pattern-image';
+  private readonly PATTERN_SIZE_PROPERTY = '--tenant-pattern-size';
+
   constructor(private _http: HttpClient) {}
 
   /**
@@ -147,71 +152,107 @@ export class TenantThemeService {
   }
 
   /**
+   * Pattern configuration interface
+   */
+  private readonly PATTERN_CONFIGS: Record<string, { image: string; size?: string }> = {
+    dots: {
+      image: 'radial-gradient(circle, rgba(0, 0, 0, 0.1) 1px, transparent 1px)',
+      size: '20px 20px',
+    },
+    stripes: {
+      image: 'repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.05) 0px, rgba(0, 0, 0, 0.05) 10px, transparent 10px, transparent 20px)',
+    },
+    waves: {
+      image: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+    },
+    squares: {
+      image: 'linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px)',
+      size: '20px 20px',
+    },
+    christmas: {
+      image: `url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c41e3a' fill-opacity='0.08'%3E%3Cpath d='M40 10 L45 20 L55 20 L47 27 L50 37 L40 30 L30 37 L33 27 L25 20 L35 20 Z'/%3E%3C/g%3E%3Cg fill='%23165b33' fill-opacity='0.08'%3E%3Ccircle cx='15' cy='15' r='3'/%3E%3Ccircle cx='65' cy='15' r='3'/%3E%3Ccircle cx='15' cy='65' r='3'/%3E%3Ccircle cx='65' cy='65' r='3'/%3E%3C/g%3E%3Cg fill='%23ffd700' fill-opacity='0.06'%3E%3Ccircle cx='40' cy='60' r='2'/%3E%3Ccircle cx='20' cy='40' r='2'/%3E%3Ccircle cx='60' cy='40' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+      size: '80px 80px',
+    },
+  };
+
+  /**
    * Apply background patterns and gradients
    */
   private _applyBackgroundAndGradient(branding: TenantBranding): void {
     const body = document.body;
+    const root = document.documentElement;
 
-    // Remove existing background classes and styles
-    body.classList.remove('pattern-dots', 'pattern-stripes', 'pattern-waves', 'pattern-squares');
-    body.style.removeProperty('background');
-    body.style.removeProperty('background-image');
-    body.style.removeProperty('background-size');
+    // Clear existing background styles
+    this._clearBackgroundStyles(body, root);
 
-    // Apply gradient or solid background
+    // Apply gradient to body background
+    this._applyGradient(body, branding);
+
+    // Apply pattern using CSS custom properties for ::before pseudo-element
+    this._applyPattern(root, body, branding);
+  }
+
+  /**
+   * Clear all background-related styles
+   */
+  private _clearBackgroundStyles(element: HTMLElement, root: HTMLElement): void {
+    // Remove pattern class
+    element.classList.remove(this.PATTERN_CLASS);
+    
+    // Remove inline background styles
+    element.style.removeProperty('background');
+    element.style.removeProperty('background-image');
+    element.style.removeProperty('background-size');
+
+    // Clear CSS custom properties for pattern
+    root.style.removeProperty(this.PATTERN_IMAGE_PROPERTY);
+    root.style.removeProperty(this.PATTERN_SIZE_PROPERTY);
+  }
+
+  /**
+   * Apply gradient background to body
+   */
+  private _applyGradient(element: HTMLElement, branding: TenantBranding): void {
     const startColor = branding.gradientStartColor?.trim();
     const endColor = branding.gradientEndColor?.trim();
-    let backgroundValue = '';
-    let backgroundSize = '';
 
     if (startColor && endColor && startColor !== '' && endColor !== '') {
       const direction = branding.gradientDirection || 'to right';
-      backgroundValue = `linear-gradient(${direction}, ${startColor}, ${endColor})`;
+      const gradient = `linear-gradient(${direction}, ${startColor}, ${endColor})`;
+      element.style.backgroundImage = gradient;
+    }
+  }
+
+  /**
+   * Apply pattern using CSS custom properties
+   */
+  private _applyPattern(root: HTMLElement, body: HTMLElement, branding: TenantBranding): void {
+    const patternType = branding.backgroundPattern?.trim();
+
+    if (!patternType || patternType === '') {
+      // No pattern, remove the class
+      body.classList.remove(this.PATTERN_CLASS);
+      return;
     }
 
-    // Apply background pattern
-    if (branding.backgroundPattern && branding.backgroundPattern.trim() !== '') {
-      let patternImage = '';
-      let patternSize = '';
-
-      switch (branding.backgroundPattern) {
-        case 'dots':
-          patternImage = "radial-gradient(circle, rgba(0, 0, 0, 0.1) 1px, transparent 1px)";
-          patternSize = '20px 20px';
-          break;
-        case 'stripes':
-          patternImage = "repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.05) 0px, rgba(0, 0, 0, 0.05) 10px, transparent 10px, transparent 20px)";
-          break;
-        case 'waves':
-          patternImage = "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")";
-          break;
-        case 'squares':
-          patternImage = "linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px)";
-          patternSize = '20px 20px';
-          break;
-      }
-
-      if (backgroundValue && patternImage) {
-        // Combine gradient and pattern
-        backgroundValue += `, ${patternImage}`;
-        if (patternSize) {
-          backgroundSize = patternSize;
-        }
-      } else if (patternImage) {
-        // Only pattern
-        backgroundValue = patternImage;
-        if (patternSize) {
-          backgroundSize = patternSize;
-        }
-      }
+    const patternConfig = this.PATTERN_CONFIGS[patternType];
+    
+    if (!patternConfig) {
+      this._logger.warn(`Unknown background pattern: ${patternType}`);
+      body.classList.remove(this.PATTERN_CLASS);
+      return;
     }
 
-    if (backgroundValue) {
-      body.style.backgroundImage = backgroundValue;
-      if (backgroundSize) {
-        body.style.backgroundSize = backgroundSize;
-      }
+    // Set CSS custom properties for the pattern
+    root.style.setProperty(this.PATTERN_IMAGE_PROPERTY, patternConfig.image);
+    if (patternConfig.size) {
+      root.style.setProperty(this.PATTERN_SIZE_PROPERTY, patternConfig.size);
+    } else {
+      root.style.setProperty(this.PATTERN_SIZE_PROPERTY, 'auto');
     }
+
+    // Add class to enable the ::before pseudo-element
+    body.classList.add(this.PATTERN_CLASS);
   }
 
   /**

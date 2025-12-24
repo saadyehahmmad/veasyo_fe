@@ -57,6 +57,10 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
   // Request types cache
   requestTypes = signal<RequestTypeConfig[]>([]);
 
+  // Tenant settings
+  waiterCanComplete = signal<boolean>(true); // Default to true
+  settingsLoaded = signal<boolean>(false); // Track if settings have been loaded
+
   private _sub = new Subscription();
 
   ngOnInit(): void {
@@ -64,6 +68,9 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
     // This ensures we use the same tenant identifier (subdomain) as the customer
     // The server broadcasts to tenant-{subdomain}-waiter, so we must join using subdomain
     this._socketService.joinWaiterRoom();
+
+    // Load tenant settings
+    this._loadTenantSettings();
 
     // Load request types for proper display
     this._loadRequestTypes();
@@ -106,7 +113,7 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
   }
 
   complete(id: string): void {
-    this._socketService.completeRequest(id);
+    this._socketService.completeRequest(id, 'waiter');
   }
   private _playNotificationSound(): void {
     // Simple notification sound logic
@@ -172,6 +179,55 @@ export class WaiterDashboardComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this._sub.unsubscribe();
     this._requestState.clearRequests();
+  }
+
+  private _loadTenantSettings(): void {
+    const subdomain = this._extractSubdomain();
+    
+    // If no subdomain (localhost), load from authenticated user
+    if (!subdomain) {
+      this._apiService.getMyTenant().subscribe({
+        next: (tenant: any) => this._applyTenantSettings(tenant),
+        error: () => {
+          this.waiterCanComplete.set(true);
+          this.settingsLoaded.set(true);
+        },
+      });
+      return;
+    }
+    
+    // Load by subdomain (production)
+    this._apiService.getTenantBranding(subdomain).subscribe({
+      next: (branding: any) => this._applyTenantSettings(branding),
+      error: () => {
+        this.waiterCanComplete.set(true);
+        this.settingsLoaded.set(true);
+      },
+    });
+  }
+
+  private _applyTenantSettings(branding: any): void {
+    // Set waiterCanComplete based on settings, default to true if not found
+    const canComplete = branding?.settings?.waiterCanComplete !== false;
+    this.waiterCanComplete.set(canComplete);
+    this.settingsLoaded.set(true);
+  }
+
+  private _extractSubdomain(): string | null {
+    const hostname = window.location.hostname;
+    const parts = hostname.split('.');
+    
+    // For localhost:port or IP addresses
+    if (hostname === 'localhost' || /^\d+\.\d+\.\d+\.\d+$/.test(hostname)) {
+      return null;
+    }
+    
+    // For subdomains like a.example.com
+    if (parts.length >= 3) {
+      return parts[0];
+    }
+    
+    return null;
   }
 
   private _loadRequestTypes(): void {

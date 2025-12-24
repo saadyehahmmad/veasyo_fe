@@ -147,10 +147,22 @@
           </mat-chip-set>
         </mat-card-content>
         <mat-card-actions>
-          <button mat-raised-button color="warn" (click)="complete(req.id)">
-            <mat-icon>done_all</mat-icon>
-            {{ 'waiter.complete' | translate }}
-          </button>
+          @if (!settingsLoaded()) {
+            <button mat-raised-button disabled>
+              <mat-icon>hourglass_empty</mat-icon>
+              Loading...
+            </button>
+          } @else if (waiterCanComplete()) {
+            <button mat-raised-button color="warn" (click)="complete(req.id)">
+              <mat-icon>done_all</mat-icon>
+              {{ 'waiter.complete' | translate }}
+            </button>
+          } @else {
+            <div class="complete-disabled-message">
+              <mat-icon>info</mat-icon>
+              <span>{{ 'waiter.customerMustComplete' | translate }}</span>
+            </div>
+          }
         </mat-card-actions>
         </mat-card>
       }
