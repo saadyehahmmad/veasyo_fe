@@ -30,4 +30,3 @@ export const environment = {
   defaultLanguage: 'ar',
   supportedLanguages: ['en', 'ar'],
 };
-
