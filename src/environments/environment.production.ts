@@ -24,7 +24,7 @@ export const environment = {
   production: true,
   apiUrl: getApiUrl(),
   socketUrl: getSocketUrl(),
-  socketPath: '/devapi/socket.io', // Custom Socket.IO path (default: '/socket.io')
+  socketPath: '/socket.io', // Custom Socket.IO path (default: '/socket.io')
   domainURL: 'https://veasyo.com', // Change to your domain
   contactusEmail: 'saadyehahmmad@gmail.com', // Change to your support email
   defaultLanguage: 'ar',
