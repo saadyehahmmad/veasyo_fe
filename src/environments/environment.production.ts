@@ -14,17 +14,17 @@ function getApiUrl(): string {
 
 // Helper to get Socket URL - should match API URL domain
 function getSocketUrl(): string {
-  // Socket.IO should use same domain as API
-  // If using nginx proxy, use relative URL
-  // If backend is on different domain, use absolute URL
-  return 'https://veasyo.com/devapi'; // Same as API URL - Socket.IO is on same backend
+  // Socket.IO should use same domain as API (without path prefix)
+  // The path prefix (/devapi) should be in socketPath instead
+  // This prevents Socket.IO from misinterpreting /devapi as a namespace
+  return 'https://veasyo.com'; // Base domain only
 }
 
 export const environment = {
   production: true,
   apiUrl: getApiUrl(),
   socketUrl: getSocketUrl(),
-  socketPath: '/socket.io', // Custom Socket.IO path (default: '/socket.io')
+  socketPath: '/devapi/socket.io', // Full path including /devapi prefix
   domainURL: 'https://veasyo.com', // Change to your domain
   contactusEmail: 'saadyehahmmad@gmail.com', // Change to your support email
   defaultLanguage: 'ar',
