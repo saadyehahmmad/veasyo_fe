@@ -36,84 +36,27 @@
   <!-- Problem Slider Section -->
   <section class="problem-slider-section">
     <div class="container">
-
-        <div class="slider-wrapper">
-          <div class="slider-track">
-            <!-- First set of cards -->
+      <div class="slider-wrapper">
+        <div class="slider-track" [class.rtl-animation]="currentLang() === 'ar'">
+          <!-- First set of cards -->
+          @for (card of requestCards; track card.icon) {
             <div class="request-card">
               <div class="card-icon">
-                <mat-icon>person_raised_hand</mat-icon>
+                <mat-icon>{{ card.icon }}</mat-icon>
               </div>
-              <p class="card-text">{{ 'landing.requestWaiter' | translate }}</p>
+              <p class="card-text">{{ card.textKey | translate }}</p>
             </div>
+          }
+          <!-- Duplicate set for seamless loop -->
+          @for (card of requestCards; track card.icon + '-duplicate') {
             <div class="request-card">
               <div class="card-icon">
-                <mat-icon>restaurant_menu</mat-icon>
+                <mat-icon>{{ card.icon }}</mat-icon>
               </div>
-              <p class="card-text">{{ 'landing.requestOrder' | translate }}</p>
+              <p class="card-text">{{ card.textKey | translate }}</p>
             </div>
-            <div class="request-card">
-              <div class="card-icon">
-                <mat-icon>receipt_long</mat-icon>
-              </div>
-              <p class="card-text">{{ 'landing.requestBill' | translate }}</p>
-            </div>
-            <div class="request-card">
-              <div class="card-icon">
-                <mat-icon>water_drop</mat-icon>
-              </div>
-              <p class="card-text">{{ 'landing.requestWater' | translate }}</p>
-            </div>
-            <div class="request-card">
-              <div class="card-icon">
-                <mat-icon>cleaning_services</mat-icon>
-              </div>
-              <p class="card-text">{{ 'landing.requestClean' | translate }}</p>
-            </div>
-            <div class="request-card">
-              <div class="card-icon">
-                <mat-icon>help_outline</mat-icon>
-              </div>
-              <p class="card-text">{{ 'landing.requestHelp' | translate }}</p>
-            </div>
-            <!-- Duplicate set for seamless loop -->
-            <div class="request-card">
-              <div class="card-icon">
-                <mat-icon>person_raised_hand</mat-icon>
-              </div>
-              <p class="card-text">{{ 'landing.requestWaiter' | translate }}</p>
-            </div>
-            <div class="request-card">
-              <div class="card-icon">
-                <mat-icon>restaurant_menu</mat-icon>
-              </div>
-              <p class="card-text">{{ 'landing.requestOrder' | translate }}</p>
-            </div>
-            <div class="request-card">
-              <div class="card-icon">
-                <mat-icon>receipt_long</mat-icon>
-              </div>
-              <p class="card-text">{{ 'landing.requestBill' | translate }}</p>
-            </div>
-            <div class="request-card">
-              <div class="card-icon">
-                <mat-icon>water_drop</mat-icon>
-              </div>
-              <p class="card-text">{{ 'landing.requestWater' | translate }}</p>
-            </div>
-            <div class="request-card">
-              <div class="card-icon">
-                <mat-icon>cleaning_services</mat-icon>
-              </div>
-              <p class="card-text">{{ 'landing.requestClean' | translate }}</p>
-            </div>
-            <div class="request-card">
-              <div class="card-icon">
-                <mat-icon>help_outline</mat-icon>
-              </div>
-              <p class="card-text">{{ 'landing.requestHelp' | translate }}</p>
-            </div>
-          </div>
+          }
+        </div>
       </div>
     </div>
   </section>

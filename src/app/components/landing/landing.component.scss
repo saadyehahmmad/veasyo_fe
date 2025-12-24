@@ -523,6 +523,11 @@ foreignObject div {
   }
 }
 
+.slider-wrapper {
+  overflow: hidden;
+  width: 100%;
+}
+
 .slider-content {
   text-align: center;
 }
@@ -533,8 +538,10 @@ foreignObject div {
 .slider-track {
   display: flex;
   gap: 24px;
-  animation: scroll 30s linear infinite;
+  padding: 10px 0;
   width: fit-content;
+  will-change: transform;
+  animation: scroll 30s linear infinite;
   
   &:hover {
     animation-play-state: paused;
@@ -543,6 +550,11 @@ foreignObject div {
   @media (max-width: 768px) {
     gap: 16px;
     animation-duration: 20s;
+  }
+  
+  // RTL animation variant
+  &.rtl-animation {
+    animation-name: scroll-rtl;
   }
 }
 
@@ -614,13 +626,25 @@ foreignObject div {
   }
 }
 
-// Slider Animation
+// Slider Animation - LTR (Left to Right)
+// English: Cards move from right to left (negative direction)
 @keyframes scroll {
-  0% {
+  from {
     transform: translateX(0);
   }
-  100% {
+  to {
     transform: translateX(-50%);
+  }
+}
+
+// Slider Animation - RTL (Right to Left)
+// Arabic: Cards should move from left to right (positive direction)
+@keyframes scroll-rtl {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(50%);
   }
 }
 

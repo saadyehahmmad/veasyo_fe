@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { ChangeLanguageComponent } from '../../shared/change-language/change-language.component';
 import { InteractiveDemoComponent } from './interactive-demo/interactive-demo.component';
 import { environment } from '../../../environments/environment';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-landing',
@@ -15,6 +16,33 @@ import { environment } from '../../../environments/environment';
   styleUrls: ['./landing.component.scss'],
 })
 export class LandingComponent implements OnInit, OnDestroy {
+
+  protected readonly requestCards = [
+    {
+      icon: 'person_raised_hand',
+      textKey: 'landing.requestWaiter',
+    },
+    {
+      icon: 'restaurant_menu',
+      textKey: 'landing.requestOrder',
+    },
+    {
+      icon: 'receipt_long',
+      textKey: 'landing.requestBill',
+    },
+    {
+      icon: 'water_drop',
+      textKey: 'landing.requestWater',
+    },
+    {
+      icon: 'cleaning_services',
+      textKey: 'landing.requestClean',
+    },
+    {
+      icon: 'help_outline',
+      textKey: 'landing.requestHelp',
+    },
+  ];
 
   protected readonly features = [
     {
@@ -65,9 +93,11 @@ export class LandingComponent implements OnInit, OnDestroy {
   ];
 
   protected isScrolled = signal(false);
+  protected currentLang = signal<string>('en');
   
   private _router = inject(Router);
   private _translate = inject(TranslateService);
+  private _langSubscription?: Subscription;
   
   // Translation keys for illustrations
   // Translation properties for illustrations - using getters that react to language changes
@@ -103,10 +133,19 @@ export class LandingComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.updateScrollPosition();
+    
+    // Set initial language
+    this.currentLang.set(this._translate.currentLang || this._translate.defaultLang || 'en');
+    
+    // Subscribe to language changes
+    this._langSubscription = this._translate.onLangChange.subscribe((event) => {
+      this.currentLang.set(event.lang);
+    });
   }
 
   ngOnDestroy(): void {
-    // Cleanup if needed
+    // Cleanup subscription
+    this._langSubscription?.unsubscribe();
   }
 
   @HostListener('window:scroll', [])
