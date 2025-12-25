@@ -523,6 +523,7 @@ export class ApiService {
     });
   }
 
+
   /**
    * Test PC Agent connection (health check)
    * Tests if PC Agent is reachable without sending a print job

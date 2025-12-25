@@ -567,6 +567,8 @@ export const arabicLocal: Locale = {
           saveSuccess: 'تم حفظ إعدادات الطابعة بنجاح',
           test: 'اختبار الطباعة',
           testMessage: 'تم إرسال اختبار الطباعة إلى الطابعة',
+          testSuccess: 'تم إرسال اختبار الطباعة بنجاح',
+          testFailed: 'فشل إرسال اختبار الطباعة',
         },
         alarm: {
           title: 'تكامل السماعة الشبكية',
@@ -603,6 +605,8 @@ export const arabicLocal: Locale = {
           saveSuccess: 'تم حفظ إعدادات الإنذار بنجاح',
           test: 'اختبار الإنذار',
           testMessage: 'تم تفعيل اختبار الإنذار',
+          testSuccess: 'تم تفعيل التنبيه التجريبي بنجاح',
+          testFailed: 'فشل تفعيل التنبيه التجريبي',
         },
         webhook: {
           title: 'إشعارات Webhook',

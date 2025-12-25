@@ -567,6 +567,8 @@ export const englishLocal: Locale = {
           saveSuccess: 'Printer settings saved successfully',
           test: 'Test Print',
           testMessage: 'Test print sent to printer',
+          testSuccess: 'Test print sent successfully',
+          testFailed: 'Failed to send test print',
         },
         alarm: {
           title: 'Network Speaker Integration',
@@ -603,6 +605,8 @@ export const englishLocal: Locale = {
           saveSuccess: 'Alarm settings saved successfully',
           test: 'Test Alarm',
           testMessage: 'Test alarm triggered',
+          testSuccess: 'Test alert triggered successfully',
+          testFailed: 'Failed to trigger test alert',
         },
         webhook: {
           title: 'Webhook Notifications',
