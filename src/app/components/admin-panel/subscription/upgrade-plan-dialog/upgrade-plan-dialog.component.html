@@ -1,0 +1,89 @@
+<h2 mat-dialog-title>
+  <mat-icon>upgrade</mat-icon>
+  Upgrade Your Plan
+</h2>
+
+<mat-dialog-content>
+  <p class="dialog-description">
+    Choose a plan that fits your needs. You can upgrade anytime, and changes take effect immediately.
+  </p>
+
+  <div class="plans-grid">
+    @for (plan of data.availablePlans; track plan.id) {
+      @if (plan.id !== 'free' && !plan.isCustom) {
+        <mat-card 
+          class="plan-option"
+          [class.current]="isCurrentPlan(plan)"
+          [class.selected]="selectedPlan()?.id === plan.id"
+          [class.disabled]="!canSelectPlan(plan)"
+          (click)="canSelectPlan(plan) ? selectPlan(plan) : null"
+        >
+          @if (isCurrentPlan(plan)) {
+            <mat-chip color="primary" class="current-badge">Current Plan</mat-chip>
+          }
+          
+          <div class="plan-header">
+            <h3>{{ plan.name }}</h3>
+            <div class="plan-price">
+              <span class="price">{{ plan.price }}</span>
+              <span class="currency">JOD/month</span>
+            </div>
+          </div>
+
+          <mat-divider></mat-divider>
+
+          <div class="plan-features">
+            <div class="feature">
+              <mat-icon>table_restaurant</mat-icon>
+              <span>Up to {{ plan.maxTables }} tables</span>
+            </div>
+            <div class="feature">
+              <mat-icon>person</mat-icon>
+              <span>Up to {{ plan.maxWaiters }} waiters</span>
+            </div>
+            @for (feature of plan.features; track feature) {
+              <div class="feature">
+                <mat-icon>check</mat-icon>
+                <span>{{ feature }}</span>
+              </div>
+            }
+          </div>
+
+          @if (canSelectPlan(plan)) {
+            <button mat-raised-button [color]="selectedPlan()?.id === plan.id ? 'primary' : 'accent'" class="select-btn">
+              @if (selectedPlan()?.id === plan.id) {
+                <ng-container>
+                  <mat-icon>check_circle</mat-icon>
+                  Selected
+                </ng-container>
+              } @else {
+                Select Plan
+              }
+            </button>
+          }
+        </mat-card>
+      }
+    }
+  </div>
+
+  <div class="custom-plan-note">
+    <mat-icon>info</mat-icon>
+    <p>
+      <strong>Need more?</strong> Contact support for a custom plan tailored to your specific requirements.
+    </p>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button 
+    mat-raised-button 
+    color="primary" 
+    [disabled]="!selectedPlan()"
+    (click)="onUpgrade()"
+  >
+    <mat-icon>upgrade</mat-icon>
+    Upgrade to {{ selectedPlan()?.name || 'Selected Plan' }}
+  </button>
+</mat-dialog-actions>
+

@@ -1,4 +1,5 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject, Inject } from '@angular/core';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import {
   FormsModule,
@@ -19,6 +20,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { Table } from '../../../models/types';
 import { ApiService } from '../../../services/api.service';
 import { LoggerService } from '../../../services/logger.service';
@@ -43,6 +45,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatTooltipModule,
+    MatDialogModule,
     TranslateModule,
   ],
   templateUrl: './table-management.component.html',
@@ -53,6 +56,7 @@ export class TableManagementComponent implements OnInit {
   private _snackBar = inject(MatSnackBar);
   private _logger = inject(LoggerService);
   private _translate = inject(TranslateService);
+  private _dialog = inject(MatDialog);
 
   tables = signal<Table[]>([]);
   loading = signal(false);
@@ -115,8 +119,16 @@ export class TableManagementComponent implements OnInit {
       },
       error: (error) => {
         this._logger.error('Error creating table:', error);
-        this._snackBar.open(this._translate.instant('admin.tableManagement.createTableError'), 'Close', { duration: 3000 });
         this.loading.set(false);
+        
+        // Handle table limit exceeded error
+        if (error.error?.code === 'TABLE_LIMIT_EXCEEDED') {
+          this._showLimitErrorDialog(
+            error.error.message || 'You have reached your table limit for your current plan. Please upgrade to add more tables.'
+          );
+        } else {
+          this._snackBar.open(this._translate.instant('admin.tableManagement.createTableError'), 'Close', { duration: 3000 });
+        }
       },
     });
   }
@@ -223,4 +235,36 @@ export class TableManagementComponent implements OnInit {
         this._snackBar.open(this._translate.instant('admin.tableManagement.copyUuidError'), 'Close', { duration: 2000 });
       });
   }
+
+  private _showLimitErrorDialog(message: string): void {
+    this._dialog.open(TableLimitErrorDialogComponent, {
+      width: '400px',
+      data: { message },
+    });
+  }
+}
+
+// Error Dialog Component for Table Limit
+@Component({
+  selector: 'app-table-limit-error-dialog',
+  standalone: true,
+  imports: [CommonModule, MatDialogModule, MatButtonModule, MatIconModule, TranslateModule],
+  template: `
+    <h2 mat-dialog-title>
+      <mat-icon color="warn">error</mat-icon>
+      Subscription Limit Reached
+    </h2>
+    <mat-dialog-content>
+      <p>{{ data.message }}</p>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button mat-dialog-close>Close</button>
+    </mat-dialog-actions>
+  `,
+})
+export class TableLimitErrorDialogComponent {
+  constructor(
+    public dialogRef: MatDialogRef<TableLimitErrorDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: { message: string }
+  ) {}
 }

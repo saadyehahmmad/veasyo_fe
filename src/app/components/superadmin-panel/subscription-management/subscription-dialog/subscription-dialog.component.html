@@ -1,0 +1,156 @@
+<h2 mat-dialog-title>
+  <mat-icon>{{ isEditMode ? 'edit' : 'add' }}</mat-icon>
+  {{ isEditMode ? ('admin.superadmin.subscriptionManagement.editSubscription' | translate) : ('admin.superadmin.subscriptionManagement.createSubscription' | translate) }}
+</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="subscriptionForm">
+    <!-- Tenant Selection -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'admin.superadmin.subscriptionManagement.tenant' | translate }}</mat-label>
+      <input
+        type="text"
+        matInput
+        [formControl]="$any(subscriptionForm.get('tenantId'))"
+        [matAutocomplete]="tenantAuto"
+        [readonly]="isEditMode"
+        [placeholder]="'admin.superadmin.subscriptionManagement.selectTenant' | translate"
+      />
+      <mat-autocomplete
+        #tenantAuto="matAutocomplete"
+        [displayWith]="displayTenantFn"
+        (optionSelected)="subscriptionForm.get('tenantId')!.setValue($event.option.value)"
+      >
+        @for (tenant of filteredTenants$ | async; track tenant.id) {
+          <mat-option [value]="tenant">
+            <div class="tenant-option">
+              <mat-icon>business</mat-icon>
+              <span class="tenant-name">{{ tenant.name }}</span>
+              <span class="tenant-subdomain">{{ tenant.subdomain }}</span>
+            </div>
+          </mat-option>
+        }
+      </mat-autocomplete>
+      <mat-icon matPrefix>business</mat-icon>
+      @if (subscriptionForm.get('tenantId')?.hasError('required') && subscriptionForm.get('tenantId')?.touched) {
+        <mat-error>{{ 'admin.superadmin.tenantManagement.required' | translate }}</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Plan Selection -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'admin.subscription.plan' | translate }}</mat-label>
+      <mat-select formControlName="plan">
+        @for (plan of plans; track plan) {
+          <mat-option [value]="plan">
+            {{ plan.charAt(0).toUpperCase() + plan.slice(1) }}
+          </mat-option>
+        }
+      </mat-select>
+      <mat-icon matPrefix>workspace_premium</mat-icon>
+      @if (subscriptionForm.get('plan')?.hasError('required') && subscriptionForm.get('plan')?.touched) {
+        <mat-error>{{ 'admin.superadmin.tenantManagement.required' | translate }}</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Start Date -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'admin.subscription.startDate' | translate }}</mat-label>
+      <input matInput [matDatepicker]="startPicker" formControlName="startDate" />
+      <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+      <mat-datepicker #startPicker></mat-datepicker>
+      <mat-icon matPrefix>event</mat-icon>
+      @if (subscriptionForm.get('startDate')?.hasError('required') && subscriptionForm.get('startDate')?.touched) {
+        <mat-error>{{ 'admin.superadmin.tenantManagement.required' | translate }}</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- End Date (Valid Until) -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'admin.subscription.validUntil' | translate }}</mat-label>
+      <input matInput [matDatepicker]="endPicker" formControlName="endDate" />
+      <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+      <mat-datepicker #endPicker></mat-datepicker>
+      <mat-icon matPrefix>event</mat-icon>
+      <mat-hint>{{ 'admin.subscription.endDateHint' | translate }}</mat-hint>
+      @if (subscriptionForm.get('endDate')?.hasError('required') && subscriptionForm.get('endDate')?.touched) {
+        <mat-error>{{ 'admin.superadmin.tenantManagement.required' | translate }}</mat-error>
+      }
+      @if (subscriptionForm.get('endDate')?.hasError('endDateBeforeStart') && subscriptionForm.get('endDate')?.touched) {
+        <mat-error>{{ 'admin.subscription.endDateAfterStart' | translate }}</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Amount -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'admin.subscription.amount' | translate }}</mat-label>
+      <input matInput type="number" formControlName="amount" step="0.01" min="0" />
+      <span matPrefix>$&nbsp;</span>
+      <mat-hint>{{ 'admin.subscription.amountHint' | translate }}</mat-hint>
+      @if (subscriptionForm.get('amount')?.hasError('required') && subscriptionForm.get('amount')?.touched) {
+        <mat-error>{{ 'admin.superadmin.tenantManagement.required' | translate }}</mat-error>
+      }
+      @if (subscriptionForm.get('amount')?.hasError('min') && subscriptionForm.get('amount')?.touched) {
+        <mat-error>{{ 'admin.subscription.amountMin' | translate }}</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Tax -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'admin.subscription.tax' | translate }}</mat-label>
+      <input matInput type="number" formControlName="tax" step="0.01" min="0" />
+      <span matPrefix>$&nbsp;</span>
+      <mat-hint>{{ 'admin.subscription.taxHint' | translate }}</mat-hint>
+      @if (subscriptionForm.get('tax')?.hasError('min') && subscriptionForm.get('tax')?.touched) {
+        <mat-error>{{ 'admin.subscription.taxMin' | translate }}</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Max Tables -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'admin.subscription.maxTables' | translate }}</mat-label>
+      <input matInput type="number" formControlName="maxTables" min="1" />
+      <mat-icon matPrefix>table_restaurant</mat-icon>
+      @if (subscriptionForm.get('maxTables')?.hasError('required') && subscriptionForm.get('maxTables')?.touched) {
+        <mat-error>{{ 'admin.superadmin.tenantManagement.required' | translate }}</mat-error>
+      }
+      @if (subscriptionForm.get('maxTables')?.hasError('min') && subscriptionForm.get('maxTables')?.touched) {
+        <mat-error>{{ 'admin.subscription.minValue' | translate }} 1</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Max Users -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'admin.subscription.maxUsers' | translate }}</mat-label>
+      <input matInput type="number" formControlName="maxUsers" min="1" />
+      <mat-icon matPrefix>group</mat-icon>
+      @if (subscriptionForm.get('maxUsers')?.hasError('required') && subscriptionForm.get('maxUsers')?.touched) {
+        <mat-error>{{ 'admin.superadmin.tenantManagement.required' | translate }}</mat-error>
+      }
+      @if (subscriptionForm.get('maxUsers')?.hasError('min') && subscriptionForm.get('maxUsers')?.touched) {
+        <mat-error>{{ 'admin.subscription.minValue' | translate }} 1</mat-error>
+      }
+    </mat-form-field>
+
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()" [disabled]="isLoading()">
+    {{ 'admin.superadmin.tenantManagement.cancel' | translate }}
+  </button>
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="onSave()"
+    [disabled]="!subscriptionForm.valid || isLoading()"
+  >
+    @if (isLoading()) {
+      <mat-spinner diameter="20"></mat-spinner>
+    } @else {
+      <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+    }
+    {{ isEditMode ? ('admin.superadmin.tenantManagement.save' | translate) : ('admin.superadmin.tenantManagement.create' | translate) }}
+  </button>
+</mat-dialog-actions>
+

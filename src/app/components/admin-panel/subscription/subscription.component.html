@@ -1,0 +1,303 @@
+<div class="subscription-container">
+  @if (isLoading()) {
+    <mat-card class="loading-card">
+      <mat-card-content>
+        <div class="loading-spinner">
+          <mat-icon>hourglass_empty</mat-icon>
+          <p>{{ 'admin.subscription.loading' | translate }}</p>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  @if (error()) {
+    <mat-card class="error-card">
+      <mat-card-content>
+        <div class="error-message">
+          <mat-icon color="warn">error</mat-icon>
+          <p>{{ error() }}</p>
+          <button mat-raised-button color="primary" (click)="loadSubscription()">
+            <mat-icon>refresh</mat-icon>
+            {{ 'admin.subscription.retry' | translate }}
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  @if (subscriptionDetails() && !isLoading() && !error()) {
+    <mat-tab-group class="subscription-tabs">
+      <!-- Overview Tab -->
+      <mat-tab [label]="'admin.subscription.overview' | translate">
+        <ng-template matTabContent>
+          <div class="subscription-content">
+      <!-- Current Plan Card -->
+      <mat-card class="plan-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>workspace_premium</mat-icon>
+            {{ 'admin.subscription.currentPlan' | translate }}
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="plan-info">
+            <div class="plan-name">
+              <h2>{{ getPlanName(subscriptionDetails()!.subscription.plan) }}</h2>
+              <mat-chip [color]="getStatusColor(subscriptionDetails()!.subscription.status)">
+                <mat-icon>{{ getStatusIcon(subscriptionDetails()!.subscription.status) }}</mat-icon>
+                {{ subscriptionDetails()!.subscription.status | titlecase }}
+              </mat-chip>
+            </div>
+
+            <div class="plan-price">
+              <span class="price">{{ formatPrice(subscriptionDetails()!.subscription.amount) }}</span>
+              <span class="period">{{ 'admin.subscription.perMonth' | translate }}</span>
+            </div>
+
+            @if (subscriptionDetails()!.subscription.plan === 'custom') {
+              <div class="price-breakdown">
+                <p class="breakdown-title">{{ 'admin.subscription.priceBreakdown' | translate }}</p>
+                @for (line of subscriptionDetails()!.pricing.breakdown; track line) {
+                  <p class="breakdown-item">{{ line }}</p>
+                }
+              </div>
+            }
+
+            <div class="plan-dates">
+              <div class="date-item">
+                <mat-icon>event</mat-icon>
+                <span>{{ 'admin.subscription.started' | translate }}: {{ formatDate(subscriptionDetails()!.subscription.startDate) }}</span>
+              </div>
+              @if (subscriptionDetails()!.subscription.endDate) {
+                <div class="date-item" [class.expiring]="isExpiringSoon()">
+                  <mat-icon [color]="isExpiringSoon() ? 'warn' : ''">event_available</mat-icon>
+                  <span>{{ 'admin.subscription.expires' | translate }}: {{ formatDate(subscriptionDetails()!.subscription.endDate) }}</span>
+                  @if (isExpiringSoon()) {
+                    <mat-chip color="warn" class="expiring-chip">
+                      {{ getDaysUntilExpiration() }} {{ 'admin.subscription.daysLeft' | translate }}
+                    </mat-chip>
+                  }
+                </div>
+              }
+            </div>
+
+            @if (canUpgrade()) {
+              <button mat-raised-button color="primary" class="upgrade-btn" (click)="openUpgradeDialog()">
+                <mat-icon>upgrade</mat-icon>
+                {{ 'admin.subscription.upgradePlan' | translate }}
+              </button>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Usage Card -->
+      <mat-card class="usage-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>analytics</mat-icon>
+            {{ 'admin.subscription.currentUsage' | translate }}
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <!-- Tables Usage -->
+          <div class="usage-item">
+            <div class="usage-header">
+              <span class="usage-label">
+                <mat-icon>table_restaurant</mat-icon>
+                {{ 'admin.subscription.tables' | translate }}
+              </span>
+              <span class="usage-value">
+                {{ subscriptionDetails()!.usage.currentTables }} {{ 'admin.subscription.of' | translate }} {{ subscriptionDetails()!.limits.maxTables }}
+              </span>
+            </div>
+            <mat-progress-bar
+              mode="determinate"
+              [value]="getUsagePercentage(subscriptionDetails()!.usage.currentTables, subscriptionDetails()!.limits.maxTables)"
+              [color]="getUsageColor(getUsagePercentage(subscriptionDetails()!.usage.currentTables, subscriptionDetails()!.limits.maxTables))"
+            ></mat-progress-bar>
+          </div>
+
+          <!-- Waiters Usage -->
+          <div class="usage-item">
+            <div class="usage-header">
+              <span class="usage-label">
+                <mat-icon>person</mat-icon>
+                {{ 'admin.subscription.users' | translate }}
+              </span>
+              <span class="usage-value">
+                {{ subscriptionDetails()!.usage.currentWaiters }} {{ 'admin.subscription.of' | translate }} {{ subscriptionDetails()!.limits.maxWaiters }}
+              </span>
+            </div>
+            <mat-progress-bar
+              mode="determinate"
+              [value]="getUsagePercentage(subscriptionDetails()!.usage.currentWaiters, subscriptionDetails()!.limits.maxWaiters)"
+              [color]="getUsageColor(getUsagePercentage(subscriptionDetails()!.usage.currentWaiters, subscriptionDetails()!.limits.maxWaiters))"
+            ></mat-progress-bar>
+          </div>
+
+          <!-- Printers -->
+          @if (subscriptionDetails()!.usage.currentPrinters > 0) {
+            <div class="usage-item">
+              <div class="usage-header">
+                <span class="usage-label">
+                  <mat-icon>print</mat-icon>
+                  {{ 'admin.subscription.printers' | translate }}
+                </span>
+                <span class="usage-value">
+                  {{ subscriptionDetails()!.usage.currentPrinters }}
+                </span>
+              </div>
+            </div>
+          }
+
+          <!-- Validation Messages -->
+          @if (hasWarnings() || hasErrors()) {
+            <mat-divider></mat-divider>
+            <div class="validation-messages">
+              @if (hasErrors()) {
+                <div class="error-messages">
+                  <h4><mat-icon color="warn">error</mat-icon> Limit Exceeded</h4>
+                  @for (error of subscriptionDetails()!.validation.errors; track error) {
+                    <p class="error-msg">{{ error }}</p>
+                  }
+                  @if (subscriptionDetails()!.validation.suggestedPlan) {
+                    <p class="suggestion">
+                      <strong>Suggested:</strong> Upgrade to {{ getPlanName(subscriptionDetails()!.validation.suggestedPlan!) }}
+                    </p>
+                  }
+                </div>
+              }
+
+              @if (hasWarnings()) {
+                <div class="warning-messages">
+                  <h4><mat-icon color="accent">warning</mat-icon> Warnings</h4>
+                  @for (warning of subscriptionDetails()!.validation.warnings; track warning) {
+                    <p class="warning-msg">{{ warning }}</p>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Features Card -->
+      <mat-card class="features-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>check_circle</mat-icon>
+            {{ 'admin.subscription.planFeatures' | translate }}
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="features-list">
+            <div class="feature-item">
+              <mat-icon color="primary">table_restaurant</mat-icon>
+              <span>Up to {{ subscriptionDetails()!.limits.maxTables }} tables</span>
+            </div>
+            <div class="feature-item">
+              <mat-icon color="primary">person</mat-icon>
+              <span>Up to {{ subscriptionDetails()!.limits.maxWaiters }} waiter users</span>
+            </div>
+            <div class="feature-item">
+              <mat-icon color="primary">qr_code_2</mat-icon>
+              <span>QR Code Generation</span>
+            </div>
+            <div class="feature-item">
+              <mat-icon color="primary">notifications_active</mat-icon>
+              <span>Real-time Notifications</span>
+            </div>
+            <div class="feature-item">
+              <mat-icon color="primary">analytics</mat-icon>
+              <span>Analytics Dashboard</span>
+            </div>
+            @if (subscriptionDetails()!.subscription.plan === 'premium' || subscriptionDetails()!.subscription.plan === 'custom') {
+              <div class="feature-item">
+                <mat-icon color="primary">palette</mat-icon>
+                <span>Custom Branding</span>
+              </div>
+              <div class="feature-item">
+                <mat-icon color="primary">print</mat-icon>
+                <span>Printer Integration</span>
+              </div>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Billing Information -->
+      <mat-card class="billing-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>receipt</mat-icon>
+            {{ 'admin.subscription.billingInformation' | translate }}
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="billing-info">
+            @if (subscriptionDetails()!.subscription.nextPaymentDate) {
+              <div class="info-row">
+                <span class="label">{{ 'admin.subscription.nextPayment' | translate }}:</span>
+                <span class="value">{{ formatDate(subscriptionDetails()!.subscription.nextPaymentDate) }}</span>
+              </div>
+            }
+            @if (subscriptionDetails()!.subscription.lastPaymentDate) {
+              <div class="info-row">
+                <span class="label">{{ 'admin.subscription.lastPayment' | translate }}:</span>
+                <span class="value">{{ formatDate(subscriptionDetails()!.subscription.lastPaymentDate) }}</span>
+              </div>
+            }
+          </div>
+
+          <mat-divider></mat-divider>
+
+          <div class="billing-actions">
+            <button mat-stroked-button color="primary">
+              <mat-icon>receipt_long</mat-icon>
+              {{ 'admin.subscription.viewInvoicesBtn' | translate }}
+            </button>
+            <button mat-stroked-button color="primary">
+              <mat-icon>payment</mat-icon>
+              {{ 'admin.subscription.paymentHistoryBtn' | translate }}
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Support Card -->
+      <mat-card class="support-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>support_agent</mat-icon>
+            {{ 'admin.subscription.needHelp' | translate }}
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p>{{ 'admin.subscription.needHelpDesc' | translate }}</p>
+          <div class="support-actions">
+            <button mat-raised-button color="primary">
+              <mat-icon>email</mat-icon>
+              {{ 'admin.subscription.contactSupportBtn' | translate }}
+            </button>
+            <button mat-stroked-button>
+              <mat-icon>help</mat-icon>
+              {{ 'admin.subscription.viewFaqBtn' | translate }}
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+          </div>
+        </ng-template>
+      </mat-tab>
+
+      <!-- Invoices & Payments Tab -->
+      <mat-tab [label]="'admin.subscription.invoicesAndPayments' | translate">
+        <ng-template matTabContent>
+          <app-invoice-history></app-invoice-history>
+        </ng-template>
+      </mat-tab>
+    </mat-tab-group>
+  }
+</div>
+

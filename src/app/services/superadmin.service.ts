@@ -463,13 +463,159 @@ export class SuperAdminService {
     );
   }
 
+
   /**
-   * Get subscription information
+   * Get subscription analytics (revenue, active subscriptions, etc.)
    */
-  getAllSubscriptions(): Observable<any[]> {
-    return this._http.get<any[]>(`${this._apiUrl}/api/superadmin/subscriptions`, {
-      headers: this._authService.getSuperAdminHeaders(), // Superadmin requests don't require tenant
+  getSubscriptionAnalytics(): Observable<any> {
+    return this._http.get<any>(`${this._apiUrl}/api/superadmin/subscriptions/analytics`, {
+      headers: this._authService.getSuperAdminHeaders(),
     });
+  }
+
+  /**
+   * Get subscriptions expiring within specified days
+   */
+  getExpiringSubscriptions(days = 7): Observable<{ subscriptions: any[]; count: number }> {
+    return this._http.get<{ subscriptions: any[]; count: number }>(
+      `${this._apiUrl}/api/superadmin/subscriptions/expiring?days=${days}`,
+      {
+        headers: this._authService.getSuperAdminHeaders(),
+      }
+    );
+  }
+
+  /**
+   * Get all tenants with usage statistics
+   */
+  getAllTenantsUsage(): Observable<{ tenants: any[]; count: number }> {
+    return this._http.get<{ tenants: any[]; count: number }>(
+      `${this._apiUrl}/api/superadmin/tenants/usage/all`,
+      {
+        headers: this._authService.getSuperAdminHeaders(),
+      }
+    );
+  }
+
+  /**
+   * Get tenant usage statistics
+   */
+  getTenantUsage(tenantId: string): Observable<any> {
+    return this._http.get<any>(
+      `${this._apiUrl}/api/superadmin/tenants/${tenantId}/usage`,
+      {
+        headers: this._authService.getSuperAdminHeaders(),
+      }
+    );
+  }
+
+  /**
+   * Get tenant invoices
+   */
+  getTenantInvoices(tenantId: string): Observable<{ invoices: any[]; count: number }> {
+    return this._http.get<{ invoices: any[]; count: number }>(
+      `${this._apiUrl}/api/superadmin/tenants/${tenantId}/invoices`,
+      {
+        headers: this._authService.getSuperAdminHeaders(),
+      }
+    );
+  }
+
+  /**
+   * Get all subscriptions with tenant info
+   */
+  getAllSubscriptions(): Observable<{ subscriptions: any[]; count: number }> {
+    return this._http.get<{ subscriptions: any[]; count: number }>(
+      `${this._apiUrl}/api/superadmin/subscriptions`,
+      {
+        headers: this._authService.getSuperAdminHeaders(),
+      }
+    );
+  }
+
+  /**
+   * Create subscription for tenant (Superadmin only)
+   */
+  createTenantSubscription(request: {
+    tenantId: string;
+    plan: 'free' | 'basic' | 'standard' | 'premium' | 'custom';
+    startDate: string;
+    endDate: string;
+    amount: number; // in USD
+    tax?: number; // in USD, optional
+    maxTables: number;
+    maxUsers: number;
+    notes?: string;
+  }): Observable<{ message: string; subscription: any }> {
+    // Convert USD to cents before sending
+    const requestInCents = {
+      ...request,
+      amount: Math.round(request.amount * 100),
+      tax: request.tax ? Math.round(request.tax * 100) : 0,
+    };
+    return this._http.post<{ message: string; subscription: any }>(
+      `${this._apiUrl}/api/superadmin/subscriptions`,
+      requestInCents,
+      {
+        headers: this._authService.getSuperAdminHeaders(),
+      }
+    );
+  }
+
+  /**
+   * Update tenant subscription
+   */
+  updateTenantSubscription(tenantId: string, request: {
+    plan?: 'free' | 'basic' | 'standard' | 'premium' | 'custom';
+    startDate?: string;
+    endDate?: string;
+    amount?: number; // in USD
+    tax?: number; // in USD
+    maxTables?: number;
+    maxUsers?: number;
+    status?: string;
+    notes?: string;
+  }): Observable<{ message: string; subscription: any }> {
+    // Convert USD to cents before sending
+    const requestInCents: any = { ...request };
+    if (request.amount !== undefined) {
+      requestInCents.amount = Math.round(request.amount * 100);
+    }
+    if (request.tax !== undefined) {
+      requestInCents.tax = Math.round(request.tax * 100);
+    }
+    return this._http.put<{ message: string; subscription: any }>(
+      `${this._apiUrl}/api/superadmin/subscriptions/${tenantId}`,
+      requestInCents,
+      {
+        headers: this._authService.getSuperAdminHeaders(),
+      }
+    );
+  }
+
+  /**
+   * Delete subscription
+   */
+  deleteSubscription(subscriptionId: string): Observable<{ message: string }> {
+    return this._http.delete<{ message: string }>(
+      `${this._apiUrl}/api/superadmin/subscriptions/${subscriptionId}`,
+      {
+        headers: this._authService.getSuperAdminHeaders(),
+      }
+    );
+  }
+
+  /**
+   * Update subscription pricing (manual override)
+   */
+  updateSubscriptionPricing(tenantId: string, pricing: { amount: number; tax?: number; notes?: string }): Observable<any> {
+    return this._http.patch<any>(
+      `${this._apiUrl}/api/superadmin/subscriptions/${tenantId}/pricing`,
+      pricing,
+      {
+        headers: this._authService.getSuperAdminHeaders(),
+      }
+    );
   }
 
   // ============================================

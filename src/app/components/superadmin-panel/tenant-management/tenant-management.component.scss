@@ -136,42 +136,6 @@ mat-card {
     }
   }
 
-  .subscription-compact {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-
-    .sub-icon {
-      font-size: 22px;
-      width: 22px;
-      height: 22px;
-
-      &.sub-active {
-        color: #4caf50;
-      }
-
-      &.sub-expired {
-        color: #ff9800;
-      }
-
-      &.sub-cancelled {
-        color: #f44336;
-      }
-    }
-
-    .sub-amount {
-      font-size: 0.9em;
-      font-weight: 500;
-      color: #616161;
-    }
-  }
-
-  .no-sub-icon {
-    font-size: 22px;
-    width: 22px;
-    height: 22px;
-    color: #bdbdbd;
-  }
 
   .action-buttons {
     display: flex;

@@ -1,0 +1,385 @@
+<div class="subscription-management">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>
+        <div class="header-content">
+          <div class="title-section">
+            <mat-icon>workspace_premium</mat-icon>
+            <span>{{ 'admin.superadmin.subscriptionManagement.title' | translate }}</span>
+          </div>
+        </div>
+      </mat-card-title>
+      <mat-card-subtitle>{{ 'admin.superadmin.subscriptionManagement.subtitle' | translate }}</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <mat-tab-group [selectedIndex]="selectedTabIndex()" (selectedTabChange)="selectTab($event.index)">
+        <!-- Subscriptions Tab -->
+        <mat-tab label="{{ 'admin.superadmin.tabs.subscriptions' | translate }}">
+          <ng-template matTabContent>
+            <!-- Create/Edit Form -->
+            <mat-card class="subscription-form-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <div class="form-header">
+                    <mat-icon>{{ editingSubscription() ? 'edit' : 'add' }}</mat-icon>
+                    <span>{{ editingSubscription() ? 'Edit Subscription' : 'Create New Subscription' }}</span>
+                  </div>
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <form [formGroup]="subscriptionForm" (ngSubmit)="editingSubscription() ? updateSubscription() : createSubscription()">
+                  <div class="form-grid">
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'admin.superadmin.subscriptionManagement.tenant' | translate }}</mat-label>
+                  <input
+                    type="text"
+                    matInput
+                    [formControl]="getTenantSearchControl()"
+                    [matAutocomplete]="tenantAuto"
+                    [readonly]="!!editingSubscription()"
+                    placeholder="Search tenant..."
+                  />
+                  <mat-autocomplete
+                    #tenantAuto="matAutocomplete"
+                    [displayWith]="displayTenantFn"
+                    (optionSelected)="onTenantSelected($event)"
+                  >
+                    @for (tenant of filteredTenants$ | async; track tenant.id) {
+                      <mat-option [value]="tenant">
+                        <div class="tenant-option">
+                          <mat-icon>business</mat-icon>
+                          <span class="tenant-name">{{ tenant.name }}</span>
+                          <span class="tenant-subdomain">{{ tenant.subdomain }}</span>
+                        </div>
+                      </mat-option>
+                    }
+                  </mat-autocomplete>
+                  @if (subscriptionForm.get('tenantId')?.value) {
+                    <mat-hint>Selected: {{ getTenantDisplay() }}</mat-hint>
+                  }
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'admin.superadmin.subscriptionManagement.plan' | translate }}</mat-label>
+                  <mat-select formControlName="plan">
+                    @for (plan of plans; track plan) {
+                      <mat-option [value]="plan">
+                        {{ plan.charAt(0).toUpperCase() + plan.slice(1) }}
+                      </mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'admin.subscription.startDate' | translate }}</mat-label>
+                  <input matInput [matDatepicker]="startPicker" formControlName="startDate" />
+                  <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+                  <mat-datepicker #startPicker></mat-datepicker>
+                  <mat-icon matPrefix>event</mat-icon>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'admin.subscription.validUntil' | translate }}</mat-label>
+                  <input matInput [matDatepicker]="endPicker" formControlName="endDate" />
+                  <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+                  <mat-datepicker #endPicker></mat-datepicker>
+                  <mat-icon matPrefix>event</mat-icon>
+                  @if (subscriptionForm.get('endDate')?.hasError('endDateBeforeStart') && subscriptionForm.get('endDate')?.touched) {
+                    <mat-error>End date must be after start date</mat-error>
+                  }
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'admin.subscription.amount' | translate }} (USD)</mat-label>
+                  <input matInput type="number" formControlName="amount" step="0.01" min="0" />
+                  <span matPrefix>$&nbsp;</span>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'admin.subscription.tax' | translate }} (USD)</mat-label>
+                  <input matInput type="number" formControlName="tax" step="0.01" min="0" />
+                  <span matPrefix>$&nbsp;</span>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'admin.subscription.maxTables' | translate }}</mat-label>
+                  <input matInput type="number" formControlName="maxTables" min="1" />
+                  <mat-icon matPrefix>table_restaurant</mat-icon>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'admin.subscription.maxUsers' | translate }}</mat-label>
+                  <input matInput type="number" formControlName="maxUsers" min="1" />
+                  <mat-icon matPrefix>group</mat-icon>
+                </mat-form-field>
+              </div>
+
+                  <div class="form-actions">
+                    <div class="button-group">
+                      <button mat-raised-button color="primary" type="submit" [disabled]="subscriptionForm.invalid || isLoading()">
+                        <mat-icon>{{ editingSubscription() ? 'save' : 'add' }}</mat-icon>
+                        {{ editingSubscription() ? 'Update' : 'Create' }} Subscription
+                      </button>
+                      @if (editingSubscription()) {
+                        <button mat-button type="button" (click)="cancelEdit()" [disabled]="isLoading()">
+                          <mat-icon>cancel</mat-icon>
+                          Cancel
+                        </button>
+                      }
+                    </div>
+                  </div>
+                </form>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Search and Filters -->
+            <div class="filters-container">
+              <mat-form-field appearance="outline" class="search-field">
+                <mat-label>Search Subscriptions</mat-label>
+                <input
+                  matInput
+                  [value]="searchTerm()"
+                  (input)="onSearchChange($any($event.target).value)"
+                  placeholder="Search by tenant, plan..."
+                />
+                <mat-icon matPrefix>search</mat-icon>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Filter by Tenant</mat-label>
+                <input
+                  type="text"
+                  matInput
+                  [formControl]="getTenantFilterControl()"
+                  [matAutocomplete]="tenantFilterAuto"
+                  placeholder="All tenants"
+                />
+                <mat-autocomplete
+                  #tenantFilterAuto="matAutocomplete"
+                  [displayWith]="displayTenantFn"
+                  (optionSelected)="onTenantFilterChange($event.option.value?.id || '')"
+                >
+                  <mat-option [value]="null">
+                    <div class="tenant-option">
+                      <mat-icon>clear_all</mat-icon>
+                      <span>All Tenants</span>
+                    </div>
+                  </mat-option>
+                  @for (tenant of filteredTenantsFilter$ | async; track tenant.id) {
+                    <mat-option [value]="tenant">
+                      <div class="tenant-option">
+                        <mat-icon>business</mat-icon>
+                        <span class="tenant-name">{{ tenant.name }}</span>
+                        <span class="tenant-subdomain">{{ tenant.subdomain }}</span>
+                      </div>
+                    </mat-option>
+                  }
+                </mat-autocomplete>
+              </mat-form-field>
+
+              <button mat-raised-button (click)="clearFilters()">
+                <mat-icon>filter_alt_off</mat-icon>
+                Clear Filters
+              </button>
+            </div>
+
+            <!-- Subscriptions Table -->
+            @if (isLoading()) {
+              <div class="loading-container">
+                <mat-spinner diameter="50"></mat-spinner>
+                <p>{{ 'admin.superadmin.loading' | translate }}</p>
+              </div>
+            } @else if (error()) {
+              <div class="error-container">
+                <mat-icon color="warn">error_outline</mat-icon>
+                <p>{{ error() }}</p>
+                <button mat-raised-button color="primary" (click)="retry()">
+                  {{ 'admin.subscription.retry' | translate }}
+                </button>
+              </div>
+            } @else if (subscriptions().length === 0) {
+              <div class="empty-state">
+                <mat-icon>info_outline</mat-icon>
+                <p>{{ 'admin.superadmin.subscriptionManagement.noSubscriptions' | translate }}</p>
+              </div>
+            } @else {
+              <div class="table-container">
+                <table mat-table [dataSource]="dataSource" class="subscriptions-table">
+                  <!-- Invoice Number Column -->
+                  <ng-container matColumnDef="invoiceNumber">
+                    <th mat-header-cell *matHeaderCellDef>
+                      Invoice Number
+                    </th>
+                    <td mat-cell *matCellDef="let subscription">
+                      <div class="invoice-number-cell">
+                        <mat-icon>receipt</mat-icon>
+                        <span class="invoice-number">{{ generateInvoiceNumber(subscription.id) }}</span>
+                      </div>
+                    </td>
+                  </ng-container>
+
+                  <!-- Tenant Column -->
+                  <ng-container matColumnDef="tenant">
+                    <th mat-header-cell *matHeaderCellDef>
+                      {{ 'admin.superadmin.subscriptionManagement.tenant' | translate }}
+                    </th>
+                    <td mat-cell *matCellDef="let subscription">
+                      <div class="tenant-info">
+                        <div class="tenant-name">{{ subscription.tenant?.name || 'N/A' }}</div>
+                        <div class="tenant-subdomain">{{ subscription.tenant?.subdomain || '' }}</div>
+                      </div>
+                    </td>
+                  </ng-container>
+
+                  <!-- Plan Column -->
+                  <ng-container matColumnDef="plan">
+                    <th mat-header-cell *matHeaderCellDef>
+                      {{ 'admin.superadmin.subscriptionManagement.plan' | translate }}
+                    </th>
+                    <td mat-cell *matCellDef="let subscription">
+                      <mat-chip [color]="getStatusColor(subscription.status)">
+                        {{ subscription.plan }}
+                      </mat-chip>
+                    </td>
+                  </ng-container>
+
+                  <!-- Start Date Column -->
+                  <ng-container matColumnDef="startDate">
+                    <th mat-header-cell *matHeaderCellDef>
+                      {{ 'admin.subscription.startDate' | translate }}
+                    </th>
+                    <td mat-cell *matCellDef="let subscription">
+                      {{ formatDate(subscription.startDate) }}
+                    </td>
+                  </ng-container>
+
+                  <!-- End Date Column -->
+                  <ng-container matColumnDef="endDate">
+                    <th mat-header-cell *matHeaderCellDef>
+                      {{ 'admin.subscription.validUntil' | translate }}
+                    </th>
+                    <td mat-cell *matCellDef="let subscription">
+                      <div class="end-date-cell">
+                        <span>{{ formatDate(subscription.endDate) }}</span>
+                        @if (subscription.endDate) {
+                          @if (isExpired(subscription.endDate)) {
+                            <mat-chip color="warn" class="expired-chip">Expired</mat-chip>
+                          } @else if (isExpiringSoon(subscription.endDate)) {
+                            <mat-chip color="accent" class="expiring-chip">Expiring Soon</mat-chip>
+                          }
+                        }
+                      </div>
+                    </td>
+                  </ng-container>
+
+                  <!-- Max Tables Column -->
+                  <ng-container matColumnDef="maxTables">
+                    <th mat-header-cell *matHeaderCellDef>
+                      {{ 'admin.subscription.maxTables' | translate }}
+                    </th>
+                    <td mat-cell *matCellDef="let subscription">
+                      <div class="limit-cell">
+                        <mat-icon>table_restaurant</mat-icon>
+                        <span>{{ subscription.maxTables }}</span>
+                      </div>
+                    </td>
+                  </ng-container>
+
+                  <!-- Max Users Column -->
+                  <ng-container matColumnDef="maxUsers">
+                    <th mat-header-cell *matHeaderCellDef>
+                      {{ 'admin.subscription.maxUsers' | translate }}
+                    </th>
+                    <td mat-cell *matCellDef="let subscription">
+                      <div class="limit-cell">
+                        <mat-icon>group</mat-icon>
+                        <span>{{ subscription.maxUsers }}</span>
+                      </div>
+                    </td>
+                  </ng-container>
+
+                  <!-- Amount Column -->
+                  <ng-container matColumnDef="amount">
+                    <th mat-header-cell *matHeaderCellDef>
+                      {{ 'admin.subscription.amount' | translate }}
+                    </th>
+                    <td mat-cell *matCellDef="let subscription">
+                      {{ formatPrice(subscription.amount) }}
+                    </td>
+                  </ng-container>
+
+                  <!-- Tax Column -->
+                  <ng-container matColumnDef="tax">
+                    <th mat-header-cell *matHeaderCellDef>
+                      {{ 'admin.subscription.tax' | translate }}
+                    </th>
+                    <td mat-cell *matCellDef="let subscription">
+                      {{ formatPrice(subscription.tax) }}
+                    </td>
+                  </ng-container>
+
+                  <!-- Status Column -->
+                  <ng-container matColumnDef="status">
+                    <th mat-header-cell *matHeaderCellDef>Status</th>
+                    <td mat-cell *matCellDef="let subscription">
+                      <mat-chip [color]="getStatusColor(subscription.status)">
+                        {{ subscription.status }}
+                      </mat-chip>
+                    </td>
+                  </ng-container>
+
+                  <!-- Actions Column -->
+                  <ng-container matColumnDef="actions">
+                    <th mat-header-cell *matHeaderCellDef>
+                      {{ 'admin.superadmin.subscriptionManagement.actions' | translate }}
+                    </th>
+                    <td mat-cell *matCellDef="let subscription">
+                      <div class="actions-buttons">
+                        <button
+                          mat-icon-button
+                          color="primary"
+                          [matTooltip]="'admin.superadmin.subscriptionManagement.editSubscription' | translate"
+                          (click)="editSubscription(subscription)"
+                        >
+                          <mat-icon>edit</mat-icon>
+                        </button>
+                        <button
+                          mat-icon-button
+                          color="warn"
+                          [matTooltip]="'admin.superadmin.subscriptionManagement.deleteSubscription' | translate"
+                          (click)="deleteSubscription(subscription)"
+                        >
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      </div>
+                    </td>
+                  </ng-container>
+
+                  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                  <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+                </table>
+
+                <mat-paginator
+                  [length]="totalSubscriptions()"
+                  [pageSize]="pageSize()"
+                  [pageSizeOptions]="[10, 25, 50, 100]"
+                  [pageIndex]="currentPage() - 1"
+                  showFirstLastButtons
+                >
+                </mat-paginator>
+              </div>
+            }
+          </ng-template>
+        </mat-tab>
+
+        <!-- Invoice Verification Tab -->
+        <mat-tab label="{{ 'admin.superadmin.invoiceVerification.title' | translate }}">
+          <ng-template matTabContent>
+            <app-invoice-verification></app-invoice-verification>
+          </ng-template>
+        </mat-tab>
+      </mat-tab-group>
+    </mat-card-content>
+  </mat-card>
+</div>

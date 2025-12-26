@@ -1,0 +1,206 @@
+.invoice-verification-container {
+  padding: 24px;
+
+  mat-card {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  mat-card-header {
+    margin-bottom: 24px;
+
+    mat-card-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 24px;
+    }
+  }
+
+  .full-width {
+    width: 100%;
+    margin-bottom: 16px;
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+
+    button {
+      min-width: 150px;
+    }
+
+    .spinner {
+      display: inline-block;
+      margin-right: 8px;
+    }
+  }
+
+  .error-card {
+    background-color: #fff3cd;
+    border-left: 4px solid #ffc107;
+    margin-bottom: 24px;
+
+    mat-card-content {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px !important;
+
+      p {
+        margin: 0;
+        color: #856404;
+      }
+    }
+  }
+
+  .fake-invoice-card {
+    background-color: #f8d7da;
+    border-left: 4px solid #dc3545;
+    margin-bottom: 24px;
+
+    mat-card-content {
+      padding: 24px !important;
+    }
+
+    .fake-warning {
+      text-align: center;
+      padding: 20px;
+
+      .large-icon {
+        font-size: 64px;
+        width: 64px;
+        height: 64px;
+        margin-bottom: 16px;
+      }
+
+      h2 {
+        color: #721c24;
+        margin: 16px 0;
+        font-size: 24px;
+      }
+
+      p {
+        color: #721c24;
+        font-size: 16px;
+        margin-bottom: 16px;
+      }
+
+      .signature-display {
+        background: white;
+        padding: 12px;
+        border-radius: 4px;
+        margin-top: 16px;
+
+        strong {
+          display: block;
+          margin-bottom: 8px;
+          color: #721c24;
+        }
+
+        code {
+          font-family: 'Courier New', monospace;
+          font-size: 14px;
+          color: #333;
+          word-break: break-all;
+        }
+      }
+    }
+  }
+
+  .verified-invoice-card {
+    background-color: #d4edda;
+    border-left: 4px solid #28a745;
+    margin-top: 24px;
+
+    mat-card-header {
+      mat-card-title {
+        color: #155724;
+        font-size: 20px;
+
+        .verified-icon {
+          font-size: 32px;
+          width: 32px;
+          height: 32px;
+        }
+      }
+    }
+
+    mat-card-content {
+      padding: 24px !important;
+    }
+
+    .invoice-details {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      margin-top: 16px;
+
+      .detail-section {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+        h3 {
+          margin: 0 0 16px 0;
+          color: #155724;
+          font-size: 16px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          border-bottom: 2px solid #28a745;
+          padding-bottom: 8px;
+        }
+
+        .detail-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 12px 0;
+          border-bottom: 1px solid #e9ecef;
+
+          &:last-child {
+            border-bottom: none;
+          }
+
+          .label {
+            font-weight: 600;
+            color: #666;
+            font-size: 14px;
+          }
+
+          .value {
+            color: #333;
+            font-size: 14px;
+            text-align: right;
+            word-break: break-word;
+
+            code {
+              background: #f8f9fa;
+              padding: 4px 8px;
+              border-radius: 4px;
+              font-family: 'Courier New', monospace;
+              font-size: 12px;
+            }
+
+            .signature-code {
+              background: #e7f3ff;
+              color: #0066cc;
+              font-weight: 600;
+              padding: 6px 12px;
+              border-radius: 4px;
+              display: inline-block;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  input.error {
+    border-color: #dc3545;
+  }
+}
+

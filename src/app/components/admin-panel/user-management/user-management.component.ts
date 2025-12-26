@@ -1,4 +1,5 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject, Inject } from '@angular/core';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import {
   FormsModule,
@@ -18,6 +19,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { User } from '../../../models/types';
 import { ApiService } from '../../../services/api.service';
 import { LoggerService } from '../../../services/logger.service';
@@ -41,6 +43,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatTooltipModule,
+    MatDialogModule,
     TranslateModule,
   ],
   templateUrl: './user-management.component.html',
@@ -51,6 +54,7 @@ export class UserManagementComponent implements OnInit {
   private _snackBar = inject(MatSnackBar);
   private _logger = inject(LoggerService);
   private _translate = inject(TranslateService);
+  private _dialog = inject(MatDialog);
 
   users = signal<User[]>([]);
   loading = signal(false);
@@ -125,9 +129,17 @@ export class UserManagementComponent implements OnInit {
       },
       error: (error) => {
         this._logger.error('Error creating user:', error);
-        const errorMsg = error.error?.message || this._translate.instant('admin.userManagement.failedToCreateWaiter');
-        this._snackBar.open(`❌ ${errorMsg}`, 'Close', { duration: 3000 });
         this.loading.set(false);
+        
+        // Handle user limit exceeded error
+        if (error.error?.code === 'USER_LIMIT_EXCEEDED') {
+          this._showLimitErrorDialog(
+            error.error.message || 'You have reached your user limit for your current plan. Please upgrade to add more users.'
+          );
+        } else {
+          const errorMsg = error.error?.message || this._translate.instant('admin.userManagement.failedToCreateWaiter');
+          this._snackBar.open(`❌ ${errorMsg}`, 'Close', { duration: 3000 });
+        }
       },
     });
   }
@@ -220,4 +232,36 @@ export class UserManagementComponent implements OnInit {
       },
     });
   }
+
+  private _showLimitErrorDialog(message: string): void {
+    this._dialog.open(UserLimitErrorDialogComponent, {
+      width: '400px',
+      data: { message },
+    });
+  }
+}
+
+// Error Dialog Component for User Limit
+@Component({
+  selector: 'app-user-limit-error-dialog',
+  standalone: true,
+  imports: [CommonModule, MatDialogModule, MatButtonModule, MatIconModule, TranslateModule],
+  template: `
+    <h2 mat-dialog-title>
+      <mat-icon color="warn">error</mat-icon>
+      Subscription Limit Reached
+    </h2>
+    <mat-dialog-content>
+      <p>{{ data.message }}</p>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button mat-dialog-close>Close</button>
+    </mat-dialog-actions>
+  `,
+})
+export class UserLimitErrorDialogComponent {
+  constructor(
+    public dialogRef: MatDialogRef<UserLimitErrorDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: { message: string }
+  ) {}
 }

@@ -12,6 +12,7 @@ import { ServiceRequestsComponent } from './service-requests/service-requests.co
 import { RequestTypeManagementComponent } from './request-type-management/request-type-management.component';
 import { QrGeneratorComponent } from './qr-generator/qr-generator.component';
 import { IntegrationsComponent } from './integrations/integrations.component';
+import { SubscriptionComponent } from './subscription/subscription.component';
 import { ChangeLanguageComponent } from '../../shared/change-language/change-language.component';
 import { AuthService } from '../../services/auth.service';
 import { LanguageService } from '../../services/language.service';
@@ -40,6 +41,7 @@ interface AdminTab {
     RequestTypeManagementComponent,
     QrGeneratorComponent,
     IntegrationsComponent,
+    SubscriptionComponent,
     ChangeLanguageComponent,
   ],
   templateUrl: './admin-panel.component.html',
@@ -93,6 +95,12 @@ export class AdminPanelComponent implements OnInit {
       icon: 'settings_input_component',
       component: IntegrationsComponent,
       roles: ['admin', 'superadmin'],
+    },
+    {
+      label: 'admin.menu.subscription',
+      icon: 'workspace_premium',
+      component: SubscriptionComponent,
+      roles: ['admin', 'superadmin'],
     }
   ]);
 
@@ -111,6 +119,7 @@ export class AdminPanelComponent implements OnInit {
     'admin.menu.qrGenerator': 'admin.qrGenerator.subtitle',
     'admin.menu.tenantBranding': 'admin.tenantBranding.subtitle',
     'admin.menu.integrations': 'admin.integrations.subtitle',
+    'admin.menu.subscription': 'admin.subscription.subtitle',
     'admin.menu.analytics': 'admin.analytics.overview',
   };
 

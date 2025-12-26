@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, Injector } from '@angular/core';
 import {
   HttpInterceptor,
   HttpRequest,
@@ -9,16 +9,30 @@ import {
 import { Observable, throwError, BehaviorSubject } from 'rxjs';
 import { catchError, switchMap, filter, take } from 'rxjs/operators';
 import { AuthService } from '../services/auth.service';
-import { SocketService } from '../services/socket.service';
-import { RateLimitService } from '../services/rate-limit.service';
+import { UrlUtilsService } from '../services/url-utils.service';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
-  private _authService = inject(AuthService);
-  private _socketService = inject(SocketService);
-  private _rateLimitService = inject(RateLimitService);
+  private _authService?: AuthService;
+  private _urlUtils?: UrlUtilsService;
+  private _injector = inject(Injector);
   private _isRefreshing = false;
   private _refreshTokenSubject = new BehaviorSubject<any>(null);
+
+  // Lazy initialization to avoid circular dependency
+  private get authService(): AuthService {
+    if (!this._authService) {
+      this._authService = this._injector.get(AuthService);
+    }
+    return this._authService;
+  }
+
+  private get urlUtils(): UrlUtilsService {
+    if (!this._urlUtils) {
+      this._urlUtils = this._injector.get(UrlUtilsService);
+    }
+    return this._urlUtils;
+  }
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     // Skip auth for health checks and auth endpoints
@@ -31,33 +45,10 @@ export class AuthInterceptor implements HttpInterceptor {
       return next.handle(req);
     }
 
-    // Client-side rate limiting check
-    // Only apply to API endpoints (not Socket.IO, health checks, etc.)
-    if (req.url.startsWith('/api/') || req.url.includes('/api/')) {
-      const endpoint = new URL(req.url, window.location.origin).pathname;
-      
-      // Different limits for different endpoint types
-      let limit = 100; // Default limit
-      let windowMs = 15 * 60 * 1000; // 15 minutes
-      
-      // Stricter limits for write operations
-      if (req.method === 'POST' || req.method === 'PUT' || req.method === 'DELETE') {
-        limit = 50; // Lower limit for write operations
-        windowMs = 15 * 60 * 1000;
-      }
-      
-      // Check rate limit
-      if (!this._rateLimitService.checkRateLimit(endpoint, limit, windowMs)) {
-        // Rate limited - return error
-        return throwError(() => new HttpErrorResponse({
-          error: { message: 'Too many requests. Please wait a moment before trying again.' },
-          status: 429,
-          statusText: 'Too Many Requests',
-        }));
-      }
-    }
+    // Client-side rate limiting removed - now handled only on server for auth endpoints
+    // This prevents blocking legitimate requests
 
-    // Add auth token to request
+    // Add auth token and tenant info to request
     const authReq = this._addTokenToRequest(req);
 
     return next.handle(authReq).pipe(
@@ -73,17 +64,29 @@ export class AuthInterceptor implements HttpInterceptor {
   }
 
   private _addTokenToRequest(req: HttpRequest<any>): HttpRequest<any> {
-    const token = this._authService.getAccessToken();
+    const token = this.authService.getAccessToken();
+    const headers: { [key: string]: string } = {};
 
+    // Add authorization token
     if (token) {
-      return req.clone({
-        setHeaders: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      headers['Authorization'] = `Bearer ${token}`;
     }
 
-    return req;
+    // Add tenant subdomain header for all API requests
+    try {
+      const subdomain = this.urlUtils.extractTenantFromUrl();
+      if (subdomain) {
+        headers['X-Tenant-Subdomain'] = subdomain;
+      }
+    } catch (error) {
+      // If tenant extraction fails, continue without tenant header
+      // This allows access to landing page and other non-tenant routes
+      console.warn('Could not extract tenant subdomain:', error);
+    }
+
+    return req.clone({
+      setHeaders: headers,
+    });
   }
 
   private _handle401Error(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
@@ -91,20 +94,20 @@ export class AuthInterceptor implements HttpInterceptor {
       this._isRefreshing = true;
       this._refreshTokenSubject.next(null);
 
-      return this._authService.refreshToken().pipe(
+      return this.authService.refreshToken().pipe(
         switchMap((tokenResponse: any) => {
           this._isRefreshing = false;
           this._refreshTokenSubject.next(tokenResponse.accessToken);
 
-          // Reconnect socket with new token
-          this._socketService.reconnect();
+          // Socket will reconnect automatically on next connection attempt
+          // Removed direct socket reconnection to avoid circular dependency
 
           // Retry the original request with new token
           return next.handle(this._addTokenToRequest(req));
         }),
         catchError((error) => {
           this._isRefreshing = false;
-          this._authService.logout();
+          this.authService.logout();
           return throwError(() => error);
         }),
       );
@@ -118,3 +121,4 @@ export class AuthInterceptor implements HttpInterceptor {
     }
   }
 }
+

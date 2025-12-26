@@ -1,0 +1,43 @@
+mat-dialog-content {
+  min-width: 600px;
+  padding: 24px;
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    .full-width {
+      width: 100%;
+    }
+
+    .tenant-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .tenant-name {
+        font-weight: 500;
+      }
+
+      .tenant-subdomain {
+        color: rgba(0, 0, 0, 0.6);
+        font-size: 12px;
+      }
+    }
+  }
+}
+
+mat-dialog-actions {
+  padding: 16px 24px;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+h2 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  padding: 24px 24px 0;
+}
+

@@ -1,0 +1,166 @@
+<div class="invoice-verification-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>verified</mat-icon>
+        {{ 'admin.superadmin.invoiceVerification.title' | translate }}
+      </mat-card-title>
+      <mat-card-subtitle>
+        {{ 'admin.superadmin.invoiceVerification.subtitle' | translate }}
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="verificationForm" (ngSubmit)="verifySignature()">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'admin.superadmin.invoiceVerification.signatureLabel' | translate }}</mat-label>
+          <input
+            matInput
+            formControlName="signature"
+            placeholder="VEASYO-0000-0000-64ED-666C"
+            [class.error]="verificationForm.get('signature')?.invalid && verificationForm.get('signature')?.touched"
+          />
+          <mat-icon matPrefix>security</mat-icon>
+          <mat-hint>{{ 'admin.superadmin.invoiceVerification.signatureHint' | translate }}</mat-hint>
+          @if (verificationForm.get('signature')?.hasError('required') && verificationForm.get('signature')?.touched) {
+            <mat-error>{{ 'admin.superadmin.invoiceVerification.signatureRequired' | translate }}</mat-error>
+          }
+          @if (verificationForm.get('signature')?.hasError('pattern') && verificationForm.get('signature')?.touched) {
+            <mat-error>{{ 'admin.superadmin.invoiceVerification.invalidFormat' | translate }}</mat-error>
+          }
+        </mat-form-field>
+
+        <div class="action-buttons">
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            [disabled]="isVerifying() || verificationForm.invalid"
+          >
+            @if (isVerifying()) {
+              <mat-spinner diameter="20" class="spinner"></mat-spinner>
+            }
+            @if (!isVerifying()) {
+              <mat-icon>verified</mat-icon>
+            }
+            <span>
+              @if (isVerifying()) {
+                {{ 'admin.superadmin.invoiceVerification.verifying' | translate }}
+              } @else {
+                {{ 'admin.superadmin.invoiceVerification.verify' | translate }}
+              }
+            </span>
+          </button>
+          <button
+            mat-stroked-button
+            type="button"
+            (click)="clearVerification()"
+            [disabled]="isVerifying()"
+          >
+            <mat-icon>clear</mat-icon>
+            {{ 'admin.superadmin.invoiceVerification.clear' | translate }}
+          </button>
+        </div>
+      </form>
+
+      <!-- Error Message -->
+      @if (errorMessage()) {
+        <mat-card class="error-card">
+          <mat-card-content>
+            <mat-icon color="warn">error</mat-icon>
+            <p>{{ errorMessage() }}</p>
+          </mat-card-content>
+        </mat-card>
+      }
+
+      <!-- Fake Invoice Warning -->
+      @if (isFake() && !isVerifying()) {
+        <mat-card class="fake-invoice-card">
+          <mat-card-content>
+            <div class="fake-warning">
+              <mat-icon color="warn" class="large-icon">cancel</mat-icon>
+              <h2>{{ 'admin.superadmin.invoiceVerification.fakeTitle' | translate }}</h2>
+              <p>{{ 'admin.superadmin.invoiceVerification.fakeMessage' | translate }}</p>
+              <div class="signature-display">
+                <strong>{{ 'admin.superadmin.invoiceVerification.checkedSignature' | translate }}:</strong>
+                <code>{{ verificationForm.get('signature')?.value }}</code>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+
+      <!-- Verified Invoice Details -->
+      @if (verifiedInvoice() && !isVerifying()) {
+        <mat-card class="verified-invoice-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon color="primary" class="verified-icon">check_circle</mat-icon>
+              {{ 'admin.superadmin.invoiceVerification.verifiedTitle' | translate }}
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="invoice-details">
+              <div class="detail-section">
+                <h3>{{ 'admin.superadmin.invoiceVerification.invoiceInfo' | translate }}</h3>
+                <div class="detail-row">
+                  <span class="label">{{ 'admin.subscription.date' | translate }}:</span>
+                  <span class="value">{{ formatDate(verifiedInvoice()!.date) }}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="label">{{ 'admin.subscription.amount' | translate }}:</span>
+                  <span class="value">{{ formatPrice(verifiedInvoice()!.amount, verifiedInvoice()!.currency) }}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="label">{{ 'admin.subscription.status' | translate }}:</span>
+                  <span class="value">
+                    <mat-chip [color]="getStatusColor(verifiedInvoice()!.status)">
+                      {{ 'admin.subscription.' + verifiedInvoice()!.status | translate }}
+                    </mat-chip>
+                  </span>
+                </div>
+                <div class="detail-row">
+                  <span class="label">{{ 'admin.superadmin.viewInvoices.period' | translate }}:</span>
+                  <span class="value">{{ verifiedInvoice()!.period }}</span>
+                </div>
+                @if (verifiedInvoice()!.description) {
+                  <div class="detail-row">
+                    <span class="label">{{ 'admin.subscription.description' | translate }}:</span>
+                    <span class="value">{{ verifiedInvoice()!.description }}</span>
+                  </div>
+                }
+              </div>
+
+              <div class="detail-section">
+                <h3>{{ 'admin.superadmin.invoiceVerification.tenantInfo' | translate }}</h3>
+                <div class="detail-row">
+                  <span class="label">{{ 'admin.superadmin.subscriptionManagement.tenant' | translate }}:</span>
+                  <span class="value">{{ verifiedInvoice()!.tenantName }}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="label">{{ 'admin.superadmin.invoiceVerification.tenantId' | translate }}:</span>
+                  <span class="value"><code>{{ verifiedInvoice()!.tenantId }}</code></span>
+                </div>
+              </div>
+
+              <div class="detail-section">
+                <h3>{{ 'admin.superadmin.invoiceVerification.signatureInfo' | translate }}</h3>
+                <div class="detail-row">
+                  <span class="label">{{ 'admin.superadmin.invoiceVerification.signature' | translate }}:</span>
+                  <span class="value">
+                    <code class="signature-code">{{ verifiedInvoice()!.signature }}</code>
+                  </span>
+                </div>
+                <div class="detail-row">
+                  <span class="label">{{ 'admin.superadmin.invoiceVerification.invoiceId' | translate }}:</span>
+                  <span class="value"><code>{{ verifiedInvoice()!.id }}</code></span>
+                </div>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>
+

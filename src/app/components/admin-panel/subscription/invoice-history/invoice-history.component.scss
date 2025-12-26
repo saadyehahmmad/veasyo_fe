@@ -1,0 +1,309 @@
+.invoice-history-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  gap: 1rem;
+
+  p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+  }
+}
+
+.error-card {
+  mat-card-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 2rem;
+
+    mat-icon {
+      font-size: 3rem;
+      width: 3rem;
+      height: 3rem;
+    }
+
+    p {
+      color: var(--text-secondary);
+      text-align: center;
+    }
+  }
+}
+
+.invoices-card,
+.payments-card {
+  mat-card-header {
+    margin-bottom: 1.5rem;
+
+    mat-card-title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.25rem;
+      font-weight: 600;
+
+      mat-icon {
+        color: var(--primary-color);
+      }
+    }
+
+    mat-card-subtitle {
+      margin-top: 0.5rem;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+  }
+}
+
+.table-container {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+
+  table {
+    width: 100%;
+    background: var(--card-background);
+
+    th {
+      background: var(--header-background);
+      color: var(--text-primary);
+      font-weight: 600;
+      font-size: 0.9rem;
+      padding: 1rem;
+      border-bottom: 2px solid var(--border-color);
+    }
+
+    td {
+      padding: 1rem;
+      color: var(--text-primary);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover {
+      background: var(--hover-background);
+    }
+  }
+}
+
+.description-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+
+  strong {
+    font-size: 0.95rem;
+    color: var(--text-primary);
+  }
+
+  small {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+  }
+}
+
+.amount {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+.payment-method {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  mat-icon {
+    font-size: 1.2rem;
+    width: 1.2rem;
+    height: 1.2rem;
+    color: var(--text-secondary);
+  }
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.25rem;
+
+  button {
+    mat-icon {
+      font-size: 1.2rem;
+      width: 1.2rem;
+      height: 1.2rem;
+    }
+  }
+}
+
+.no-data {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  text-align: center;
+
+  mat-icon {
+    font-size: 4rem;
+    width: 4rem;
+    height: 4rem;
+    color: var(--text-disabled);
+    margin-bottom: 1rem;
+  }
+
+  h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+  }
+}
+
+// Status chips
+mat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 16px;
+  font-size: 0.85rem;
+  font-weight: 500;
+
+  mat-icon {
+    font-size: 1rem;
+    width: 1rem;
+    height: 1rem;
+  }
+
+  &.status-paid,
+  &.status-success {
+    background: #e8f5e9;
+    color: #2e7d32;
+
+    mat-icon {
+      color: #2e7d32;
+    }
+  }
+
+  &.status-pending {
+    background: #fff3e0;
+    color: #f57c00;
+
+    mat-icon {
+      color: #f57c00;
+    }
+  }
+
+  &.status-failed {
+    background: #ffebee;
+    color: #c62828;
+
+    mat-icon {
+      color: #c62828;
+    }
+  }
+
+  &.status-refunded {
+    background: #e3f2fd;
+    color: #1565c0;
+
+    mat-icon {
+      color: #1565c0;
+    }
+  }
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  mat-chip {
+    &.status-paid,
+    &.status-success {
+      background: rgba(46, 125, 50, 0.2);
+      color: #81c784;
+
+      mat-icon {
+        color: #81c784;
+      }
+    }
+
+    &.status-pending {
+      background: rgba(245, 124, 0, 0.2);
+      color: #ffb74d;
+
+      mat-icon {
+        color: #ffb74d;
+      }
+    }
+
+    &.status-failed {
+      background: rgba(198, 40, 40, 0.2);
+      color: #e57373;
+
+      mat-icon {
+        color: #e57373;
+      }
+    }
+
+    &.status-refunded {
+      background: rgba(21, 101, 192, 0.2);
+      color: #64b5f6;
+
+      mat-icon {
+        color: #64b5f6;
+      }
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .invoice-history-container {
+    padding: 0.5rem;
+  }
+
+  .table-container {
+    table {
+      th,
+      td {
+        padding: 0.75rem 0.5rem;
+        font-size: 0.85rem;
+      }
+    }
+  }
+
+  .description-cell {
+    strong {
+      font-size: 0.85rem;
+    }
+
+    small {
+      font-size: 0.75rem;
+    }
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+}
+

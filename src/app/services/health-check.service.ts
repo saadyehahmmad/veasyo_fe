@@ -8,7 +8,7 @@ import { LoggerService } from './logger.service';
   providedIn: 'root',
 })
 export class HealthCheckService {
-  private _http: HttpClient;
+  private _http = inject(HttpClient);
   private _apiUrl = environment.apiUrl;
   private _logger = inject(LoggerService);
 
@@ -16,9 +16,9 @@ export class HealthCheckService {
   public isBackendConnected = signal<boolean>(true);
   public lastCheckTime = signal<Date | null>(null);
 
-  constructor(http: HttpClient) {
-    this._http = http;
-    this._startHealthCheck();
+  constructor() {
+    // Defer health check to avoid circular dependency during app initialization
+    setTimeout(() => this._startHealthCheck(), 0);
   }
 
   /**

@@ -1,0 +1,196 @@
+<div class="invoice-history-container">
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>{{ 'admin.subscription.loading' | translate }}</p>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (error()) {
+    <mat-card class="error-card">
+      <mat-card-content>
+        <mat-icon color="warn">error</mat-icon>
+        <p>{{ error() }}</p>
+        <button mat-raised-button color="primary" (click)="retry()">
+          <mat-icon>refresh</mat-icon>
+          {{ 'admin.subscription.retry' | translate }}
+        </button>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <!-- Invoices Section -->
+  @if (!isLoading() && !error()) {
+    <mat-card class="invoices-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>receipt_long</mat-icon>
+          {{ 'admin.subscription.invoices' | translate }}
+        </mat-card-title>
+        <mat-card-subtitle>
+          {{ 'admin.subscription.invoicesDescription' | translate }}
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        @if (invoices().length > 0) {
+          <div class="table-container">
+            <table mat-table [dataSource]="invoices()" class="invoices-table">
+              <!-- Date Column -->
+              <ng-container matColumnDef="date">
+                <th mat-header-cell *matHeaderCellDef>{{ 'admin.subscription.date' | translate }}</th>
+                <td mat-cell *matCellDef="let invoice">
+                  {{ formatDate(invoice.date) }}
+                </td>
+              </ng-container>
+
+              <!-- Description Column -->
+              <ng-container matColumnDef="description">
+                <th mat-header-cell *matHeaderCellDef>{{ 'admin.subscription.description' | translate }}</th>
+                <td mat-cell *matCellDef="let invoice">
+                  <div class="description-cell">
+                    <strong>{{ invoice.description }}</strong>
+                    <small>{{ invoice.period }}</small>
+                  </div>
+                </td>
+              </ng-container>
+
+              <!-- Amount Column -->
+              <ng-container matColumnDef="amount">
+                <th mat-header-cell *matHeaderCellDef>{{ 'admin.subscription.amount' | translate }}</th>
+                <td mat-cell *matCellDef="let invoice">
+                  <span class="amount">{{ formatAmount(invoice.amount, invoice.currency) }}</span>
+                </td>
+              </ng-container>
+
+              <!-- Status Column -->
+              <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef>{{ 'admin.subscription.status' | translate }}</th>
+                <td mat-cell *matCellDef="let invoice">
+                  <mat-chip [class]="getStatusClass(invoice.status)">
+                    <mat-icon>{{ getStatusIcon(invoice.status) }}</mat-icon>
+                    {{ invoice.status | titlecase }}
+                  </mat-chip>
+                </td>
+              </ng-container>
+
+              <!-- Actions Column -->
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef>{{ 'admin.subscription.actions' | translate }}</th>
+                <td mat-cell *matCellDef="let invoice">
+                  <div class="action-buttons">
+                    <button
+                      mat-icon-button
+                      (click)="viewInvoice(invoice)"
+                      [matTooltip]="'admin.subscription.viewInvoice' | translate"
+                    >
+                      <mat-icon>visibility</mat-icon>
+                    </button>
+                    <button
+                      mat-icon-button
+                      (click)="downloadInvoice(invoice)"
+                      [matTooltip]="'admin.subscription.downloadInvoice' | translate"
+                    >
+                      <mat-icon>download</mat-icon>
+                    </button>
+                  </div>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="invoiceColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: invoiceColumns"></tr>
+            </table>
+          </div>
+        } @else {
+          <div class="no-data">
+            <mat-icon>receipt_long</mat-icon>
+            <h3>{{ 'admin.subscription.noInvoices' | translate }}</h3>
+            <p>{{ 'admin.subscription.noInvoicesDescription' | translate }}</p>
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Payment History Section -->
+    <mat-card class="payments-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>payment</mat-icon>
+          {{ 'admin.subscription.paymentHistory' | translate }}
+        </mat-card-title>
+        <mat-card-subtitle>
+          {{ 'admin.subscription.paymentHistoryDescription' | translate }}
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        @if (payments().length > 0) {
+          <div class="table-container">
+            <table mat-table [dataSource]="payments()" class="payments-table">
+              <!-- Date Column -->
+              <ng-container matColumnDef="date">
+                <th mat-header-cell *matHeaderCellDef>{{ 'admin.subscription.date' | translate }}</th>
+                <td mat-cell *matCellDef="let payment">
+                  {{ formatDate(payment.date) }}
+                </td>
+              </ng-container>
+
+              <!-- Description Column -->
+              <ng-container matColumnDef="description">
+                <th mat-header-cell *matHeaderCellDef>{{ 'admin.subscription.description' | translate }}</th>
+                <td mat-cell *matCellDef="let payment">
+                  <div class="description-cell">
+                    <strong>{{ payment.description }}</strong>
+                    @if (payment.transactionId) {
+                      <small>{{ payment.transactionId }}</small>
+                    }
+                  </div>
+                </td>
+              </ng-container>
+
+              <!-- Method Column -->
+              <ng-container matColumnDef="method">
+                <th mat-header-cell *matHeaderCellDef>{{ 'admin.subscription.paymentMethod' | translate }}</th>
+                <td mat-cell *matCellDef="let payment">
+                  <div class="payment-method">
+                    <mat-icon>credit_card</mat-icon>
+                    {{ payment.method }}
+                  </div>
+                </td>
+              </ng-container>
+
+              <!-- Amount Column -->
+              <ng-container matColumnDef="amount">
+                <th mat-header-cell *matHeaderCellDef>{{ 'admin.subscription.amount' | translate }}</th>
+                <td mat-cell *matCellDef="let payment">
+                  <span class="amount">{{ formatAmount(payment.amount, payment.currency) }}</span>
+                </td>
+              </ng-container>
+
+              <!-- Status Column -->
+              <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef>{{ 'admin.subscription.status' | translate }}</th>
+                <td mat-cell *matCellDef="let payment">
+                  <mat-chip [class]="getStatusClass(payment.status)">
+                    <mat-icon>{{ getStatusIcon(payment.status) }}</mat-icon>
+                    {{ payment.status | titlecase }}
+                  </mat-chip>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="paymentColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: paymentColumns"></tr>
+            </table>
+          </div>
+        } @else {
+          <div class="no-data">
+            <mat-icon>payment</mat-icon>
+            <h3>{{ 'admin.subscription.noPayments' | translate }}</h3>
+            <p>{{ 'admin.subscription.noPaymentsDescription' | translate }}</p>
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+  }
+</div>
+

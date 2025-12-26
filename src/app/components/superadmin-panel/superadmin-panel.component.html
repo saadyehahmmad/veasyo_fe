@@ -5,7 +5,7 @@
       <div class="logo">
         @if (!sidebarCollapsed()) {
           <mat-icon>admin_panel_settings</mat-icon>
-          <span class="logo-text">Super Admin</span>
+          <span class="logo-text">{{ 'admin.superadmin.title' | translate }}</span>
         }
       </div>
       <button mat-icon-button class="toggle-btn" (click)="toggleSidebar()">
@@ -19,21 +19,21 @@
           class="nav-item"
           [class.active]="selectedTab() === tab.label"
           (click)="selectTab(tab.label)"
-          [title]="tab.label"
+          [title]="tab.label | translate"
         >
           <mat-icon>{{ tab.icon }}</mat-icon>
           @if (!sidebarCollapsed()) {
-            <span>{{ tab.label }}</span>
+            <span>{{ tab.label | translate }}</span>
           }
         </button>
       }
     </nav>
 
     <div class="sidebar-footer">
-      <button mat-button class="logout-btn" (click)="logout()" [title]="'Logout'">
+      <button mat-button class="logout-btn" (click)="logout()" [title]="'admin.superadmin.logout' | translate">
         <mat-icon>logout</mat-icon>
         @if (!sidebarCollapsed()) {
-          <span>Logout</span>
+          <span>{{ 'admin.superadmin.logout' | translate }}</span>
         }
       </button>
     </div>
@@ -44,10 +44,35 @@
     <!-- Top Header -->
     <header class="top-header">
       <div class="header-left">
-        <h1>{{ selectedTab() }}</h1>
+        <h1>{{ selectedTab() | translate }}</h1>
         <p class="subtitle">{{ getTabSubtitle() }}</p>
       </div>
       <div class="header-right">
+
+
+        <!-- Expiring Subscriptions Alert -->
+        @if (getExpiringCount() > 0) {
+          <button 
+            mat-icon-button 
+            class="alert-btn"
+            [matBadge]="getExpiringCount()"
+            matBadgeColor="warn"
+            [matTooltip]="'admin.superadmin.expiringSubscriptions' | translate"
+            (click)="selectTab('admin.superadmin.tabs.tenants')"
+          >
+            <mat-icon>warning</mat-icon>
+          </button>
+        }
+
+        <!-- Language Switcher -->
+        <app-change-language [color]="'dark'"></app-change-language>
+
+        <!-- Refresh Button -->
+        <button mat-icon-button (click)="refreshData()" [matTooltip]="'admin.superadmin.refresh' | translate">
+          <mat-icon>refresh</mat-icon>
+        </button>
+
+        <!-- User Badge -->
         @if (currentUser()) {
           <div class="user-badge">
             <div class="avatar">
@@ -65,16 +90,19 @@
     <!-- Content Container -->
     <div class="content-area">
       @switch (selectedTab()) {
-        @case ('Tenants') {
+        @case ('admin.superadmin.tabs.tenants') {
           <app-tenant-management></app-tenant-management>
         }
-        @case ('Users') {
+        @case ('admin.superadmin.tabs.users') {
           <app-superadmin-users></app-superadmin-users>
         }
-        @case ('Analytics') {
+        @case ('admin.superadmin.tabs.subscriptions') {
+          <app-superadmin-subscription-management></app-superadmin-subscription-management>
+        }
+        @case ('admin.superadmin.tabs.analytics') {
           <app-superadmin-analytics-dashboard></app-superadmin-analytics-dashboard>
         }
-        @case ('Monitoring') {
+        @case ('admin.superadmin.tabs.monitoring') {
           <app-monitoring></app-monitoring>
         }
       }

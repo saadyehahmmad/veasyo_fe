@@ -1,6 +1,7 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { io, Socket } from 'socket.io-client';
-import { Observable } from 'rxjs';
+import { Observable, defer } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { RequestType } from '../models/types';
 import { AuthService } from './auth.service';
@@ -11,26 +12,37 @@ import { LoggerService } from './logger.service';
   providedIn: 'root',
 })
 export class SocketService {
-  // _socket is initialized in constructor via initializeSocket()
-  // use definite assignment assertion so strictPropertyInitialization is satisfied
-  private _socket!: Socket;
+  // _socket is lazily initialized on first use
+  private _socket?: Socket;
   private _authService = inject(AuthService);
   private _urlUtils = inject(UrlUtilsService);
   private _logger = inject(LoggerService);
+  private _destroyRef = inject(DestroyRef);
+  private _initialized = false;
 
   // Constants for log messages
   private readonly _TOKEN_REFRESHED_MESSAGE = 'Token refreshed, reconnecting _socket...';
 
   constructor() {
-    this._initializeSocket();
-
     // Listen for token refresh events to reconnect _socket
-    this._authService.tokenRefreshed$.subscribe((refreshed) => {
-      if (refreshed && this._socket && !this._socket.connected) {
-        this._logger.debug(this._TOKEN_REFRESHED_MESSAGE);
-        this.reconnect();
-      }
-    });
+    this._authService.tokenRefreshed$
+      .pipe(takeUntilDestroyed(this._destroyRef))
+      .subscribe((refreshed) => {
+        if (refreshed && this._socket && !this._socket.connected) {
+          this._logger.debug(this._TOKEN_REFRESHED_MESSAGE);
+          this.reconnect();
+        }
+      });
+  }
+
+  /**
+   * Ensure socket is initialized before use
+   */
+  private _ensureInitialized(): void {
+    if (!this._initialized) {
+      this._initializeSocket();
+      this._initialized = true;
+    }
   }
 
   private _initializeSocket(): void {
@@ -56,15 +68,16 @@ export class SocketService {
     let tenantSubdomain: string;
     try {
       tenantSubdomain = this._extractTenantFromUrl();
-    } catch (error) {
-      this._logger.error('Failed to initialize _socket: Tenant subdomain is required', error);
-      // Create _socket but it will be rejected by server
+    } catch {
+      // No tenant subdomain found - this is normal for superadmin panel
+      // Don't initialize socket for non-tenant pages
+      this._logger.debug('Socket not initialized: No tenant subdomain (normal for superadmin)');
+      // Create a dummy socket that won't connect
       this._socket = io(environment.socketUrl, {
-        autoConnect: false, // Don't auto-connect if no tenant
+        autoConnect: false,
         reconnection: false,
       });
-      this._setupEventListeners();
-      return;
+      return; // Don't setup event listeners for dummy socket
     }
 
     // Socket.IO configuration matching backend settings
@@ -102,8 +115,10 @@ export class SocketService {
   }
 
   private _setupEventListeners(): void {
+    if (!this._socket) return;
+
     this._socket.on('connect', () => {
-      this._logger.debug('Socket connected:', this._socket.id);
+      this._logger.debug('Socket connected:', this._socket?.id);
     });
 
     this._socket.on('disconnect', () => {
@@ -129,7 +144,7 @@ export class SocketService {
       }
     });
 
-    this._socket.on('error', (error) => {
+    this._socket?.on('error', (error) => {
       this._logger.error('Socket error:', error);
 
       // Handle authentication errors
@@ -147,7 +162,7 @@ export class SocketService {
       }
     });
 
-    this._socket.on('auth_error', (error) => {
+    this._socket?.on('auth_error', (error) => {
       this._logger.error('Socket authentication error:', error);
 
       if (
@@ -173,12 +188,14 @@ export class SocketService {
     });
 
     // Listen for all events for debugging
-    this._socket.onAny((event, ...args) => {
+    this._socket?.onAny((event, ...args) => {
       this._logger.debug('Socket event received:', event, args);
     });
   }
 
   joinTable(tableId: string, tenantId?: string): void {
+    this._ensureInitialized();
+    
     // Allow unauthenticated users (customers) to join table rooms
     // This is needed so customers can receive request confirmations
 
@@ -200,11 +217,18 @@ export class SocketService {
       return;
     }
 
+    if (!this._socket) {
+      this._logger.warn('Socket not initialized, cannot join table room');
+      return;
+    }
+
     this._logger.debug(`Joining table room: tenant-${userTenantId}-table-${tableId}`);
     this._socket.emit('join', `tenant-${userTenantId}-table-${tableId}`);
   }
 
   joinWaiterRoom(_tenantId?: string): void {
+    this._ensureInitialized();
+    
     if (!this._authService.isAuthenticated()) {
       this._logger.warn('Cannot join waiter room: User not authenticated');
       return;
@@ -227,12 +251,19 @@ export class SocketService {
       return;
     }
 
+    if (!this._socket) {
+      this._logger.warn('Socket not initialized, cannot join waiter room');
+      return;
+    }
+
     const roomName = `tenant-${userTenantId}-waiter`;
     this._logger.debug(`Joining waiter room: ${roomName}`);
     this._socket.emit('join', roomName);
   }
 
   joinAdminRoom(_tenantId?: string): void {
+    this._ensureInitialized();
+    
     if (!this._authService.isAuthenticated()) {
       this._logger.warn('Cannot join admin room: User not authenticated');
       return;
@@ -253,16 +284,27 @@ export class SocketService {
       return;
     }
 
+    if (!this._socket) {
+      this._logger.warn('Socket not initialized, cannot join admin room');
+      return;
+    }
+
     this._logger.debug(`Joining admin room: tenant-${userTenantId}-admin`);
     this._socket.emit('join', `tenant-${userTenantId}-admin`);
   }
 
   callWaiter(tableId: string, type: RequestType = 'call_waiter', customNote?: string): void {
+    this._ensureInitialized();
+    if (!this._socket) return;
+    
     // Allow unauthenticated users to call waiter (customers)
     this._socket.emit('call_waiter', { tableId, type, customNote });
   }
 
   acknowledgeRequest(requestId: string): void {
+    this._ensureInitialized();
+    if (!this._socket) return;
+    
     if (!this._authService.isAuthenticated()) {
       this._logger.warn('Cannot acknowledge request: User not authenticated');
       return;
@@ -271,25 +313,42 @@ export class SocketService {
   }
 
   completeRequest(requestId: string, completedBy?: 'waiter' | 'customer'): void {
+    this._ensureInitialized();
+    if (!this._socket) return;
+    
     // Allow both authenticated users (waiters) and unauthenticated users (customers) to complete requests
     // If completedBy is not provided, let the backend determine it based on authentication
     this._socket.emit('complete_request', { requestId, completedBy });
   }
 
   cancelRequest(requestId: string): void {
+    this._ensureInitialized();
+    if (!this._socket) return;
+    
     // Allow both authenticated users (waiters) and unauthenticated users (customers) to cancel requests
     this._socket.emit('cancel_request', requestId);
   }
 
   on<T = any>(eventName: string): Observable<T> {
-    return new Observable((subscriber) => {
-      this._socket.on(eventName, (data: T) => {
-        subscriber.next(data);
-      });
+    return defer(() => {
+      this._ensureInitialized();
+      
+      return new Observable<T>((subscriber) => {
+        if (!this._socket) {
+          subscriber.complete();
+          return;
+        }
 
-      return () => {
-        this._socket.off(eventName);
-      };
+        this._socket.on(eventName, (data: T) => {
+          subscriber.next(data);
+        });
+
+        return () => {
+          if (this._socket) {
+            this._socket.off(eventName);
+          }
+        };
+      });
     });
   }
 
@@ -306,10 +365,8 @@ export class SocketService {
   // Reconnect with new auth token (useful after login/logout)
   reconnect(): void {
     this.disconnect();
-    // Small delay to ensure clean disconnection
-    setTimeout(() => {
-    this._initializeSocket();
-    }, 100);
+    this._initialized = false;
+    this._ensureInitialized();
   }
 
   /**

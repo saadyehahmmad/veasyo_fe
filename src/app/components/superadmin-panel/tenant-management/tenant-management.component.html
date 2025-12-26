@@ -4,7 +4,7 @@
       <mat-icon>business</mat-icon>
       Tenant Management
     </mat-card-title>
-    <mat-card-subtitle> Manage system tenants, subscriptions, and limits </mat-card-subtitle>
+    <mat-card-subtitle> Manage system tenants </mat-card-subtitle>
   </mat-card-header>
   <mat-card-content>
     <!-- Loading Indicator -->
@@ -71,35 +71,6 @@
               <mat-hint>Auto-generated from slug</mat-hint>
             </mat-form-field>
 
-            <mat-form-field appearance="outline">
-              <mat-label>Plan</mat-label>
-              <mat-select formControlName="plan" required>
-                <mat-option value="free">Free Plan</mat-option>
-                <mat-option value="basic">Basic Plan</mat-option>
-                <mat-option value="premium">Premium Plan</mat-option>
-                <mat-option value="enterprise">Enterprise Plan</mat-option>
-              </mat-select>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline">
-              <mat-label>Max Tables</mat-label>
-              <input matInput type="number" formControlName="maxTables" min="1" required />
-              @if (tenantForm.get('maxTables')?.hasError('min')) {
-                <mat-error>
-                  Must be at least 1
-                </mat-error>
-              }
-            </mat-form-field>
-
-            <mat-form-field appearance="outline">
-              <mat-label>Max Users</mat-label>
-              <input matInput type="number" formControlName="maxUsers" min="1" required />
-              @if (tenantForm.get('maxUsers')?.hasError('min')) {
-                <mat-error>
-                  Must be at least 1
-                </mat-error>
-              }
-            </mat-form-field>
           </div>
 
           <div class="form-actions">
@@ -154,32 +125,6 @@
               </td>
             </ng-container>
 
-            <ng-container matColumnDef="plan">
-              <th mat-header-cell *matHeaderCellDef>Plan</th>
-              <td mat-cell *matCellDef="let item">
-                <div class="plan-icon" [matTooltip]="item.tenant.plan | titlecase">
-                  @if (item.tenant.plan === 'free') {
-                    <mat-icon>currency_exchange</mat-icon>
-                  } @else if (item.tenant.plan === 'basic') {
-                    <mat-icon>workspace_premium</mat-icon>
-                  } @else if (item.tenant.plan === 'premium') {
-                    <mat-icon>diamond</mat-icon>
-                  } @else {
-                    <mat-icon>stars</mat-icon>
-                  }
-                </div>
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="maxTables">
-              <th mat-header-cell *matHeaderCellDef>Limits</th>
-              <td mat-cell *matCellDef="let item">
-                <div class="limits-info">
-                  <span><mat-icon>table_restaurant</mat-icon> {{ item.tenant.maxTables }}</span>
-                  <span><mat-icon>group</mat-icon> {{ item.tenant.maxUsers }}</span>
-                </div>
-              </td>
-            </ng-container>
 
             <ng-container matColumnDef="status">
               <th mat-header-cell *matHeaderCellDef>Status</th>
@@ -200,49 +145,14 @@
               </td>
             </ng-container>
 
-            <ng-container matColumnDef="subscription">
-              <th mat-header-cell *matHeaderCellDef>Subscription</th>
-              <td mat-cell *matCellDef="let item">
-                @if (item.subscription) {
-                  <div class="subscription-compact">
-                    <mat-icon
-                      class="sub-icon"
-                      [class.sub-active]="item.subscription.status === 'active'"
-                      [class.sub-expired]="item.subscription.status === 'expired'"
-                      [class.sub-cancelled]="item.subscription.status === 'cancelled'"
-                      [matTooltip]="item.subscription.status | titlecase"
-                    >
-                      {{
-                        item.subscription.status === 'active'
-                          ? 'verified'
-                          : item.subscription.status === 'expired'
-                            ? 'schedule'
-                            : 'block'
-                      }}
-                    </mat-icon>
-                    <span
-                      class="sub-amount"
-                      [matTooltip]="'Ends: ' + formatDate(item.subscription.endDate)"
-                    >
-                      ${{ (item.subscription.amount / 100).toFixed(0) }}
-                    </span>
-                  </div>
-                } @else {
-                  <mat-icon class="no-sub-icon" matTooltip="No subscription"
-                    >remove_circle_outline</mat-icon
-                  >
-                }
-              </td>
-            </ng-container>
-
             <ng-container matColumnDef="actions">
               <th mat-header-cell *matHeaderCellDef>Actions</th>
               <td mat-cell *matCellDef="let item">
                 <div class="action-buttons">
-                  <button mat-icon-button (click)="editTenant(item)" matTooltip="Edit">
+                  <button mat-icon-button (click)="editTenant(item)" matTooltip="Edit Tenant">
                     <mat-icon>edit</mat-icon>
                   </button>
-                  <button mat-icon-button (click)="deleteTenant(item)" matTooltip="Delete">
+                  <button mat-icon-button (click)="deleteTenant(item)" matTooltip="Delete Tenant">
                     <mat-icon>delete_outline</mat-icon>
                   </button>
                 </div>

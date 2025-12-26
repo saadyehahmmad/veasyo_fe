@@ -1,0 +1,404 @@
+.subscription-container {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.subscription-tabs {
+  ::ng-deep .mat-mdc-tab-body-content {
+    padding: 1.5rem 0;
+  }
+}
+
+.loading-card,
+.error-card {
+  margin-bottom: 24px;
+
+  .loading-spinner,
+  .error-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 24px;
+    text-align: center;
+
+    mat-icon {
+      font-size: 64px;
+      width: 64px;
+      height: 64px;
+      margin-bottom: 16px;
+    }
+
+    p {
+      font-size: 18px;
+      margin: 16px 0;
+      color: #666;
+    }
+
+    button {
+      margin-top: 16px;
+    }
+  }
+}
+
+.subscription-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 24px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+mat-card {
+  mat-card-header {
+    mat-card-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 20px;
+      font-weight: 600;
+
+      mat-icon {
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+      }
+    }
+  }
+}
+
+// Plan Card
+.plan-card {
+  grid-column: span 2;
+
+  @media (max-width: 1024px) {
+    grid-column: span 1;
+  }
+
+  .plan-info {
+    .plan-name {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+
+      h2 {
+        margin: 0;
+        font-size: 32px;
+        font-weight: 700;
+        color: #1976d2;
+      }
+
+      mat-chip {
+        font-weight: 600;
+
+        mat-icon {
+          font-size: 18px;
+          width: 18px;
+          height: 18px;
+        }
+      }
+    }
+
+    .plan-price {
+      margin-bottom: 24px;
+
+      .price {
+        font-size: 36px;
+        font-weight: 700;
+        color: #333;
+      }
+
+      .period {
+        font-size: 18px;
+        color: #666;
+        margin-left: 8px;
+      }
+    }
+
+    .price-breakdown {
+      background: #f5f5f5;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+
+      .breakdown-title {
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #333;
+      }
+
+      .breakdown-item {
+        margin: 4px 0;
+        color: #666;
+        font-size: 14px;
+      }
+    }
+
+    .plan-dates {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 24px;
+
+      .date-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px;
+        background: #f9f9f9;
+        border-radius: 8px;
+
+        &.expiring {
+          background: #fff3e0;
+          border: 1px solid #ff9800;
+        }
+
+        mat-icon {
+          font-size: 20px;
+          width: 20px;
+          height: 20px;
+        }
+
+        span {
+          flex: 1;
+        }
+
+        .expiring-chip {
+          font-size: 12px;
+          height: 24px;
+        }
+      }
+    }
+
+    .upgrade-btn {
+      width: 100%;
+      height: 48px;
+      font-size: 16px;
+      font-weight: 600;
+
+      mat-icon {
+        margin-right: 8px;
+      }
+    }
+  }
+}
+
+// Usage Card
+.usage-card {
+  .usage-item {
+    margin-bottom: 24px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    .usage-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+
+      .usage-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+        color: #333;
+
+        mat-icon {
+          font-size: 20px;
+          width: 20px;
+          height: 20px;
+        }
+      }
+
+      .usage-value {
+        font-weight: 600;
+        color: #666;
+      }
+    }
+
+    mat-progress-bar {
+      height: 8px;
+      border-radius: 4px;
+    }
+  }
+
+  mat-divider {
+    margin: 24px 0;
+  }
+
+  .validation-messages {
+    margin-top: 16px;
+
+    .error-messages,
+    .warning-messages {
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+
+      h4 {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0 0 12px 0;
+        font-size: 16px;
+        font-weight: 600;
+
+        mat-icon {
+          font-size: 20px;
+          width: 20px;
+          height: 20px;
+        }
+      }
+
+      p {
+        margin: 8px 0;
+        font-size: 14px;
+      }
+    }
+
+    .error-messages {
+      background: #ffebee;
+      border: 1px solid #ef5350;
+
+      .error-msg {
+        color: #c62828;
+      }
+
+      .suggestion {
+        margin-top: 12px;
+        padding: 12px;
+        background: #fff;
+        border-radius: 4px;
+        color: #333;
+      }
+    }
+
+    .warning-messages {
+      background: #fff3e0;
+      border: 1px solid #ff9800;
+
+      .warning-msg {
+        color: #e65100;
+      }
+    }
+  }
+}
+
+// Features Card
+.features-card {
+  .features-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: #f9f9f9;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: #f0f0f0;
+        transform: translateX(4px);
+      }
+
+      mat-icon {
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+      }
+
+      span {
+        font-size: 15px;
+        color: #333;
+      }
+    }
+  }
+}
+
+// Billing Card
+.billing-card {
+  .billing-info {
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid #eee;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      .label {
+        font-weight: 600;
+        color: #666;
+      }
+
+      .value {
+        color: #333;
+
+        mat-chip {
+          mat-icon {
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
+          }
+        }
+      }
+    }
+  }
+
+  mat-divider {
+    margin: 24px 0;
+  }
+
+  .billing-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+
+    button {
+      flex: 1;
+      min-width: 150px;
+
+      mat-icon {
+        margin-right: 8px;
+      }
+    }
+  }
+}
+
+// Support Card
+.support-card {
+  p {
+    margin-bottom: 24px;
+    color: #666;
+    line-height: 1.6;
+  }
+
+  .support-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+
+    button {
+      flex: 1;
+      min-width: 150px;
+
+      mat-icon {
+        margin-right: 8px;
+      }
+    }
+  }
+}
+

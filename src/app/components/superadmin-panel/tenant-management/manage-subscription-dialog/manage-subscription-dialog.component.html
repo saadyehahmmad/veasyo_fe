@@ -1,0 +1,133 @@
+<h2 mat-dialog-title>
+  <mat-icon>{{ isEditMode ? 'edit' : 'add' }}</mat-icon>
+  {{ isEditMode ? 'Edit' : 'Create' }} Subscription
+</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="subscriptionForm" class="subscription-form">
+    <!-- Tenant Info -->
+    <div class="tenant-info">
+      <mat-icon>business</mat-icon>
+      <div>
+        <strong>{{ (data.tenant.tenant || data.tenant).name }}</strong>
+        <small>{{ (data.tenant.tenant || data.tenant).subdomain }}</small>
+      </div>
+    </div>
+
+    <!-- Plan Selection -->
+    <mat-form-field appearance="outline">
+      <mat-label>Plan</mat-label>
+      <mat-select formControlName="plan">
+        @for (plan of plans; track plan) {
+          <mat-option [value]="plan">
+            {{ plan.charAt(0).toUpperCase() + plan.slice(1) }}
+          </mat-option>
+        }
+      </mat-select>
+      <mat-hint>Select a subscription plan (just a label)</mat-hint>
+    </mat-form-field>
+
+    <!-- Start Date -->
+    <mat-form-field appearance="outline">
+      <mat-label>Start Date</mat-label>
+      <input matInput [matDatepicker]="startPicker" formControlName="startDate" />
+      <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+      <mat-datepicker #startPicker></mat-datepicker>
+      <mat-icon matPrefix>event</mat-icon>
+      @if (subscriptionForm.get('startDate')?.hasError('required') && subscriptionForm.get('startDate')?.touched) {
+        <mat-error>Start date is required</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- End Date (Valid Until) -->
+    <mat-form-field appearance="outline">
+      <mat-label>End Date (Valid Until)</mat-label>
+      <input matInput [matDatepicker]="endPicker" formControlName="endDate" />
+      <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+      <mat-datepicker #endPicker></mat-datepicker>
+      <mat-icon matPrefix>event</mat-icon>
+      <mat-hint>Tenant will be deactivated automatically when end date passes</mat-hint>
+      @if (subscriptionForm.get('endDate')?.hasError('required') && subscriptionForm.get('endDate')?.touched) {
+        <mat-error>End date is required</mat-error>
+      }
+      @if (subscriptionForm.get('endDate')?.hasError('endDateBeforeStart') && subscriptionForm.get('endDate')?.touched) {
+        <mat-error>End date must be after start date</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Amount -->
+    <mat-form-field appearance="outline">
+      <mat-label>Amount (USD)</mat-label>
+      <input matInput type="number" formControlName="amount" step="0.01" min="0" />
+      <span matPrefix>$&nbsp;</span>
+      <mat-hint>Monthly subscription amount</mat-hint>
+      @if (subscriptionForm.get('amount')?.hasError('required') && subscriptionForm.get('amount')?.touched) {
+        <mat-error>Amount is required</mat-error>
+      }
+      @if (subscriptionForm.get('amount')?.hasError('min') && subscriptionForm.get('amount')?.touched) {
+        <mat-error>Amount must be at least $0</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Tax -->
+    <mat-form-field appearance="outline">
+      <mat-label>Tax (USD)</mat-label>
+      <input matInput type="number" formControlName="tax" step="0.01" min="0" />
+      <span matPrefix>$&nbsp;</span>
+      <mat-hint>Tax amount (optional)</mat-hint>
+      @if (subscriptionForm.get('tax')?.hasError('min') && subscriptionForm.get('tax')?.touched) {
+        <mat-error>Tax cannot be negative</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Max Tables -->
+      <mat-form-field appearance="outline">
+        <mat-label>Max Tables</mat-label>
+        <input matInput type="number" formControlName="maxTables" min="1" />
+        <mat-icon matPrefix>table_restaurant</mat-icon>
+      @if (subscriptionForm.get('maxTables')?.hasError('required') && subscriptionForm.get('maxTables')?.touched) {
+          <mat-error>Required</mat-error>
+        }
+      @if (subscriptionForm.get('maxTables')?.hasError('min') && subscriptionForm.get('maxTables')?.touched) {
+          <mat-error>Must be at least 1</mat-error>
+        }
+      </mat-form-field>
+
+    <!-- Max Users -->
+      <mat-form-field appearance="outline">
+        <mat-label>Max Users</mat-label>
+        <input matInput type="number" formControlName="maxUsers" min="1" />
+        <mat-icon matPrefix>group</mat-icon>
+      @if (subscriptionForm.get('maxUsers')?.hasError('required') && subscriptionForm.get('maxUsers')?.touched) {
+          <mat-error>Required</mat-error>
+        }
+      @if (subscriptionForm.get('maxUsers')?.hasError('min') && subscriptionForm.get('maxUsers')?.touched) {
+          <mat-error>Must be at least 1</mat-error>
+        }
+    </mat-form-field>
+
+    <!-- Notes -->
+    <mat-form-field appearance="outline">
+      <mat-label>Notes (Optional)</mat-label>
+      <textarea matInput formControlName="notes" rows="3"></textarea>
+      <mat-hint>Internal notes about this subscription</mat-hint>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()" [disabled]="isLoading()">Cancel</button>
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="save()"
+    [disabled]="subscriptionForm.invalid || isLoading()"
+  >
+    @if (isLoading()) {
+      <mat-spinner diameter="20"></mat-spinner>
+    } @else {
+      <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+    }
+    {{ isEditMode ? 'Update' : 'Create' }}
+  </button>
+</mat-dialog-actions>

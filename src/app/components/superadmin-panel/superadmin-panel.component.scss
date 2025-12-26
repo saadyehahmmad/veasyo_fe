@@ -213,6 +213,62 @@
   }
 
   .header-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    // Subscription Badge
+    .subscription-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      border-radius: 8px;
+      color: white;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+      transition: all 0.2s ease;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+      }
+
+      mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+
+      .revenue {
+        font-size: 0.875rem;
+      }
+    }
+
+    // Alert Button
+    .alert-btn {
+      color: #ef4444;
+      position: relative;
+
+      &:hover {
+        background: rgba(239, 68, 68, 0.1);
+      }
+
+      mat-icon {
+        animation: pulse 2s ease-in-out infinite;
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.6;
+      }
+    }
+
     .user-badge {
       display: flex;
       align-items: center;

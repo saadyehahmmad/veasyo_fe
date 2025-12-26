@@ -17,7 +17,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
-import { MatDialogModule } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Subject, takeUntil } from 'rxjs';
@@ -58,12 +58,13 @@ export class TenantManagementComponent implements OnInit, OnDestroy {
   private _superAdminService = inject(SuperAdminService);
   private _snackBar = inject(MatSnackBar);
   private _logger = inject(LoggerService);
+  private _dialog = inject(MatDialog);
   private _destroy$ = new Subject<void>();
 
   tenants = signal<TenantWithSubscription[]>([]);
   tenantForm: FormGroup;
   editingTenant = signal<TenantData | null>(null);
-  tenantColumns = ['name', 'subdomain', 'plan', 'maxTables', 'status', 'subscription', 'actions'];
+  tenantColumns = ['name', 'subdomain', 'status', 'actions'];
   isLoading = signal(false);
   error = signal<string | null>(null);
 
@@ -75,9 +76,6 @@ export class TenantManagementComponent implements OnInit, OnDestroy {
         { value: '', disabled: true },
         [Validators.required, Validators.pattern(/^[a-z0-9-]+$/)],
       ],
-      plan: ['free', Validators.required],
-      maxTables: [10, [Validators.required, Validators.min(1)]],
-      maxUsers: [5, [Validators.required, Validators.min(1)]],
       active: [true],
       settings: [{}],
     });
@@ -188,9 +186,6 @@ export class TenantManagementComponent implements OnInit, OnDestroy {
       name: item.tenant.name,
       slug: item.tenant.slug,
       subdomain: item.tenant.subdomain,
-      plan: item.tenant.plan,
-      maxTables: item.tenant.maxTables,
-      maxUsers: item.tenant.maxUsers,
       active: item.tenant.active,
     });
   }
@@ -254,9 +249,6 @@ export class TenantManagementComponent implements OnInit, OnDestroy {
 
   private _resetForm(): void {
     this.tenantForm.reset({
-      plan: 'free',
-      maxTables: 10,
-      maxUsers: 5,
       active: true,
       settings: {},
     });
@@ -292,16 +284,5 @@ export class TenantManagementComponent implements OnInit, OnDestroy {
     return active ? 'status-active' : 'status-inactive';
   }
 
-  getSubscriptionStatusBadgeClass(status?: string): string {
-    switch (status) {
-      case 'active':
-        return 'subscription-active';
-      case 'expired':
-        return 'subscription-expired';
-      case 'cancelled':
-        return 'subscription-cancelled';
-      default:
-        return 'subscription-none';
-    }
-  }
+
 }
