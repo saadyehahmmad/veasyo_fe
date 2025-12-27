@@ -213,6 +213,14 @@ export class InvoiceHistoryComponent implements OnInit {
       letter-spacing: -1px;
     }
     
+    .company-logo-img {
+      height: 80px;
+      width: auto;
+      object-fit: contain;
+      margin-bottom: 12px;
+      display: block;
+    }
+    
     .company-tagline {
       font-size: 12px;
       color: #666;
@@ -414,6 +422,7 @@ export class InvoiceHistoryComponent implements OnInit {
     <!-- Header -->
     <div class="header">
       <div class="company-info">
+        <img src="/veasyo-logo.png" alt="Veasyo Logo" class="company-logo-img" />
         <div class="company-logo">Veasyo</div>
         <div class="company-tagline">Viber Easy Operation</div>
         <div class="company-details">

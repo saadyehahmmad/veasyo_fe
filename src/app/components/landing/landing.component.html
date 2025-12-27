@@ -3,6 +3,7 @@
   <nav class="navbar" [class.scrolled]="isScrolled()">
     <div class="nav-content">
       <div class="logo">
+        <img src="/veasyo-logo.png" alt="Veasyo Logo" class="nav-logo-img" />
         <span class="logo-text">{{ 'landing.platformName' | translate }}</span>
       </div>
       <div class="nav-links">
@@ -17,7 +18,10 @@
   <!-- Hero Section -->
   <section class="hero" id="hero">
     <div class="container">
-    <div class="hero-content">
+      <div class="hero-content">
+        <div class="hero-logo-container">
+          <img src="/veasyo-logo.png" alt="Veasyo Logo" class="hero-logo-img" />
+        </div>
         <h1 class="hero-title">{{ 'landing.platformName' | translate }}</h1>
         <p class="hero-tagline">{{ 'landing.tagline' | translate }}</p>
         <p class="hero-description">{{ 'landing.heroDescription' | translate }}</p>
@@ -73,6 +77,9 @@
   <section class="features" id="features">
     <div class="container">
       <div class="section-header">
+        <div class="section-logo-container">
+          <img src="/veasyo-logo.png" alt="Veasyo Logo" class="section-logo-img" />
+        </div>
         <h2 class="section-title">{{ 'landing.features' | translate }}</h2>
         <p class="section-subtitle">{{ 'landing.subTagline' | translate }}</p>
       </div>
@@ -161,6 +168,9 @@
   <section class="cta-section">
     <div class="container">
     <div class="cta-content">
+        <div class="cta-logo-container">
+          <img src="/veasyo-logo.png" alt="Veasyo Logo" class="cta-logo-img" />
+        </div>
         <h2 class="cta-title">{{ 'landing.ctaTitle' | translate }}</h2>
         <p class="cta-text">{{ 'landing.ctaText' | translate }}</p>
         <div class="cta-buttons">
@@ -180,12 +190,24 @@
     <div class="container">
     <div class="footer-content">
         <div class="footer-brand">
+          <div class="footer-logo-container">
+            <img src="/veasyo-logo.png" alt="Veasyo Logo" class="footer-logo-img" />
+          </div>
           <span class="footer-logo">{{ 'landing.platformName' | translate }}</span>
           <span class="footer-tagline">{{ 'landing.tagline' | translate }}</span>
         </div>
         <div class="footer-links">
           <a (click)="scrollToSection('features')" class="footer-link">{{ 'landing.navFeatures' | translate }}</a>
           <a (click)="scrollToSection('how-it-works')" class="footer-link">{{ 'landing.navHowItWorks' | translate }}</a>
+          <a
+            href="https://www.instagram.com/veasyo.app"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="footer-link instagram-link"
+          >
+            <mat-icon>photo_camera</mat-icon>
+            Instagram
+          </a>
         </div>
         <div class="footer-copyright">
           <p>&copy; 2025 {{ 'landing.platformName' | translate }}. {{ 'landing.footerRights' | translate }}.</p>

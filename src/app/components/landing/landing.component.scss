@@ -17,6 +17,10 @@ $section-padding: 120px 0;
   min-height: 100vh;
   background: $background;
   overflow-x: hidden;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 // Navigation Bar - Apple style
@@ -52,11 +56,44 @@ $section-padding: 120px 0;
   }
 }
 
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  .nav-logo-img {
+    height: 36px;
+    width: auto;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+
+    &:hover {
+      transform: scale(1.05);
+    }
+
+    @media (max-width: 768px) {
+      height: 32px;
+    }
+
+    @media (max-width: 480px) {
+      height: 28px;
+    }
+  }
+}
+
 .logo-text {
   font-size: 17px;
   font-weight: 400;
   color: $text-primary;
   letter-spacing: -0.01em;
+
+  @media (max-width: 480px) {
+    font-size: 15px;
+  }
+
+  @media (max-width: 360px) {
+    display: none; // Hide text on very small screens, show only logo
+  }
 }
 
 .nav-links {
@@ -64,8 +101,20 @@ $section-padding: 120px 0;
   align-items: center;
   gap: 32px;
 
+  @media (max-width: 968px) {
+    gap: 20px;
+  }
+
   @media (max-width: 768px) {
-    gap: 16px;
+    gap: 12px;
+  }
+
+  @media (max-width: 480px) {
+    gap: 8px;
+    
+    .nav-link {
+      display: none; // Hide nav links on very small screens
+    }
   }
 }
 
@@ -76,9 +125,18 @@ $section-padding: 120px 0;
   font-weight: 400;
   cursor: pointer;
   transition: opacity 0.2s ease;
+  white-space: nowrap;
 
   &:hover {
     opacity: 0.7;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 11px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 10px;
   }
 }
 
@@ -92,6 +150,7 @@ $section-padding: 120px 0;
   font-weight: 400;
   cursor: pointer;
   transition: background-color 0.2s ease;
+  white-space: nowrap;
 
   &:hover {
     background: $primary-hover;
@@ -101,6 +160,11 @@ $section-padding: 120px 0;
     padding: 6px 12px;
     font-size: 11px;
   }
+
+  @media (max-width: 480px) {
+    padding: 5px 10px;
+    font-size: 10px;
+  }
 }
 
 // Hero Section - Apple style
@@ -108,9 +172,16 @@ $section-padding: 120px 0;
   padding: 88px 0 80px;
   width: 100%;
   background: $background;
+  margin-top: 44px; // Account for fixed navbar
 
   @media (max-width: 768px) {
     padding: 64px 0 60px;
+    margin-top: 48px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 48px 0 40px;
+    margin-top: 48px;
   }
 }
 
@@ -119,9 +190,14 @@ $section-padding: 120px 0;
   margin: 0 auto;
   padding: 0 22px;
   width: 100%;
+  box-sizing: border-box;
 
   @media (max-width: 768px) {
     padding: 0 16px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 0 12px;
   }
 }
 
@@ -132,6 +208,32 @@ $section-padding: 120px 0;
 
   @media (max-width: 768px) {
     margin-bottom: 60px;
+  }
+
+  .hero-logo-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 32px;
+
+    .hero-logo-img {
+      height: 120px;
+      width: auto;
+      object-fit: contain;
+      transition: transform 0.3s ease;
+
+      &:hover {
+        transform: scale(1.05);
+      }
+
+      @media (max-width: 768px) {
+        height: 100px;
+      }
+
+      @media (max-width: 480px) {
+        height: 80px;
+      }
+    }
   }
 }
 
@@ -200,6 +302,18 @@ $section-padding: 120px 0;
   gap: 20px;
   justify-content: center;
   flex-wrap: wrap;
+
+  @media (max-width: 480px) {
+    gap: 12px;
+    flex-direction: column;
+    align-items: stretch;
+    
+    .cta-button {
+      width: 100%;
+      max-width: 280px;
+      margin: 0 auto;
+    }
+  }
 }
 
 .hero-illustration {
@@ -485,6 +599,7 @@ foreignObject div {
   cursor: pointer;
   transition: all 0.2s ease;
   border: none;
+  white-space: nowrap;
 
   &.primary {
     background: $primary;
@@ -508,6 +623,13 @@ foreignObject div {
   @media (max-width: 768px) {
     padding: 10px 20px;
     font-size: 16px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 10px 18px;
+    font-size: 15px;
+    width: 100%;
+    max-width: 280px;
   }
 }
 
@@ -583,6 +705,16 @@ foreignObject div {
     padding: 24px 20px;
     gap: 12px;
   }
+
+  @media (max-width: 480px) {
+    width: 200px;
+    padding: 20px 16px;
+    gap: 10px;
+    
+    &:hover {
+      transform: none; // Disable hover effect on mobile
+    }
+  }
 }
 
 .card-icon {
@@ -611,6 +743,17 @@ foreignObject div {
       height: 28px;
     }
   }
+
+  @media (max-width: 480px) {
+    width: 48px;
+    height: 48px;
+    
+    mat-icon {
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
+  }
 }
 
 .card-text {
@@ -623,6 +766,10 @@ foreignObject div {
   
   @media (max-width: 768px) {
     font-size: 16px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 14px;
   }
 }
 
@@ -656,6 +803,10 @@ foreignObject div {
   @media (max-width: 768px) {
     padding: 60px 0;
   }
+
+  @media (max-width: 480px) {
+    padding: 40px 0;
+  }
 }
 
 // Features Section
@@ -666,6 +817,10 @@ foreignObject div {
   @media (max-width: 768px) {
     padding: 80px 0;
   }
+
+  @media (max-width: 480px) {
+    padding: 60px 0;
+  }
 }
 
 .section-header {
@@ -674,6 +829,36 @@ foreignObject div {
 
   @media (max-width: 768px) {
     margin-bottom: 60px;
+  }
+
+  @media (max-width: 480px) {
+    margin-bottom: 40px;
+  }
+
+  .section-logo-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 24px;
+
+    .section-logo-img {
+      height: 80px;
+      width: auto;
+      object-fit: contain;
+      transition: transform 0.3s ease;
+
+      &:hover {
+        transform: scale(1.05);
+      }
+
+      @media (max-width: 768px) {
+        height: 70px;
+      }
+
+      @media (max-width: 480px) {
+        height: 60px;
+      }
+    }
   }
 }
 
@@ -724,6 +909,10 @@ foreignObject div {
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
     gap: 24px;
+  }
+
+  @media (max-width: 480px) {
+    gap: 20px;
   }
 }
 
@@ -793,6 +982,10 @@ foreignObject div {
   @media (max-width: 768px) {
     padding: 80px 0;
   }
+
+  @media (max-width: 480px) {
+    padding: 60px 0;
+  }
 }
 
 .steps {
@@ -805,6 +998,11 @@ foreignObject div {
     grid-template-columns: 1fr;
     gap: 64px;
     margin-top: 60px;
+  }
+
+  @media (max-width: 480px) {
+    gap: 48px;
+    margin-top: 40px;
   }
 }
 
@@ -895,6 +1093,35 @@ foreignObject div {
   max-width: 700px;
   margin: 0 auto;
   text-align: center;
+
+  .cta-logo-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 32px;
+
+    .cta-logo-img {
+      height: 100px;
+      width: auto;
+      object-fit: contain;
+      filter: brightness(0) invert(1);
+      opacity: 0.95;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+
+      &:hover {
+        transform: scale(1.05);
+        opacity: 1;
+      }
+
+      @media (max-width: 768px) {
+        height: 80px;
+      }
+
+      @media (max-width: 480px) {
+        height: 70px;
+      }
+    }
+  }
 }
 
 .cta-title {
@@ -939,6 +1166,13 @@ foreignObject div {
   gap: 20px;
   justify-content: center;
   flex-wrap: wrap;
+
+  @media (max-width: 480px) {
+    gap: 12px;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
 }
 
 .cta-button.secondary {
@@ -955,6 +1189,14 @@ foreignObject div {
   background: $background-secondary;
   padding: 40px 0 32px;
   border-top: 0.5px solid $border;
+
+  @media (max-width: 768px) {
+    padding: 32px 0 24px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 24px 0 20px;
+  }
 }
 
 .footer-content {
@@ -966,6 +1208,36 @@ foreignObject div {
     grid-template-columns: 1fr;
     gap: 32px;
     text-align: center;
+  }
+
+  @media (max-width: 480px) {
+    gap: 24px;
+  }
+}
+
+.footer-logo-container {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-bottom: 16px;
+
+  .footer-logo-img {
+    height: 60px;
+    width: auto;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+
+    &:hover {
+      transform: scale(1.05);
+    }
+
+    @media (max-width: 968px) {
+      margin: 0 auto;
+    }
+
+    @media (max-width: 768px) {
+      height: 50px;
+    }
   }
 }
 
@@ -987,6 +1259,14 @@ foreignObject div {
   display: flex;
   flex-direction: column;
   gap: 12px;
+
+  @media (max-width: 968px) {
+    align-items: center;
+  }
+
+  @media (max-width: 480px) {
+    gap: 10px;
+  }
 }
 
 .footer-link {
@@ -996,9 +1276,31 @@ foreignObject div {
   font-weight: 400;
   cursor: pointer;
   transition: color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 
   &:hover {
     color: $text-primary;
+  }
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 11px;
+    justify-content: center;
+  }
+}
+
+.instagram-link {
+  color: #E4405F;
+  
+  &:hover {
+    color: #C13584;
   }
 }
 
