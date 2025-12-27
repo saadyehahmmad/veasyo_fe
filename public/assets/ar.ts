@@ -664,6 +664,10 @@ export const arabicLocal: Locale = {
         priceBreakdown: 'تفصيل السعر:',
         started: 'بدأ',
         expires: 'ينتهي',
+        startDate: 'تاريخ البدء',
+        validUntil: 'صالح حتى',
+        maxTables: 'الحد الأقصى للطاولات',
+        maxUsers: 'الحد الأقصى للمستخدمين',
         daysLeft: 'يوم متبقي',
         upgradePlan: 'ترقية الخطة',
         // Usage
